@@ -62,7 +62,7 @@
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           localStorage.setItem("irmaLogin", "true");
-          window.location.href = "dashboard.html";
+          window.location.href = "beranda.html";
         })
         .catch((error) => {
           errorMsg.style.display = "block";
