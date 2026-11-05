@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kelola Kegiatan - Portal IRMA</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; margin: 0; }
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    h3 { color: #0a3622; margin-top: 0; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: inline-block; }
+    
+    /* FORM INPUT */
+    .form-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .form-group input, .form-group textarea { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .btn-simpan { background: #0a3622; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; height: fit-content; }
+    .btn-simpan:hover { background: #1a5c3a; }
+
+    /* TABEL DATA */
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; vertical-align: top; }
+    th { background: #0a3622; color: white; }
+    
+    /* TOMBOL AKSI */
+    .btn-action { padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; border: none; color: white; margin-right: 5px; }
+    .btn-edit { background: #f39c12; }
+    .btn-hapus { background: #e74c3c; }
+    .btn-cetak { background: #3498db; }
+    
+    .loading { text-align: center; color: #666; font-style: italic; }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+    window.fb = { collection, addDoc, getDocs, deleteDoc, doc, updateDoc };
+  </script>
+</head>
+<body>
+
+  <div class="card">
+    <h3>➕ Tambah Laporan Kegiatan</h3>
+    <div class="form-group">
+      <input type="date" id="inTanggal">
+      <input type="time" id="inJam">
+    </div>
+    <div class="form-group">
+      <input type="text" id="inNamaKegiatan" placeholder="Nama Kegiatan (Contoh: Kajian Rutin)">
+    </div>
+    <div class="form-group">
+      <textarea id="inDeskripsi" placeholder="Deskripsi singkat kegiatan..."></textarea>
+    </div>
+    <div class="form-group">
+      <input type="text" id="inCatatan" placeholder="Link Catatan Materi (Google Drive/Docs)">
+      <input type="text" id="inFoto" placeholder="Link Foto Kegiatan (Google Drive/Imgur)">
+    </div>
+    <button class="btn-simpan" onclick="simpanKegiatan()">Simpan Laporan</button>
+  </div>
+
+  <div class="card">
+    <h3>📋 Daftar Laporan Kegiatan</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Tanggal/Jam</th>
+          <th>Nama Kegiatan</th>
+          <th>Deskripsi & Lampiran</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabelKegiatan">
+        <tr><td colspan="5" class="loading">Memuat data dari Firebase...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let editId = null; // Menyimpan ID dokumen jika sedang mode edit
+
+    // FUNGSI SIMPAN (TAMBAH / EDIT)
+    window.simpanKegiatan = async function() {
+      const tanggal = document.getElementById("inTanggal").value;
+      const jam = document.getElementById("inJam").value;
+      const nama = document.getElementById("inNamaKegiatan").value;
+      const deskripsi = document.getElementById("inDeskripsi").value;
+      const catatan = document.getElementById("inCatatan").value;
+      const foto = document.getElementById("inFoto").value;
+
+      if (!tanggal || !nama) {
+        alert("Tanggal dan Nama Kegiatan wajib diisi!");
+        return;
+      }
+
+      const dataKegiatan = {
+        tanggal: tanggal,
+        jam: jam,
+        nama: nama,
+        deskripsi: deskripsi,
+        catatan: catatan,
+        foto: foto,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        const { collection, addDoc, doc, updateDoc } = window.fb;
+        
+        if (editId) {
+          // Mode Edit
+          await updateDoc(doc(window.db, "KegiatanIRMA", editId), dataKegiatan);
+          alert("✅ Laporan kegiatan berhasil diperbarui!");
+          editId = null; // Reset mode edit
+        } else {
+          // Mode Tambah Baru
+          await addDoc(collection(window.db, "KegiatanIRMA"), dataKegiatan);
+          alert("✅ Laporan kegiatan berhasil disimpan!");
+        }
+
+        // Reset Form
+        document.getElementById("inTanggal").value = "";
+        document.getElementById("inJam").value = "";
+        document.getElementById("inNamaKegiatan").value = "";
+        document.getElementById("inDeskripsi").value = "";
+        document.getElementById("inCatatan").value = "";
+        document.getElementById("inFoto").value = "";
+        
+        muatData(); // Refresh tabel
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal menyimpan data: " + error.message);
+      }
+    }
+
+    // FUNGSI MEMUAT DATA
+    async function muatData() {
+      const tbody = document.getElementById("tabelKegiatan");
+      tbody.innerHTML = '<tr><td colspan="5" class="loading">Memuat data...</td></tr>';
+
+      try {
+        const { collection, getDocs } = window.fb;
+        const querySnapshot = await getDocs(collection(window.db, "KegiatanIRMA"));
+        
+        if (querySnapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada laporan kegiatan.</td></tr>';
+          return;
+        }
+
+        // Urutkan berdasarkan tanggal terbaru
+        let dataArr = [];
+        querySnapshot.forEach((docSnap) => {
+          dataArr.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        dataArr.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        let html = "";
+        let no = 1;
+        dataArr.forEach((d) => {
+          let lampiran = "";
+          if (d.catatan) lampiran += `<a href="${d.catatan}" target="_blank">📄 Catatan Materi</a><br>`;
+          if (d.foto) lampiran += `<a href="${d.foto}" target="_blank">🖼️ Foto Kegiatan</a>`;
+
+          html += `
+            <tr>
+              <td style="text-align:center;">${no++}</td>
+              <td>${d.tanggal} <br><small>${d.jam || ''}</small></td>
+              <td><b>${d.nama}</b></td>
+              <td>${d.deskripsi} <br><div style="margin-top:8px; font-size:12px;">${lampiran}</div></td>
+              <td>
+                <button class="btn-action btn-edit" onclick="editData('${d.id}')">Edit</button>
+                <button class="btn-action btn-hapus" onclick="hapusData('${d.id}', '${d.nama}')">Hapus</button>
+                <button class="btn-action btn-cetak" onclick="cetakData('${d.id}')">Cetak</button>
+              </td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
+      }
+    }
+
+    // FUNGSI EDIT (MENGISI FORM DENGAN DATA LAMA)
+    window.editData = async function(id) {
+      try {
+        const { doc, getDoc } = window.fb;
+        // Kita butuh getDoc, jadi kita import ulang secara lokal
+        const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+        
+        const docSnap = await getDoc(doc(window.db, "KegiatanIRMA", id));
+        if (docSnap.exists()) {
+          const d = docSnap.data();
+          document.getElementById("inTanggal").value = d.tanggal;
+          document.getElementById("inJam").value = d.jam || "";
+          document.getElementById("inNamaKegiatan").value = d.nama;
+          document.getElementById("inDeskripsi").value = d.deskripsi;
+          document.getElementById("inCatatan").value = d.catatan || "";
+          document.getElementById("inFoto").value = d.foto || "";
+          
+          editId = id; // Simpan ID untuk update
+          window.scrollTo(0, 0); // Scroll ke atas
+          alert("Silakan ubah data, lalu klik 'Simpan Laporan'.");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // FUNGSI HAPUS
+    window.hapusData = async function(id, nama) {
+      if (!confirm(`Yakin ingin menghapus kegiatan "${nama}"?`)) return;
+
+      try {
+        const { doc, deleteDoc } = window.fb;
+        await deleteDoc(doc(window.db, "KegiatanIRMA", id));
+        alert("🗑️ Data berhasil dihapus!");
+        muatData();
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal menghapus data.");
+      }
+    }
+
+    // FUNGSI CETAK
+    window.cetakData = function(id) {
+      window.print(); // Fungsi bawaan browser untuk mencetak halaman
+      // Nanti bisa dikembangkan untuk cetak spesifik per data
+    }
+
+    // JALANKAN SAAT HALAMAN DIMUAT
+    window.onload = muatData;
+  </script>
+</body>
+</html>
