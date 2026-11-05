@@ -3,35 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kelola Kegiatan - Portal IRMA</title>
+  <title>Data Anggota - Portal IRMA</title>
   <style>
     body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; margin: 0; }
     .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
     h3 { color: #0a3622; margin-top: 0; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: inline-block; }
     
     /* FORM INPUT */
-    .form-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .form-group input, .form-group textarea { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
-    .form-group textarea { min-height: 80px; resize: vertical; }
-    .btn-simpan { background: #0a3622; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; height: fit-content; }
+    .form-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .form-group input { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
+    .form-group textarea { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; resize: vertical; }
+    .btn-simpan { background: #0a3622; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; height: fit-content; margin-top: 10px; width: 100%; font-size: 16px; }
     .btn-simpan:hover { background: #1a5c3a; }
+    
+    /* AREA UPLOAD FOTO */
+    .upload-area { flex-direction: column; align-items: flex-start; border: 1px dashed #ccc; padding: 15px; border-radius: 8px; background: #fafafa; margin-bottom: 15px; }
+    .preview-img { max-width: 100px; max-height: 100px; border-radius: 50%; margin-top: 10px; display: none; object-fit: cover; border: 2px solid #d4af37; }
 
     /* TABEL DATA */
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; vertical-align: top; }
-    th { background: #0a3622; color: white; }
+    th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; vertical-align: middle; }
+    th { background: #0a3622; color: white; text-align: center; }
+    
+    .foto-tabel { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #d4af37; display: block; margin: 0 auto; }
     
     /* TOMBOL AKSI */
     .btn-action { padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; border: none; color: white; margin-right: 5px; }
     .btn-edit { background: #f39c12; }
     .btn-hapus { background: #e74c3c; }
-    .btn-cetak { background: #3498db; }
     
-    .loading { text-align: center; color: #666; font-style: italic; }
+    .loading { text-align: center; color: #666; font-style: italic; padding: 20px; }
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
@@ -44,142 +49,198 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     window.db = db;
-    window.fb = { collection, addDoc, getDocs, deleteDoc, doc, updateDoc };
+    window.fb = { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc };
   </script>
 </head>
 <body>
 
   <div class="card">
-    <h3>➕ Tambah Laporan Kegiatan</h3>
+    <h3>➕ Tambah / Edit Data Anggota</h3>
+    
     <div class="form-group">
-      <input type="date" id="inTanggal">
-      <input type="time" id="inJam">
+      <input type="text" id="inNama" placeholder="Nama Lengkap">
+      <input type="text" id="inNis" placeholder="NIS / Kelas">
+      <input type="text" id="inJabatan" placeholder="Jabatan (Ketua/Anggota/dll)">
     </div>
+    
     <div class="form-group">
-      <input type="text" id="inNamaKegiatan" placeholder="Nama Kegiatan (Contoh: Kajian Rutin)">
+      <input type="text" id="inHp" placeholder="Nomor HP (Contoh: 08123456)">
     </div>
+
     <div class="form-group">
-      <textarea id="inDeskripsi" placeholder="Deskripsi singkat kegiatan..."></textarea>
+      <textarea id="inAlamat" placeholder="Alamat Lengkap..." rows="2"></textarea>
     </div>
-    <div class="form-group">
-      <input type="text" id="inCatatan" placeholder="Link Catatan Materi (Google Drive/Docs)">
-      <input type="text" id="inFoto" placeholder="Link Foto Kegiatan (Google Drive/Imgur)">
+
+    <div class="form-group upload-area">
+      <label style="font-weight:bold; font-size:13px; color:#0a3622;">Upload Foto Profil</label>
+      <input type="file" id="inFotoFile" accept="image/*" style="border:none; padding:5px; background:transparent;">
+      <img id="previewFoto" class="preview-img" alt="Preview">
     </div>
-    <button class="btn-simpan" onclick="simpanKegiatan()">Simpan Laporan</button>
+
+    <button class="btn-simpan" id="btnSimpan" onclick="simpanData()">Simpan Data Anggota</button>
   </div>
 
   <div class="card">
-    <h3>📋 Daftar Laporan Kegiatan</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Tanggal/Jam</th>
-          <th>Nama Kegiatan</th>
-          <th>Deskripsi & Lampiran</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="tabelKegiatan">
-        <tr><td colspan="5" class="loading">Memuat data dari Firebase...</td></tr>
-      </tbody>
-    </table>
+    <h3>📋 Daftar Anggota IRMA</h3>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50px;">No</th>
+            <th style="width: 70px;">Foto</th>
+            <th>Nama Lengkap</th>
+            <th>NIS / Kelas</th>
+            <th>Jabatan</th>
+            <th>Kontak</th>
+            <th style="width: 150px;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabelAnggota">
+          <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    let editId = null; // Menyimpan ID dokumen jika sedang mode edit
+    // GANTI DENGAN API KEY IMGBB ANDA
+    const IMGBB_API_KEY = "cfe87fa0c5c5467b0ea481926f11e4b5";
+
+    let editId = null;
+    let urlFotoBaru = "";
+
+    // Preview Gambar
+    document.getElementById("inFotoFile").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = document.getElementById("previewFoto");
+          img.src = event.target.result;
+          img.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
     // FUNGSI SIMPAN (TAMBAH / EDIT)
-    window.simpanKegiatan = async function() {
-      const tanggal = document.getElementById("inTanggal").value;
-      const jam = document.getElementById("inJam").value;
-      const nama = document.getElementById("inNamaKegiatan").value;
-      const deskripsi = document.getElementById("inDeskripsi").value;
-      const catatan = document.getElementById("inCatatan").value;
-      const foto = document.getElementById("inFoto").value;
+    window.simpanData = async function() {
+      const nama = document.getElementById("inNama").value;
+      const nis = document.getElementById("inNis").value;
+      const jabatan = document.getElementById("inJabatan").value;
+      const hp = document.getElementById("inHp").value;
+      const alamat = document.getElementById("inAlamat").value;
+      const fileFoto = document.getElementById("inFotoFile").files[0];
+      const btn = document.getElementById("btnSimpan");
 
-      if (!tanggal || !nama) {
-        alert("Tanggal dan Nama Kegiatan wajib diisi!");
+      if (!nama || !nis || !jabatan) {
+        alert("Nama, NIS, dan Jabatan wajib diisi!");
         return;
       }
 
-      const dataKegiatan = {
-        tanggal: tanggal,
-        jam: jam,
-        nama: nama,
-        deskripsi: deskripsi,
-        catatan: catatan,
-        foto: foto,
-        timestamp: new Date().toISOString()
-      };
+      btn.textContent = "⏳ Menyimpan data...";
+      btn.disabled = true;
 
       try {
+        // Upload Foto jika ada file baru
+        if (fileFoto) {
+          const formData = new FormData();
+          formData.append("image", fileFoto);
+
+          const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+            method: "POST",
+            body: formData
+          });
+          const result = await response.json();
+          
+          if (result.success) {
+            urlFotoBaru = result.data.url;
+          } else {
+            throw new Error("Gagal mengunggah foto.");
+          }
+        }
+
+        const dataAnggota = {
+          nama: nama,
+          nis: nis,
+          jabatan: jabatan,
+          hp: hp,
+          alamat: alamat,
+          foto: urlFotoBaru, // Menyimpan URL Foto
+          tanggalDaftar: new Date().toISOString()
+        };
+
         const { collection, addDoc, doc, updateDoc } = window.fb;
         
         if (editId) {
-          // Mode Edit
-          await updateDoc(doc(window.db, "KegiatanIRMA", editId), dataKegiatan);
-          alert("✅ Laporan kegiatan berhasil diperbarui!");
-          editId = null; // Reset mode edit
+          await updateDoc(doc(window.db, "AnggotaIRMA", editId), dataAnggota);
+          alert("✅ Data berhasil diperbarui!");
+          editId = null;
         } else {
-          // Mode Tambah Baru
-          await addDoc(collection(window.db, "KegiatanIRMA"), dataKegiatan);
-          alert("✅ Laporan kegiatan berhasil disimpan!");
+          await addDoc(collection(window.db, "AnggotaIRMA"), dataAnggota);
+          alert("✅ Data berhasil disimpan!");
         }
 
         // Reset Form
-        document.getElementById("inTanggal").value = "";
-        document.getElementById("inJam").value = "";
-        document.getElementById("inNamaKegiatan").value = "";
-        document.getElementById("inDeskripsi").value = "";
-        document.getElementById("inCatatan").value = "";
-        document.getElementById("inFoto").value = "";
+        document.getElementById("inNama").value = "";
+        document.getElementById("inNis").value = "";
+        document.getElementById("inJabatan").value = "";
+        document.getElementById("inHp").value = "";
+        document.getElementById("inAlamat").value = "";
+        document.getElementById("inFotoFile").value = "";
+        document.getElementById("previewFoto").style.display = "none";
+        urlFotoBaru = "";
         
-        muatData(); // Refresh tabel
+        muatData();
       } catch (error) {
         console.error(error);
         alert("❌ Gagal menyimpan data: " + error.message);
+      } finally {
+        btn.textContent = "Simpan Data Anggota";
+        btn.disabled = false;
       }
     }
 
     // FUNGSI MEMUAT DATA
     async function muatData() {
-      const tbody = document.getElementById("tabelKegiatan");
-      tbody.innerHTML = '<tr><td colspan="5" class="loading">Memuat data...</td></tr>';
+      const tbody = document.getElementById("tabelAnggota");
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">Memuat data...</td></tr>';
 
       try {
         const { collection, getDocs } = window.fb;
-        const querySnapshot = await getDocs(collection(window.db, "KegiatanIRMA"));
+        const querySnapshot = await getDocs(collection(window.db, "AnggotaIRMA"));
         
         if (querySnapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada laporan kegiatan.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data anggota.</td></tr>';
           return;
         }
 
-        // Urutkan berdasarkan tanggal terbaru
         let dataArr = [];
         querySnapshot.forEach((docSnap) => {
           dataArr.push({ id: docSnap.id, ...docSnap.data() });
         });
-        dataArr.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+        dataArr.sort((a, b) => a.nama.localeCompare(b.nama));
 
         let html = "";
         let no = 1;
         dataArr.forEach((d) => {
-          let lampiran = "";
-          if (d.catatan) lampiran += `<a href="${d.catatan}" target="_blank">📄 Catatan Materi</a><br>`;
-          if (d.foto) lampiran += `<a href="${d.foto}" target="_blank">🖼️ Foto Kegiatan</a>`;
-
+          // Default foto jika kosong
+          const fotoSrc = d.foto ? d.foto : "https://ui-avatars.com/api/?name=" + encodeURIComponent(d.nama) + "&background=d4af37&color=fff";
+          
           html += `
             <tr>
               <td style="text-align:center;">${no++}</td>
-              <td>${d.tanggal} <br><small>${d.jam || ''}</small></td>
+              <td><img src="${fotoSrc}" class="foto-tabel"></td>
               <td><b>${d.nama}</b></td>
-              <td>${d.deskripsi} <br><div style="margin-top:8px; font-size:12px;">${lampiran}</div></td>
+              <td>${d.nis}</td>
+              <td>${d.jabatan}</td>
               <td>
+                <div style="font-size:12px;">📞 ${d.hp || '-'}</div>
+                <div style="font-size:12px; color:#666;">🏠 ${d.alamat || '-'}</div>
+              </td>
+              <td style="text-align:center;">
                 <button class="btn-action btn-edit" onclick="editData('${d.id}')">Edit</button>
                 <button class="btn-action btn-hapus" onclick="hapusData('${d.id}', '${d.nama}')">Hapus</button>
-                <button class="btn-action btn-cetak" onclick="cetakData('${d.id}')">Cetak</button>
               </td>
             </tr>
           `;
@@ -188,55 +249,52 @@
 
       } catch (error) {
         console.error(error);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
       }
     }
 
-    // FUNGSI EDIT (MENGISI FORM DENGAN DATA LAMA)
+    // FUNGSI EDIT
     window.editData = async function(id) {
       try {
         const { doc, getDoc } = window.fb;
-        // Kita butuh getDoc, jadi kita import ulang secara lokal
-        const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
-        
-        const docSnap = await getDoc(doc(window.db, "KegiatanIRMA", id));
+        const docSnap = await getDoc(doc(window.db, "AnggotaIRMA", id));
         if (docSnap.exists()) {
           const d = docSnap.data();
-          document.getElementById("inTanggal").value = d.tanggal;
-          document.getElementById("inJam").value = d.jam || "";
-          document.getElementById("inNamaKegiatan").value = d.nama;
-          document.getElementById("inDeskripsi").value = d.deskripsi;
-          document.getElementById("inCatatan").value = d.catatan || "";
-          document.getElementById("inFoto").value = d.foto || "";
+          document.getElementById("inNama").value = d.nama;
+          document.getElementById("inNis").value = d.nis;
+          document.getElementById("inJabatan").value = d.jabatan;
+          document.getElementById("inHp").value = d.hp || "";
+          document.getElementById("inAlamat").value = d.alamat || "";
           
-          editId = id; // Simpan ID untuk update
-          window.scrollTo(0, 0); // Scroll ke atas
-          alert("Silakan ubah data, lalu klik 'Simpan Laporan'.");
+          urlFotoBaru = d.foto || ""; // Simpan URL foto lama
+          
+          // Tampilkan preview foto lama
+          if (d.foto) {
+            document.getElementById("previewFoto").src = d.foto;
+            document.getElementById("previewFoto").style.display = "block";
+          } else {
+            document.getElementById("previewFoto").style.display = "none";
+          }
+
+          editId = id;
+          window.scrollTo(0, 0);
+          alert("Silakan ubah data, lalu klik 'Simpan Data Anggota'.");
         }
-      } catch (error) {
-        console.error(error);
-      }
+      } catch (error) { console.error(error); }
     }
 
     // FUNGSI HAPUS
     window.hapusData = async function(id, nama) {
-      if (!confirm(`Yakin ingin menghapus kegiatan "${nama}"?`)) return;
-
+      if (!confirm(`Yakin ingin menghapus data "${nama}"?`)) return;
       try {
         const { doc, deleteDoc } = window.fb;
-        await deleteDoc(doc(window.db, "KegiatanIRMA", id));
+        await deleteDoc(doc(window.db, "AnggotaIRMA", id));
         alert("🗑️ Data berhasil dihapus!");
         muatData();
       } catch (error) {
         console.error(error);
         alert("❌ Gagal menghapus data.");
       }
-    }
-
-    // FUNGSI CETAK
-    window.cetakData = function(id) {
-      window.print(); // Fungsi bawaan browser untuk mencetak halaman
-      // Nanti bisa dikembangkan untuk cetak spesifik per data
     }
 
     // JALANKAN SAAT HALAMAN DIMUAT
