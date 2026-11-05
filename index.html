@@ -21,13 +21,13 @@
 
   <div class="login-box">
     <img src="logo.png" alt="Logo IRMA" style="width: 80px; height: auto; margin-bottom: 10px;">
-<h1>PORTAL IRMA</h1>
+    <h1>PORTAL IRMA</h1>
     <p>MAN 3 BOGOR</p>
     <div class="error" id="errorMsg"></div>
 
     <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="inEmail" placeholder="Masukkan email Anda">
+      <label>NIS (Nomor Induk Siswa)</label>
+      <input type="text" id="inEmail" placeholder="Masukkan NIS Anda">
     </div>
     <div class="form-group">
       <label>Password</label>
@@ -54,20 +54,30 @@
     const auth = getAuth(app);
 
     window.login = function() {
-      const email = document.getElementById("inEmail").value;
+      const nisInput = document.getElementById("inEmail").value.trim();
       const password = document.getElementById("inPassword").value;
       const errorMsg = document.getElementById("errorMsg");
 
       errorMsg.style.display = "none";
 
+      if (!nisInput || !password) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "NIS dan Password tidak boleh kosong!";
+        return;
+      }
+
+      // Trik: Ubah NIS menjadi format email agar diterima Firebase
+      const email = nisInput + "@irma.sch.id";
+
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           localStorage.setItem("irmaLogin", "true");
-          window.location.href = "beranda.html";
+          // Arahkan ke beranda siswa (bisa diubah nanti untuk membedakan admin/siswa)
+          window.location.href = "beranda-siswa.html"; 
         })
         .catch((error) => {
           errorMsg.style.display = "block";
-          errorMsg.textContent = "Gagal login: Email atau password salah!";
+          errorMsg.textContent = "Gagal login: NIS atau password salah!";
         });
     }
   </script>
