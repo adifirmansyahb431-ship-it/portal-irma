@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Portal IRMA - MAN 3 Bogor</title>
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0a3622; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .login-box { background: white; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
+    .login-box h1 { color: #0a3622; margin-top: 0; font-size: 24px; }
+    .login-box p { color: #666; font-size: 14px; margin-bottom: 25px; }
+    .form-group { margin-bottom: 15px; text-align: left; }
+    .form-group label { display: block; font-weight: bold; font-size: 13px; color: #0a3622; margin-bottom: 5px; }
+    .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+    .btn-login { background: #d4af37; color: #0a3622; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+    .btn-login:hover { background: #f1c40f; }
+    .error { color: red; font-size: 13px; margin-top: 10px; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <h1>🕌 PORTAL IRMA</h1>
+    <p>MAN 3 BOGOR</p>
+    <div class="error" id="errorMsg"></div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="inEmail" placeholder="Masukkan email Anda">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="inPassword" placeholder="Masukkan password Anda">
+    </div>
+
+    <button class="btn-login" onclick="login()">MASUK</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.login = function() {
+      const email = document.getElementById("inEmail").value;
+      const password = document.getElementById("inPassword").value;
+      const errorMsg = document.getElementById("errorMsg");
+
+      errorMsg.style.display = "none";
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          localStorage.setItem("irmaLogin", "true");
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          errorMsg.style.display = "block";
+          errorMsg.textContent = "Gagal login: Email atau password salah!";
+        });
+    }
+  </script>
+</body>
+</html>
