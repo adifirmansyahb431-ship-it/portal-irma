@@ -258,18 +258,18 @@
 
   <!-- IMPORT FIREBASE SDK -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // KONFIGURASI FIREBASE (SESUAI GAMBAR ANDA)
+    // KONFIGURASI FIREBASE (SAMA PERSIS DENGAN INDEX.HTML ANDA)
     const firebaseConfig = {
-      apiKey: "AIzaSyBjA8--2it1AXMrEH7AcnprCasmKj0Mzrrc",
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
       authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
       projectId: "portal-irma-man-3-bogor",
       storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
       messagingSenderId: "582215464487",
-      appId: "1:582215464487:web:4d0583016ebec700dec092"
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
     };
 
     // KONFIGURASI IMGBB
@@ -282,14 +282,18 @@
 
     let currentUser = null;
     let fileFotoBaru = null; 
-    let fotoUrlLama = ""; // Menyimpan URL foto lama jika siswa tidak ganti foto
+    let fotoUrlLama = ""; 
 
     // Cek User Login
-        // === JALAN PINTAS UNTUK UJI COBA (BYPASS LOGIN) ===
-    // Karena sistem login asli belum terhubung ke Firebase Auth
-    currentUser = { uid: "siswa_tes_123", email: "siswa@irma.com" };
-    ambilDataSiswa(currentUser.uid);
-    // ==================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        await ambilDataSiswa(user.uid);
+      } else {
+        tampilkanAlert("Anda belum login. Silakan login terlebih dahulu.", "danger");
+        document.getElementById('btnSimpan').disabled = true;
+      }
+    });
 
     // Ambil Data dari Firestore
     async function ambilDataSiswa(uid) {
@@ -351,7 +355,7 @@
 
       const result = await response.json();
       if (result.success) {
-        return result.data.url; // Mengembalikan Link URL Gambar
+        return result.data.url; 
       } else {
         throw new Error("Gagal upload gambar ke ImgBB");
       }
@@ -369,7 +373,6 @@
       try {
         let fotoUrlFinal = fotoUrlLama;
 
-        // Jika siswa memilih foto baru, upload ke ImgBB
         if (fileFotoBaru) {
           btnSimpan.innerText = "Mengunggah Foto...";
           fotoUrlFinal = await uploadKeImgBB(fileFotoBaru);
@@ -391,11 +394,10 @@
           updatedAt: new Date().toISOString()
         };
 
-        // Simpan ke Firestore
         await setDoc(doc(db, "biodata_siswa", currentUser.uid), dataSiswa);
 
-        fotoUrlLama = fotoUrlFinal; // Update URL foto lama
-        fileFotoBaru = null; // Reset file baru
+        fotoUrlLama = fotoUrlFinal; 
+        fileFotoBaru = null; 
 
         tampilkanAlert("Biodata dan Foto berhasil disimpan!", "success");
         kunciForm();
