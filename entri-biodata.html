@@ -55,17 +55,16 @@
 
     <div id="alertBox" class="alert"></div>
 
-    <form id="formBiodata" onsubmit="simpanBiodata(event)">
+    <form id="formBiodata" onsubmit="window.simpanBiodata(event)">
       <div class="form-layout">
         
         <div class="foto-section">
           <div class="foto-box" id="fotoBox">
-            <!-- ONERROR DIPERBAIKI -->
             <img id="previewFoto" src="" alt="Preview" style="display: none;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'160\'><rect width=\'120\' height=\'160\' fill=\'%23e0e0e0\'/><text x=\'50%\' y=\'50%\' font-size=\'12\' text-anchor=\'middle\' fill=\'%23888\'>Foto Rusak</text></svg>'">
             <span id="textPlaceholder">Belum ada foto</span>
           </div>
           <label for="foto" class="btn-upload-label" id="labelUpload">📷 Pilih Foto</label>
-          <input type="file" id="foto" accept="image/jpeg, image/png" onchange="tampilkanPreview(event)">
+          <input type="file" id="foto" accept="image/jpeg, image/png" onchange="window.tampilkanPreview(event)">
         </div>
 
         <div class="data-section">
@@ -121,7 +120,7 @@
       </div>
 
       <button type="submit" class="btn-submit" id="btnSimpan">Simpan Biodata</button>
-      <button type="button" class="btn-submit btn-edit" id="btnEdit" onclick="aktifkanEdit()">✏️ Edit Biodata</button>
+      <button type="button" class="btn-submit btn-edit" id="btnEdit" onclick="window.aktifkanEdit()">✏️ Edit Biodata</button>
     </form>
   </div>
 
@@ -207,7 +206,6 @@
       }
     }
 
-    // FUNGSI UPLOAD YANG SUDAH DIPERBAIKI
     async function uploadKeImgBB(file) {
       const formData = new FormData();
       formData.append('image', file);
@@ -221,9 +219,7 @@
         const result = await response.json();
         
         if (result.success) {
-          // MENGGUNAKAN display_url ATAU url
-          // result.data.display_url lebih stabil untuk ditampilkan di tag <img>
-          return result.data.display_url; 
+          return result.data.display_url || result.data.url; 
         } else {
           throw new Error(result.error.message || "Gagal upload ke ImgBB");
         }
