@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entri Biodata Siswa - Portal IRMA</title>
+  <title>Biodata Siswa - Portal IRMA</title>
   <style>
     :root {
       --primary-color: #0a3622;
@@ -27,6 +27,7 @@
       padding: 30px 40px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
     }
 
     .header {
@@ -57,7 +58,11 @@
       color: var(--primary-color);
     }
 
-    .form-group input,
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group input[type="tel"],
+    .form-group input[type="email"],
     .form-group select,
     .form-group textarea {
       width: 100%;
@@ -86,6 +91,59 @@
       flex: 1;
     }
 
+    /* --- CSS UNTUK UPLOAD FOTO --- */
+    .upload-foto-area {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: #f9f9f9;
+      padding: 15px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    .upload-foto-area:hover {
+      border-color: var(--primary-color);
+    }
+
+    .preview-foto {
+      width: 90px;
+      height: 120px;
+      border-radius: 6px;
+      background-color: #e0e0e0;
+      object-fit: cover;
+      border: 1px solid #ddd;
+    }
+
+    .upload-info {
+      flex: 1;
+    }
+
+    .upload-info p {
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .btn-upload {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    /* Sembunyikan input file asli */
+    input[type="file"] {
+      display: none;
+    }
+    /* ----------------------------- */
+
     .btn-submit {
       background-color: var(--primary-color);
       color: white;
@@ -103,17 +161,6 @@
       background-color: #072517;
     }
 
-    .btn-back {
-      display: inline-block;
-      margin-top: 15px;
-      text-align: center;
-      width: 100%;
-      color: var(--accent-color);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
     .alert-success {
       display: none;
       background-color: #d4edda;
@@ -122,6 +169,21 @@
       border-radius: 6px;
       margin-bottom: 20px;
       border: 1px solid #c3e6cb;
+    }
+
+    /* Responsif untuk layar HP */
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      .container {
+        padding: 20px;
+      }
+      .upload-foto-area {
+        flex-direction: column;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -139,6 +201,20 @@
 
     <form id="formBiodata" onsubmit="simpanBiodata(event)">
       
+      <!-- BAGIAN UPLOAD FOTO -->
+      <div class="form-group">
+        <label>Foto Anggota (Format: JPG/PNG)</label>
+        <div class="upload-foto-area">
+          <img id="previewFoto" class="preview-foto" src="https://via.placeholder.com/90x120?text=Foto" alt="Preview Foto">
+          <div class="upload-info">
+            <p>Pastikan foto formal, berpakaian rapi, dan wajah terlihat jelas.</p>
+            <label for="foto" class="btn-upload">Pilih Foto</label>
+            <input type="file" id="foto" name="foto" accept="image/jpeg, image/png" onchange="tampilkanPreview(event)">
+          </div>
+        </div>
+      </div>
+      <!-- ------------------ -->
+
       <div class="form-row">
         <div class="form-group">
           <label for="nis">NIS (Nomor Induk Siswa)</label>
@@ -204,30 +280,53 @@
       </div>
 
       <button type="submit" class="btn-submit">Simpan Biodata</button>
-      <a href="beranda-siswa.html" class="btn-back">← Kembali ke Beranda</a>
     </form>
   </div>
 
   <script>
+    // Fungsi untuk menampilkan preview foto saat file dipilih
+    function tampilkanPreview(event) {
+      const input = event.target;
+      const reader = new FileReader();
+      
+      reader.onload = function(){
+        const dataURL = reader.result;
+        const output = document.getElementById('previewFoto');
+        output.src = dataURL;
+      };
+      
+      if (input.files && input.files[0]) {
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
     function simpanBiodata(event) {
       event.preventDefault(); // Mencegah form agar tidak reload halaman
       
-      // Mengambil nilai dari form (Di sini bisa ditambahkan logika kirim ke database/API)
       const form = document.getElementById('formBiodata');
       const data = new FormData(form);
       
       // Simulasi proses penyimpanan
       console.log("Data yang disubmit:");
       for (let [key, value] of data.entries()) {
-        console.log(`${key}: ${value}`);
+        // Jika yang di-log adalah objek File (foto), tampilkan nama filenya saja
+        if(value instanceof File) {
+            console.log(`${key}: [File] ${value.name}`);
+        } else {
+            console.log(`${key}: ${value}`);
+        }
       }
 
       // Menampilkan pesan sukses
       const successMsg = document.getElementById('successMessage');
       successMsg.style.display = 'block';
       
-      // Reset form setelah disubmit
-      form.reset();
+      // Scroll ke atas agar pesan sukses terlihat
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // (Opsional) Reset form setelah disubmit
+      // form.reset();
+      // document.getElementById('previewFoto').src = "https://via.placeholder.com/90x120?text=Foto";
 
       // Sembunyikan pesan setelah 5 detik
       setTimeout(() => {
