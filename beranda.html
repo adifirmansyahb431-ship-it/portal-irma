@@ -49,7 +49,7 @@
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <img src="logo.png" alt="Logo IRMA" style="width: 60px; height: auto; margin-bottom: 5px; border-radius: 8px;">
-<h2>PORTAL IRMA</h2>
+      <h2>PORTAL IRMA</h2>
       <p>MAN 3 BOGOR</p>
     </div>
     <ul class="menu-list">
@@ -60,6 +60,9 @@
       <li class="menu-item" onclick="bukaMenu('kehadiran', this)"><i>📋</i> Kehadiran</li>
       <li class="menu-item" onclick="bukaMenu('data-anggota', this)"><i>👥</i> Data Anggota</li>
       <li class="menu-item" onclick="bukaMenu('kegiatan', this)"><i>📅</i> Kegiatan</li>
+      <!-- MENU PROGRAM KERJA DITAMBAHKAN DI SINI -->
+      <li class="menu-item" onclick="bukaMenu('program-kerja', this)"><i>📝</i> Program Kerja</li>
+      <!-- ------------------------- -->
     </ul>
   </div>
 
@@ -109,7 +112,7 @@
         iframe.style.display = 'none';
         iframe.src = "";
       } else {
-        iframe.src = menu + ".html"; // Memanggil file seperti profil-irma.html
+        iframe.src = menu + ".html"; // Memanggil file seperti program-kerja.html
       }
 
       // Tutup sidebar di HP
@@ -124,9 +127,6 @@
         window.location.href = "index.html";
       }
     }
-
-    // Toggle Sidebar di HP (Bisa ditambahkan tombol nanti)
-    // function toggleSidebar() { ... }
   </script>
 </body>
 </html>
