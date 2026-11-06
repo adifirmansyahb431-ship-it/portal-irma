@@ -39,14 +39,13 @@
     .header h2 { color: var(--primary-color); margin: 0; }
     .header p { color: #666; margin-top: 5px; }
 
-    /* LAYOUT KIRI (FOTO) DAN KANAN (FORM) */
     .form-layout {
       display: flex;
       gap: 30px;
       align-items: flex-start;
     }
 
-    /* --- DESAIN KOTAK FOTO BARU --- */
+    /* --- DESAIN KOTAK FOTO --- */
     .foto-section {
       width: 160px;
       display: flex;
@@ -60,7 +59,7 @@
 
     .foto-box {
       width: 120px;
-      height: 160px; /* Rasio pas foto 3x4 */
+      height: 160px;
       border-radius: 8px;
       background-color: #e0e0e0;
       display: flex;
@@ -98,25 +97,14 @@
       text-align: center;
       transition: 0.3s;
       box-sizing: border-box;
+      display: block;
     }
 
     .btn-upload-label:hover { background-color: #072517; }
-    
     input[type="file"] { display: none; }
 
-    .info-upload {
-      font-size: 10px;
-      color: #777;
-      text-align: center;
-      margin-top: 8px;
-      line-height: 1.3;
-    }
-    /* ------------------------------ */
-
     /* FORM DATA KANAN */
-    .data-section {
-      flex: 1;
-    }
+    .data-section { flex: 1; }
 
     .form-group { margin-bottom: 15px; }
 
@@ -128,13 +116,7 @@
       font-size: 14px;
     }
 
-    .form-group input[type="text"],
-    .form-group input[type="number"],
-    .form-group input[type="date"],
-    .form-group input[type="tel"],
-    .form-group input[type="email"],
-    .form-group select,
-    .form-group textarea {
+    .form-group input, .form-group select, .form-group textarea {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid #ccc;
@@ -142,6 +124,14 @@
       font-size: 14px;
       box-sizing: border-box;
       font-family: inherit;
+    }
+
+    .form-group input:disabled, 
+    .form-group select:disabled, 
+    .form-group textarea:disabled {
+      background-color: #f0f0f0;
+      color: #555;
+      cursor: not-allowed;
     }
 
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -168,18 +158,14 @@
     }
 
     .btn-submit:hover { background-color: #072517; }
-
-    .alert-success {
-      display: none;
-      background-color: #d4edda;
-      color: #155724;
-      padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      border: 1px solid #c3e6cb;
+    .btn-edit { background-color: var(--accent-color); display: none; }
+    
+    .alert {
+      display: none; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px;
     }
+    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-    /* RESPONSIF (Tampilan HP) */
     @media (max-width: 650px) {
       .form-layout { flex-direction: column; align-items: center; }
       .foto-section { width: 100%; max-width: 200px; margin-bottom: 20px; }
@@ -196,32 +182,24 @@
       <p>Lengkapi data diri Anda untuk keanggotaan IRMA MAN 3 Bogor</p>
     </div>
 
-    <div id="successMessage" class="alert-success">
-      Biodata berhasil disimpan! Terima kasih telah melengkapi data.
-    </div>
+    <div id="alertBox" class="alert"></div>
 
     <form id="formBiodata" onsubmit="simpanBiodata(event)">
       
       <div class="form-layout">
         
-        <!-- SISI KIRI: FOTO & TOMBOL UPLOAD -->
+        <!-- SISI KIRI: FOTO -->
         <div class="foto-section">
           <div class="foto-box" id="fotoBox">
-            <!-- Gambar preview akan muncul di sini -->
             <img id="previewFoto" src="" alt="Preview" style="display: none;">
             <span id="textPlaceholder">Belum ada foto</span>
           </div>
-          
-          <!-- Tombol upload terpisah di bawah foto -->
-          <label for="foto" class="btn-upload-label">📷 Pilih Foto</label>
-          <input type="file" id="foto" name="foto" accept="image/jpeg, image/png" onchange="tampilkanPreview(event)">
-          
-          <div class="info-upload">Format: JPG/PNG<br>Wajah terlihat jelas</div>
+          <label for="foto" class="btn-upload-label" id="labelUpload">📷 Pilih Foto</label>
+          <input type="file" id="foto" accept="image/jpeg, image/png" onchange="tampilkanPreview(event)">
         </div>
 
         <!-- SISI KANAN: DATA DIRI -->
         <div class="data-section">
-          
           <div class="form-row">
             <div class="form-group">
               <label for="nis">NIS</label>
@@ -232,7 +210,6 @@
               <input type="text" id="nama" name="nama" placeholder="Nama Lengkap" required>
             </div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label for="kelas">Kelas</label>
@@ -253,7 +230,6 @@
               </select>
             </div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label for="tempatLahir">Tempat Lahir</label>
@@ -264,67 +240,203 @@
               <input type="date" id="tanggalLahir" name="tanggalLahir" required>
             </div>
           </div>
-
           <div class="form-group">
             <label for="noHp">Nomor WhatsApp</label>
             <input type="tel" id="noHp" name="noHp" placeholder="Contoh: 08123456789" required>
           </div>
-
           <div class="form-group">
             <label for="alamat">Alamat Lengkap</label>
             <textarea id="alamat" name="alamat" rows="2" placeholder="Tuliskan alamat lengkap" required></textarea>
           </div>
-
         </div>
       </div>
 
-      <button type="submit" class="btn-submit">Simpan Biodata</button>
+      <button type="submit" class="btn-submit" id="btnSimpan">Simpan Biodata</button>
+      <button type="button" class="btn-submit btn-edit" id="btnEdit" onclick="aktifkanEdit()">✏️ Edit Biodata</button>
     </form>
   </div>
 
-  <script>
-    // Fungsi Preview Foto
-    function tampilkanPreview(event) {
+  <!-- IMPORT FIREBASE SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // KONFIGURASI FIREBASE (SESUAI GAMBAR ANDA)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8--2it1AXMrEH7AcnprCasmKj0Mzrrc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec092"
+    };
+
+    // KONFIGURASI IMGBB
+    const IMGBB_API_KEY = "cfe87fa0c5c5467b0ea481926f11e4b5";
+
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let fileFotoBaru = null; 
+    let fotoUrlLama = ""; // Menyimpan URL foto lama jika siswa tidak ganti foto
+
+    // Cek User Login
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        await ambilDataSiswa(user.uid);
+      } else {
+        tampilkanAlert("Anda belum login. Silakan login terlebih dahulu.", "danger");
+        document.getElementById('btnSimpan').disabled = true;
+      }
+    });
+
+    // Ambil Data dari Firestore
+    async function ambilDataSiswa(uid) {
+      try {
+        const docRef = doc(db, "biodata_siswa", uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          
+          document.getElementById('nis').value = data.nis || '';
+          document.getElementById('nama').value = data.nama || '';
+          document.getElementById('kelas').value = data.kelas || '';
+          document.getElementById('jurusan').value = data.jurusan || '';
+          document.getElementById('tempatLahir').value = data.tempatLahir || '';
+          document.getElementById('tanggalLahir').value = data.tanggalLahir || '';
+          document.getElementById('noHp').value = data.noHp || '';
+          document.getElementById('alamat').value = data.alamat || '';
+
+          if (data.fotoUrl) {
+            fotoUrlLama = data.fotoUrl;
+            document.getElementById('previewFoto').src = data.fotoUrl;
+            document.getElementById('previewFoto').style.display = 'block';
+            document.getElementById('textPlaceholder').style.display = 'none';
+          }
+
+          kunciForm(); 
+        }
+      } catch (error) {
+        console.error("Error mengambil data:", error);
+      }
+    }
+
+    // Preview Foto Lokal
+    window.tampilkanPreview = function(event) {
       const input = event.target;
-      const reader = new FileReader();
-      
-      reader.onload = function(){
-        const dataURL = reader.result;
-        const imgPreview = document.getElementById('previewFoto');
-        const textPlaceholder = document.getElementById('textPlaceholder');
-        
-        imgPreview.src = dataURL;
-        imgPreview.style.display = 'block'; // Tampilkan gambar
-        textPlaceholder.style.display = 'none'; // Sembunyikan teks "Belum ada foto"
-      };
-      
       if (input.files && input.files[0]) {
+        fileFotoBaru = input.files[0];
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('previewFoto').src = e.target.result;
+          document.getElementById('previewFoto').style.display = 'block';
+          document.getElementById('textPlaceholder').style.display = 'none';
+        };
         reader.readAsDataURL(input.files[0]);
       }
     }
 
-    function simpanBiodata(event) {
-      event.preventDefault(); 
-      
-      const form = document.getElementById('formBiodata');
-      const data = new FormData(form);
-      
-      console.log("Data yang disubmit:");
-      for (let [key, value] of data.entries()) {
-        if(value instanceof File) {
-            console.log(`${key}: [File] ${value.name}`);
-        } else {
-            console.log(`${key}: ${value}`);
-        }
+    // Upload ke ImgBB
+    async function uploadKeImgBB(file) {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        return result.data.url; // Mengembalikan Link URL Gambar
+      } else {
+        throw new Error("Gagal upload gambar ke ImgBB");
       }
+    }
 
-      const successMsg = document.getElementById('successMessage');
-      successMsg.style.display = 'block';
+    // Simpan Biodata
+    window.simpanBiodata = async function(event) {
+      event.preventDefault();
+      if (!currentUser) return;
+
+      const btnSimpan = document.getElementById('btnSimpan');
+      btnSimpan.innerText = "Menyimpan...";
+      btnSimpan.disabled = true;
+
+      try {
+        let fotoUrlFinal = fotoUrlLama;
+
+        // Jika siswa memilih foto baru, upload ke ImgBB
+        if (fileFotoBaru) {
+          btnSimpan.innerText = "Mengunggah Foto...";
+          fotoUrlFinal = await uploadKeImgBB(fileFotoBaru);
+        }
+
+        btnSimpan.innerText = "Menyimpan Data...";
+
+        const dataSiswa = {
+          nis: document.getElementById('nis').value,
+          nama: document.getElementById('nama').value,
+          kelas: document.getElementById('kelas').value,
+          jurusan: document.getElementById('jurusan').value,
+          tempatLahir: document.getElementById('tempatLahir').value,
+          tanggalLahir: document.getElementById('tanggalLahir').value,
+          noHp: document.getElementById('noHp').value,
+          alamat: document.getElementById('alamat').value,
+          email: currentUser.email,
+          fotoUrl: fotoUrlFinal,
+          updatedAt: new Date().toISOString()
+        };
+
+        // Simpan ke Firestore
+        await setDoc(doc(db, "biodata_siswa", currentUser.uid), dataSiswa);
+
+        fotoUrlLama = fotoUrlFinal; // Update URL foto lama
+        fileFotoBaru = null; // Reset file baru
+
+        tampilkanAlert("Biodata dan Foto berhasil disimpan!", "success");
+        kunciForm();
+
+      } catch (error) {
+        console.error("Error menyimpan:", error);
+        tampilkanAlert("Gagal menyimpan data: " + error.message, "danger");
+      } finally {
+        btnSimpan.innerText = "Simpan Biodata";
+        btnSimpan.disabled = false;
+      }
+    }
+
+    // Kunci Form
+    function kunciForm() {
+      document.querySelectorAll('#formBiodata input, #formBiodata select, #formBiodata textarea').forEach(el => el.disabled = true);
+      document.getElementById('labelUpload').style.display = 'none';
+      document.getElementById('btnSimpan').style.display = 'none';
+      document.getElementById('btnEdit').style.display = 'block';
+    }
+
+    // Buka Kunci Form
+    window.aktifkanEdit = function() {
+      document.querySelectorAll('#formBiodata input, #formBiodata select, #formBiodata textarea').forEach(el => el.disabled = false);
+      document.getElementById('labelUpload').style.display = 'block';
+      document.getElementById('btnSimpan').style.display = 'block';
+      document.getElementById('btnEdit').style.display = 'none';
+    }
+
+    // Tampilkan Alert
+    function tampilkanAlert(pesan, tipe) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.innerHTML = pesan;
+      alertBox.className = `alert alert-${tipe}`;
+      alertBox.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      setTimeout(() => {
-        successMsg.style.display = 'none';
-      }, 5000);
+      setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
     }
   </script>
 
