@@ -285,15 +285,11 @@
     let fotoUrlLama = ""; // Menyimpan URL foto lama jika siswa tidak ganti foto
 
     // Cek User Login
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        await ambilDataSiswa(user.uid);
-      } else {
-        tampilkanAlert("Anda belum login. Silakan login terlebih dahulu.", "danger");
-        document.getElementById('btnSimpan').disabled = true;
-      }
-    });
+        // === JALAN PINTAS UNTUK UJI COBA (BYPASS LOGIN) ===
+    // Karena sistem login asli belum terhubung ke Firebase Auth
+    currentUser = { uid: "siswa_tes_123", email: "siswa@irma.com" };
+    ambilDataSiswa(currentUser.uid);
+    // ==================================================
 
     // Ambil Data dari Firestore
     async function ambilDataSiswa(uid) {
