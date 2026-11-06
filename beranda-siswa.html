@@ -97,14 +97,12 @@
           <div class="info-card">
             <h4>📢 Informasi Terbaru</h4>
             <p>Belum ada pengumuman baru untuk saat ini. Cek terus halaman ini untuk update terbaru dari pengurus.</p>
-            <!-- Index array disesuaikan karena ada penambahan menu baru (sekarang jadi index ke-4) -->
-            <a href="javascript:void(0)" onclick="bukaMenu('informasi', document.querySelectorAll('.menu-item')[4])" class="btn-link">Lihat Semua Informasi →</a>
+            <a href="javascript:void(0)" onclick="bukaMenu('informasi', document.querySelectorAll('.menu-item')[5])" class="btn-link">Lihat Semua Informasi →</a>
           </div>
           <div class="info-card">
             <h4>📅 Kegiatan Mendatang</h4>
             <p>Belum ada jadwal kegiatan yang terdaftar. Pantau terus agenda IRMA di halaman kegiatan.</p>
-            <!-- Index array disesuaikan karena ada penambahan menu baru (sekarang jadi index ke-6) -->
-            <a href="javascript:void(0)" onclick="bukaMenu('kegiatan', document.querySelectorAll('.menu-item')[6])" class="btn-link">Lihat Kegiatan →</a>
+            <a href="javascript:void(0)" onclick="bukaMenu('kegiatan', document.querySelectorAll('.menu-item')[7])" class="btn-link">Lihat Kegiatan →</a>
           </div>
         </div>
       </div>
@@ -114,44 +112,71 @@
     </div>
   </div>
 
-  <script>
-    // CEK LOGIN
-    if (localStorage.getItem("irmaLogin") !== "true") {
-      window.location.href = "index.html";
-    }
+  <!-- IMPORT FIREBASE SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    function bukaMenu(menu, element) {
-      // Ganti status aktif menu
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // CEK LOGIN & SIMPAN ID USER
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Simpan ID user ke localStorage agar tidak hilang saat refresh
+        localStorage.setItem("irmaUserId", user.uid); 
+      } else {
+        if (localStorage.getItem("irmaLogin") !== "true") {
+           window.location.href = "index.html";
+        }
+      }
+    });
+
+    // Fungsi ini harus global agar bisa dipanggil dari HTML onclick
+    window.bukaMenu = function(menu, element) {
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
 
-      // Ganti judul di topbar
       const judul = element.innerText.replace(/[^\w\s]/g, '').trim();
       document.getElementById('pageTitle').innerText = judul;
 
-      // Sembunyikan welcome box, tampilkan iframe
       document.getElementById('welcomeBox').style.display = 'none';
       const iframe = document.getElementById('contentFrame');
       iframe.style.display = 'block';
 
-      // Arahkan iframe ke halaman yang sesuai
       if (menu === 'home') {
         document.getElementById('welcomeBox').style.display = 'block';
         iframe.style.display = 'none';
         iframe.src = "";
       } else {
-        iframe.src = menu + ".html"; // Memanggil file seperti ubah-password.html
+        // Ambil ID user dari localStorage
+        const savedUid = localStorage.getItem("irmaUserId");
+        
+        if (savedUid) {
+          iframe.src = menu + ".html?uid=" + savedUid;
+        } else {
+          iframe.src = menu + ".html"; // Fallback
+        }
       }
 
-      // Tutup sidebar di HP
       if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('show');
       }
     }
 
-    function logout() {
+    window.logout = function() {
       if (confirm("Yakin ingin keluar dari portal?")) {
         localStorage.removeItem("irmaLogin");
+        localStorage.removeItem("irmaUserId"); // Hapus ID user saat logout
         window.location.href = "index.html";
       }
     }
