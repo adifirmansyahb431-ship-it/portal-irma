@@ -60,7 +60,7 @@
         
         <div class="foto-section">
           <div class="foto-box" id="fotoBox">
-            <img id="previewFoto" src="" alt="Preview" style="display: none;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'160\'><rect width=\'120\' height=\'160\' fill=\'%23e0e0e0\'/><text x=\'50%\' y=\'50%\' font-size=\'12\' text-anchor=\'middle\' fill=\'%23888\'>Foto Rusak</text></svg>'">
+            <img id="previewFoto" src="" alt="Preview" style="display: none;" onerror="window.handleImageError(this)">
             <span id="textPlaceholder">Belum ada foto</span>
           </div>
           <label for="foto" class="btn-upload-label" id="labelUpload">📷 Pilih Foto</label>
@@ -178,8 +178,9 @@
 
           if (data.fotoUrl) {
             fotoUrlLama = data.fotoUrl;
-            document.getElementById('previewFoto').src = data.fotoUrl;
-            document.getElementById('previewFoto').style.display = 'block';
+            const img = document.getElementById('previewFoto');
+            img.src = data.fotoUrl;
+            img.style.display = 'block';
             document.getElementById('textPlaceholder').style.display = 'none';
           }
 
@@ -198,12 +199,20 @@
         
         const reader = new FileReader();
         reader.onload = function(e) {
-          document.getElementById('previewFoto').src = e.target.result;
-          document.getElementById('previewFoto').style.display = 'block';
+          const img = document.getElementById('previewFoto');
+          img.src = e.target.result;
+          img.style.display = 'block';
           document.getElementById('textPlaceholder').style.display = 'none';
         };
         reader.readAsDataURL(input.files[0]);
       }
+    }
+
+    window.handleImageError = function(img) {
+      img.onerror = null;
+      img.style.display = 'none';
+      document.getElementById('textPlaceholder').style.display = 'block';
+      document.getElementById('textPlaceholder').innerText = 'Foto terblokir/rusak';
     }
 
     async function uploadKeImgBB(file) {
@@ -219,13 +228,18 @@
         const result = await response.json();
         
         if (result.success) {
-          return result.data.display_url || result.data.url; 
+          // Ambil URL langsung tanpa domain i.ibb.co jika terblokir
+          let cleanUrl = result.data.url;
+          if (cleanUrl.startsWith('http://')) {
+            cleanUrl = cleanUrl.replace('http://', 'https://');
+          }
+          return cleanUrl; 
         } else {
           throw new Error(result.error.message || "Gagal upload ke ImgBB");
         }
       } catch (error) {
         console.error("Detail Error ImgBB:", error);
-        throw new Error("Gagal mengunggah foto. Periksa koneksi atau coba lagi.");
+        throw new Error("Gagal mengunggah foto. Periksa jaringan Anda.");
       }
     }
 
