@@ -64,6 +64,9 @@
     <ul class="menu-list">
       <li class="menu-item active" onclick="bukaMenu('home', this)"><i>🏠</i> Home</li>
       <li class="menu-item" onclick="bukaMenu('profil-irma', this)"><i>📖</i> Profil IRMA</li>
+      <!-- MENU BARU DITAMBAHKAN DI SINI -->
+      <li class="menu-item" onclick="bukaMenu('entri-biodata', this)"><i>📝</i> Entri Biodata</li>
+      <!-- ------------------------- -->
       <li class="menu-item" onclick="bukaMenu('informasi', this)"><i>📢</i> Informasi</li>
       <li class="menu-item" onclick="bukaMenu('kehadiran', this)"><i>📋</i> Kehadiran Saya</li>
       <li class="menu-item" onclick="bukaMenu('kegiatan', this)"><i>📅</i> Kegiatan</li>
@@ -90,12 +93,12 @@
           <div class="info-card">
             <h4>📢 Informasi Terbaru</h4>
             <p>Belum ada pengumuman baru untuk saat ini. Cek terus halaman ini untuk update terbaru dari pengurus.</p>
-            <a href="javascript:void(0)" onclick="bukaMenu('informasi', document.querySelectorAll('.menu-item')[2])" class="btn-link">Lihat Semua Informasi →</a>
+            <a href="javascript:void(0)" onclick="bukaMenu('informasi', document.querySelectorAll('.menu-item')[3])" class="btn-link">Lihat Semua Informasi →</a>
           </div>
           <div class="info-card">
             <h4>📅 Kegiatan Mendatang</h4>
             <p>Belum ada jadwal kegiatan yang terdaftar. Pantau terus agenda IRMA di halaman kegiatan.</p>
-            <a href="javascript:void(0)" onclick="bukaMenu('kegiatan', document.querySelectorAll('.menu-item')[4])" class="btn-link">Lihat Kegiatan →</a>
+            <a href="javascript:void(0)" onclick="bukaMenu('kegiatan', document.querySelectorAll('.menu-item')[5])" class="btn-link">Lihat Kegiatan →</a>
           </div>
         </div>
       </div>
@@ -131,7 +134,7 @@
         iframe.style.display = 'none';
         iframe.src = "";
       } else {
-        iframe.src = menu + ".html"; // Memanggil file seperti profil-irma.html
+        iframe.src = menu + ".html"; // Memanggil file seperti entri-biodata.html
       }
 
       // Tutup sidebar di HP
