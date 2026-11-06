@@ -60,7 +60,7 @@
         
         <div class="foto-section">
           <div class="foto-box" id="fotoBox">
-            <img id="previewFoto" src="" alt="Preview" style="display: none;" onerror="window.handleImageError(this)">
+            <img id="previewFoto" src="" alt="Preview" style="display: none;" onerror="this.onerror=null; this.style.display='none'; document.getElementById('textPlaceholder').style.display='block';">
             <span id="textPlaceholder">Belum ada foto</span>
           </div>
           <label for="foto" class="btn-upload-label" id="labelUpload">📷 Pilih Foto</label>
