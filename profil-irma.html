@@ -3,188 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil Siswa - Portal IRMA</title>
+  <title>Profil IRMA - Portal IRMA</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-    body { 
-      font-family: 'Poppins', sans-serif; 
-      background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('logo.png');
-      background-size: cover; background-position: center; background-attachment: fixed;
-      margin: 0; padding: 20px; min-height: 100vh;
-    }
-    .card { 
-      background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.8); padding: 25px; border-radius: 24px; 
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); max-width: 700px; margin: 0 auto; 
-    }
-    h2 { color: #0a3622; text-align: center; margin-top: 0; font-weight: 700; }
-    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; color: #0a3622; }
-    input { width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; background: white; font-family: 'Poppins', sans-serif; }
-    input:focus { outline: none; border-color: #0a3622; }
-    input[readonly] { background: #f8fafc; color: #666; }
-    
-    .profil-container { display: flex; gap: 25px; align-items: flex-start; margin-top: 15px; }
-    .profil-kiri { flex: 0 0 160px; display: flex; flex-direction: column; align-items: center; }
-    .profil-kanan { flex: 1; }
-    .foto-profil { width: 160px; height: 220px; object-fit: cover; border-radius: 16px; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); background: #eee; }
-    
-    .btn-save { background: #0a3622; color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 20px; font-size: 15px; transition: 0.3s; }
-    .btn-save:hover { background: #1a5c3a; }
-    
-    .btn-upload { background: #d4af37; color: #0a3622; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: 10px; text-align: center; display: inline-block; }
-    .btn-upload:hover { background: #f1c40f; }
-
-    @media (max-width: 600px) {
-      .profil-container { flex-direction: column; align-items: center; }
-      .profil-kiri { margin-bottom: 15px; }
-    }
-    .loading { text-align: center; color: #666; font-style: italic; padding: 20px; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; margin: 0; color: #333; }
+    .card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; }
+    h2 { color: #0a3622; text-align: center; margin-top: 0; }
+    .section { margin-bottom: 30px; }
+    .section h3 { color: #d4af37; border-bottom: 2px solid #0a3622; padding-bottom: 5px; display: inline-block; margin-bottom: 15px; }
+    p, li { line-height: 1.6; color: #555; font-size: 15px; }
+    ul { padding-left: 20px; }
+    .highlight { background: #e8f5e9; padding: 15px; border-left: 5px solid #0a3622; border-radius: 4px; font-style: italic; }
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
-      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
-      projectId: "portal-irma-man-3-bogor",
-      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
-      messagingSenderId: "582215464487",
-      appId: "1:582215464487:web:4d0583016ebec700dec002"
-    };
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-    window.fb = { doc, getDoc, setDoc };
-  </script>
 </head>
 <body>
 
   <div class="card">
-    <h2>Data Diri Saya</h2>
-    <div id="loadingData" class="loading">Memuat data profil...</div>
+    <h2>🕌 PROFIL EKSKUL IRMA</h2>
+    <p style="text-align: center; color: #666;">Ikatan Remaja Masjid MAN 3 Bogor</p>
 
-    <div class="profil-container" id="formProfil" style="display:none;">
-      <div class="profil-kiri">
-        <img id="fotoTampil" src="https://ui-avatars.com/api/?name=Siswa&background=0a3622&color=fff&size=150" class="foto-profil" alt="Foto Profil">
-        <label class="btn-upload" for="inFoto">📷 Upload Foto</label>
-        <input type="file" id="inFoto" accept="image/*" style="display:none;">
-      </div>
+    <div class="section">
+      <h3>📖 Visi</h3>
+      <p>Menjadi organisasi remaja masjid yang unggul, berakhlak mulia, dan berwawasan global berlandaskan nilai-nilai Islam yang rahmatan lil 'alamin.</p>
+    </div>
 
-      <div class="profil-kanan">
-        <form id="formData" onsubmit="simpanProfil(event)">
-          <label>Nama Lengkap</label>
-          <input type="text" id="inNama" readonly>
-          
-          <label>NIS</label>
-          <input type="text" id="inNis" readonly>
+    <div class="section">
+      <h3>🎯 Misi</h3>
+      <ul>
+        <li>Meningkatkan keimanan dan ketakwaan anggota kepada Allah SWT.</li>
+        <li>Mengembangkan potensi anggota di bidang keagamaan, sosial, dan kepemimpinan.</li>
+        <li>Menyelenggarakan kegiatan yang bermanfaat bagi madrasah dan masyarakat.</li>
+        <li>Menjadi wadah silaturahmi antar siswa MAN 3 Bogor.</li>
+      </ul>
+    </div>
 
-          <label>Kelas</label>
-          <input type="text" id="inKelas" placeholder="Contoh: XI IPA 1">
+    <div class="section">
+      <h3>🏆 Tujuan</h3>
+      <ul>
+        <li>Terbentuknya karakter siswa yang religius dan berintegritas.</li>
+        <li>Terciptanya lingkungan madrasah yang bersih, indah, dan islami.</li>
+        <li>Meningkatnya partisipasi siswa dalam kegiatan keagamaan.</li>
+      </ul>
+    </div>
 
-          <label>No. HP / WhatsApp</label>
-          <input type="text" id="inHp" placeholder="08xxxx">
-
-          <label>Alamat Lengkap</label>
-          <input type="text" id="inAlamat" placeholder="Alamat lengkap">
-
-          <button type="submit" class="btn-save" id="btnSimpan">💾 SIMPAN PERUBAHAN</button>
-        </form>
-      </div>
+    <div class="highlight">
+      "Barangsiapa yang memakmurkan masjid Allah, maka Allah akan memakmurkan rumahnya di surga." (HR. Bukhari)
     </div>
   </div>
 
-  <script>
-    // Ambil data user dari localStorage (hasil login)
-    const userLogin = JSON.parse(localStorage.getItem("userLoginData"));
-    let urlFotoBaru = ""; // Akan menyimpan teks Base64
-
-    if (!userLogin || !userLogin.uid) {
-      alert("Sesi login tidak ditemukan. Silakan login ulang.");
-      window.location.href = "index.html";
-    } else {
-      document.getElementById("inNama").value = userLogin.nama || "Siswa";
-      document.getElementById("inNis").value = userLogin.nis || "-";
-      muatDataProfil();
-    }
-
-    // Preview foto saat dipilih (dan konversi ke Base64)
-    document.getElementById("inFoto").addEventListener("change", function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          // event.target.result adalah teks Base64 dari gambar
-          urlFotoBaru = event.target.result; 
-          document.getElementById("fotoTampil").src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Muat Data Profil dari Firebase
-    async function muatDataProfil() {
-      try {
-        const { doc, getDoc } = window.fb;
-        const docRef = doc(window.db, "ProfilSiswa", userLogin.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("inKelas").value = data.kelas || "";
-          document.getElementById("inHp").value = data.hp || "";
-          document.getElementById("inAlamat").value = data.alamat || "";
-          
-          if (data.foto) {
-            urlFotoBaru = data.foto;
-            document.getElementById("fotoTampil").src = data.foto;
-          }
-        }
-        
-        document.getElementById("loadingData").style.display = "none";
-        document.getElementById("formProfil").style.display = "flex";
-
-      } catch (error) {
-        console.error(error);
-        document.getElementById("loadingData").textContent = "Gagal memuat profil.";
-      }
-    }
-
-    // Simpan Profil
-    window.simpanProfil = async function(e) {
-      e.preventDefault();
-      const kelas = document.getElementById("inKelas").value;
-      const hp = document.getElementById("inHp").value;
-      const alamat = document.getElementById("inAlamat").value;
-      const btn = document.getElementById("btnSimpan");
-
-      btn.textContent = "⏳ Menyimpan...";
-      btn.disabled = true;
-
-      try {
-        const dataProfil = {
-          nama: userLogin.nama,
-          nis: userLogin.nis,
-          kelas: kelas,
-          hp: hp,
-          alamat: alamat,
-          foto: urlFotoBaru, // Menyimpan teks Base64 (jika ada) atau URL lama
-          lastUpdate: new Date().toISOString()
-        };
-
-        const { doc, setDoc } = window.fb;
-        await setDoc(doc(window.db, "ProfilSiswa", userLogin.uid), dataProfil);
-
-        alert("✅ Profil berhasil disimpan!");
-        document.getElementById("fotoTampil").src = urlFotoBaru || document.getElementById("fotoTampil").src;
-
-      } catch (error) {
-        console.error(error);
-        alert("❌ Gagal menyimpan profil: " + error.message);
-      } finally {
-        btn.textContent = "💾 SIMPAN PERUBAHAN";
-        btn.disabled = false;
-      }
-    }
-  </script>
 </body>
 </html>
