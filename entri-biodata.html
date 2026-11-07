@@ -60,7 +60,7 @@
         
         <div class="foto-section">
           <div class="foto-box" id="fotoBox">
-            <img id="previewFoto" src="" alt="Preview" style="display: none;" onerror="this.onerror=null; this.style.display='none'; document.getElementById('textPlaceholder').style.display='block'; document.getElementById('textPlaceholder').innerText='Foto Rusak/Terblokir';">
+            <img id="previewFoto" src="" alt="Preview" style="display: none;">
             <span id="textPlaceholder">Belum ada foto</span>
           </div>
           <label for="foto" class="btn-upload-label" id="labelUpload">📷 Pilih Foto</label>
@@ -174,12 +174,22 @@
           document.getElementById('noHp').value = data.noHp || '';
           document.getElementById('alamat').value = data.alamat || '';
 
-          if (data.fotoUrl) {
+          const img = document.getElementById('previewFoto');
+          const placeholder = document.getElementById('textPlaceholder');
+
+          if (data.fotoUrl && data.fotoUrl.startsWith('data:image')) {
+            // Jika foto berupa Base64 (foto asli)
             fotoUrlLama = data.fotoUrl;
-            const img = document.getElementById('previewFoto');
             img.src = data.fotoUrl;
             img.style.display = 'block';
-            document.getElementById('textPlaceholder').style.display = 'none';
+            placeholder.style.display = 'none';
+          } else {
+            // Jika belum ada foto, tampilkan avatar dari nama
+            const namaSiswa = data.nama || "Siswa";
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaSiswa)}&background=0a3622&color=fff&size=150`;
+            img.src = avatarUrl;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
           }
 
           kunciForm(); 
@@ -206,7 +216,6 @@
       }
     }
 
-    // FUNGSI SIMPAN (MENGGUNAKAN BASE64 AGAR TIDAK KENA CORS)
     window.simpanBiodata = async function(event) {
       event.preventDefault();
       if (!currentUserUid) return;
@@ -218,8 +227,8 @@
       try {
         let fotoUrlFinal = fotoUrlLama;
 
-        // Jika ada file foto baru, ubah menjadi Base64
         if (fileFotoBaru) {
+          // Ubah file menjadi Base64
           fotoUrlFinal = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
@@ -236,7 +245,7 @@
           tanggalLahir: document.getElementById('tanggalLahir').value,
           noHp: document.getElementById('noHp').value,
           alamat: document.getElementById('alamat').value,
-          fotoUrl: fotoUrlFinal, // Menyimpan Base64 atau URL lama
+          fotoUrl: fotoUrlFinal,
           updatedAt: new Date().toISOString()
         };
 
