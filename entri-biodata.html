@@ -249,7 +249,7 @@
           updatedAt: new Date().toISOString()
         };
 
-        await setDoc(doc(db, "biodata_siswa", currentUserUid), dataSiswa);
+        await setDoc(doc(db, "AnggotaIRMA", currentUserUid), dataSiswa);
 
         fotoUrlLama = fotoUrlFinal; 
         fileFotoBaru = null; 
