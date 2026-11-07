@@ -63,14 +63,15 @@
     </div>
     <ul class="menu-list">
       <li class="menu-item active" onclick="bukaMenu('home', this)"><i>🏠</i> Home</li>
-      <li class="menu-item" onclick="bukaMenu('profil-irma', this)"><i>📖</i> Profil IRMA</li>
-      <li class="menu-item" onclick="bukaMenu('program-kerja', this)"><i>📝</i> Program Kerja</li>
       
-      <!-- MENU BIODATA & UBAH PASSWORD -->
-      <li class="menu-item" onclick="bukaMenu('entri-biodata', this)"><i>📝</i> Biodata Anggota</li>
+      <!-- MENU PROFIL & BIODATA -->
+      <li class="menu-item" onclick="bukaMenu('profil-irma', this)"><i>📖</i> Visi Misi IRMA</li>
+      <li class="menu-item" onclick="bukaMenu('profil-anggota-irma', this)"><i>📷</i> Edit Profil Saya</li>
+      <li class="menu-item" onclick="bukaMenu('entri-biodata', this)"><i>📝</i> Entri Biodata</li>
       <li class="menu-item" onclick="bukaMenu('ubah-password', this)"><i>🔒</i> Ubah Password</li>
       <!-- ------------------------- -->
       
+      <li class="menu-item" onclick="bukaMenu('program-kerja', this)"><i>📋</i> Program Kerja</li>
       <li class="menu-item" onclick="bukaMenu('informasi', this)"><i>📢</i> Informasi</li>
       <li class="menu-item" onclick="bukaMenu('kehadiran', this)"><i>📋</i> Kehadiran Saya</li>
       <li class="menu-item" onclick="bukaMenu('kegiatan', this)"><i>📅</i> Kegiatan</li>
@@ -132,7 +133,6 @@
     // CEK LOGIN & SIMPAN ID USER
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Simpan ID user ke localStorage agar tidak hilang saat refresh
         localStorage.setItem("irmaUserId", user.uid); 
       } else {
         if (localStorage.getItem("irmaLogin") !== "true") {
@@ -141,7 +141,6 @@
       }
     });
 
-    // Fungsi ini harus global agar bisa dipanggil dari HTML onclick
     window.bukaMenu = function(menu, element) {
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
@@ -158,13 +157,12 @@
         iframe.style.display = 'none';
         iframe.src = "";
       } else {
-        // Ambil ID user dari localStorage
         const savedUid = localStorage.getItem("irmaUserId");
         
         if (savedUid) {
           iframe.src = menu + ".html?uid=" + savedUid;
         } else {
-          iframe.src = menu + ".html"; // Fallback
+          iframe.src = menu + ".html"; 
         }
       }
 
@@ -176,7 +174,7 @@
     window.logout = function() {
       if (confirm("Yakin ingin keluar dari portal?")) {
         localStorage.removeItem("irmaLogin");
-        localStorage.removeItem("irmaUserId"); // Hapus ID user saat logout
+        localStorage.removeItem("irmaUserId"); 
         window.location.href = "index.html";
       }
     }
