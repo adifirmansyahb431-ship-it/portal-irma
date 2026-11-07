@@ -9,27 +9,35 @@
     .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
     h3 { color: #0a3622; margin-top: 0; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: inline-block; }
     
-    /* FORM INPUT */
-    .form-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .form-group input { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
-    .btn-simpan { background: #0a3622; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; height: fit-content; }
-    .btn-simpan:hover { background: #1a5c3a; }
-
-    /* TABEL DATA */
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; vertical-align: middle; }
-    th { background: #0a3622; color: white; }
+    th { background: #0a3622; color: white; text-align: center; }
     
-    /* TOMBOL AKSI */
+    .foto-tabel { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #d4af37; display: block; margin: 0 auto; }
+    
     .btn-action { padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; border: none; color: white; margin-right: 5px; }
-    .btn-edit { background: #f39c12; }
+    .btn-view { background: #3498db; }
     .btn-hapus { background: #e74c3c; }
     
-    .loading { text-align: center; color: #666; font-style: italic; }
+    .loading { text-align: center; color: #666; font-style: italic; padding: 20px; }
+
+    /* Modal untuk detail biodata */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow: auto; }
+    .modal-content { background: white; margin: 30px auto; padding: 30px; border-radius: 12px; max-width: 600px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .close { position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #333; }
+    .modal-content h2 { color: #0a3622; text-align: center; margin-top: 0; }
+    
+    .modal-profil-container { display: flex; gap: 20px; align-items: flex-start; }
+    .modal-foto { width: 120px; height: 160px; object-fit: cover; border-radius: 8px; border: 3px solid #d4af37; }
+    .modal-data { flex: 1; }
+    
+    .modal-data .form-group { margin-bottom: 8px; }
+    .modal-data label { font-weight: bold; font-size: 12px; color: #0a3622; display: block; }
+    .modal-data input, .modal-data textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; background: #f9f9f9; font-size: 13px; }
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
@@ -40,117 +48,86 @@
       appId: "1:582215464487:web:4d0583016ebec700dec002"
     };
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    window.db = db;
-    window.fb = { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc };
+    window.db = getFirestore(app);
+    window.fb = { collection, getDocs, deleteDoc, doc, getDoc };
   </script>
 </head>
 <body>
 
   <div class="card">
-    <h3>➕ Tambah Data Anggota</h3>
-    <div class="form-group">
-      <input type="text" id="inNama" placeholder="Nama Lengkap">
-      <input type="text" id="inNis" placeholder="NIS / Kelas">
-      <input type="text" id="inJabatan" placeholder="Jabatan (Ketua/Anggota/dll)">
-      <button class="btn-simpan" onclick="simpanData()">Simpan Data</button>
+    <h3>📋 Daftar Biodata Anggota IRMA</h3>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50px;">No</th>
+            <th style="width: 70px;">Foto</th>
+            <th>Nama Lengkap</th>
+            <th>NIS</th>
+            <th>Kelas / Jurusan</th>
+            <th style="width: 150px;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabelAnggota">
+          <tr><td colspan="6" class="loading">Memuat data dari Firebase...</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <div class="card">
-    <h3>📋 Daftar Anggota IRMA</h3>
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 50px; text-align: center;">No</th>
-          <th>Nama Lengkap</th>
-          <th>NIS / Kelas</th>
-          <th>Jabatan</th>
-          <th style="width: 150px; text-align: center;">Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="tabelAnggota">
-        <tr><td colspan="5" class="loading">Memuat data dari Firebase...</td></tr>
-      </tbody>
-    </table>
+  <!-- MODAL DETAIL BIODATA -->
+  <div id="modalDetail" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="tutupModal()">&times;</span>
+      <h2>Detail Biodata Siswa</h2>
+      
+      <div class="modal-profil-container">
+        <img id="modalFoto" src="" class="modal-foto" alt="Foto Profil">
+        
+        <div class="modal-data">
+          <div class="form-group"><label>Nama Lengkap</label><input type="text" id="modalNama" readonly></div>
+          <div class="form-group"><label>NIS</label><input type="text" id="modalNis" readonly></div>
+          <div class="form-group"><label>Kelas / Jurusan</label><input type="text" id="modalKelas" readonly></div>
+          <div class="form-group"><label>Tempat, Tanggal Lahir</label><input type="text" id="modalTtl" readonly></div>
+          <div class="form-group"><label>No. HP / WhatsApp</label><input type="text" id="modalNoHp" readonly></div>
+          <div class="form-group"><label>Alamat</label><textarea id="modalAlamat" rows="2" readonly></textarea></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    let editId = null;
-
-    // FUNGSI SIMPAN (TAMBAH / EDIT)
-    window.simpanData = async function() {
-      const nama = document.getElementById("inNama").value;
-      const nis = document.getElementById("inNis").value;
-      const jabatan = document.getElementById("inJabatan").value;
-
-      if (!nama || !nis || !jabatan) {
-        alert("Harap isi semua kolom data anggota!");
-        return;
-      }
-
-      const dataAnggota = {
-        nama: nama,
-        nis: nis,
-        jabatan: jabatan,
-        tanggalDaftar: new Date().toISOString()
-      };
-
-      try {
-        const { collection, addDoc, doc, updateDoc } = window.fb;
-        
-        if (editId) {
-          await updateDoc(doc(window.db, "AnggotaIRMA", editId), dataAnggota);
-          alert("✅ Data anggota berhasil diperbarui!");
-          editId = null;
-        } else {
-          await addDoc(collection(window.db, "AnggotaIRMA"), dataAnggota);
-          alert("✅ Data anggota berhasil disimpan!");
-        }
-
-        document.getElementById("inNama").value = "";
-        document.getElementById("inNis").value = "";
-        document.getElementById("inJabatan").value = "";
-        
-        muatData();
-      } catch (error) {
-        console.error(error);
-        alert("❌ Gagal menyimpan data: " + error.message);
-      }
-    }
-
-    // FUNGSI MEMUAT DATA
+    // FUNGSI MEMUAT DATA DARI KOLEKSI biodata_siswa
     async function muatData() {
       const tbody = document.getElementById("tabelAnggota");
-      tbody.innerHTML = '<tr><td colspan="5" class="loading">Memuat data...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">Memuat data...</td></tr>';
 
       try {
         const { collection, getDocs } = window.fb;
-        const querySnapshot = await getDocs(collection(window.db, "AnggotaIRMA"));
+        const querySnapshot = await getDocs(collection(window.db, "biodata_siswa"));
         
         if (querySnapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data anggota.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data biodata siswa.</td></tr>';
           return;
         }
 
-        let dataArr = [];
-        querySnapshot.forEach((docSnap) => {
-          dataArr.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        dataArr.sort((a, b) => a.nama.localeCompare(b.nama));
-
         let html = "";
         let no = 1;
-        dataArr.forEach((d) => {
+        querySnapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          
+          const fotoSrc = d.fotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.nama)}&background=0a3622&color=fff&size=50`;
+          
           html += `
             <tr>
               <td style="text-align:center;">${no++}</td>
+              <td><img src="${fotoSrc}" class="foto-tabel"></td>
               <td><b>${d.nama}</b></td>
               <td>${d.nis}</td>
-              <td>${d.jabatan}</td>
+              <td>${d.kelas} - ${d.jurusan}</td>
               <td style="text-align:center;">
-                <button class="btn-action btn-edit" onclick="editData('${d.id}')">Edit</button>
-                <button class="btn-action btn-hapus" onclick="hapusData('${d.id}', '${d.nama}')">Hapus</button>
+                <button class="btn-action btn-view" onclick="lihatDetail('${docSnap.id}')">View</button>
+                <button class="btn-action btn-hapus" onclick="hapusData('${docSnap.id}', '${d.nama}')">Hapus</button>
               </td>
             </tr>
           `;
@@ -159,33 +136,44 @@
 
       } catch (error) {
         console.error(error);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
       }
     }
 
-    // FUNGSI EDIT
-    window.editData = async function(id) {
+    // FUNGSI LIHAT DETAIL (MENAMPILKAN MODAL)
+    window.lihatDetail = async function(id) {
       try {
         const { doc, getDoc } = window.fb;
-        const docSnap = await getDoc(doc(window.db, "AnggotaIRMA", id));
+        const docSnap = await getDoc(doc(window.db, "biodata_siswa", id));
         if (docSnap.exists()) {
           const d = docSnap.data();
-          document.getElementById("inNama").value = d.nama;
-          document.getElementById("inNis").value = d.nis;
-          document.getElementById("inJabatan").value = d.jabatan;
-          editId = id;
-          window.scrollTo(0, 0);
-          alert("Silakan ubah data, lalu klik 'Simpan Data'.");
+          
+          document.getElementById("modalFoto").src = d.fotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.nama)}&background=0a3622&color=fff&size=120`;
+          document.getElementById("modalNama").value = d.nama || "-";
+          document.getElementById("modalNis").value = d.nis || "-";
+          document.getElementById("modalKelas").value = (d.kelas || "-") + " / " + (d.jurusan || "-");
+          document.getElementById("modalTtl").value = (d.tempatLahir || "-") + ", " + (d.tanggalLahir || "-");
+          document.getElementById("modalNoHp").value = d.noHp || "-";
+          document.getElementById("modalAlamat").value = d.alamat || "-";
+          
+          document.getElementById("modalDetail").style.display = "block";
         }
-      } catch (error) { console.error(error); }
+      } catch (error) {
+        console.error(error);
+        alert("Gagal memuat detail biodata.");
+      }
     }
 
-    // FUNGSI HAPUS
+    window.tutupModal = function() {
+      document.getElementById("modalDetail").style.display = "none";
+    }
+
+    // FUNGSI HAPUS DATA
     window.hapusData = async function(id, nama) {
       if (!confirm(`Yakin ingin menghapus data "${nama}"?`)) return;
       try {
         const { doc, deleteDoc } = window.fb;
-        await deleteDoc(doc(window.db, "AnggotaIRMA", id));
+        await deleteDoc(doc(window.db, "biodata_siswa", id));
         alert("🗑️ Data berhasil dihapus!");
         muatData();
       } catch (error) {
