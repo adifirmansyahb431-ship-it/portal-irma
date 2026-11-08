@@ -26,8 +26,8 @@
     <div class="error" id="errorMsg"></div>
 
     <div class="form-group">
-      <label>NIS (Nomor Induk Siswa)</label>
-      <input type="text" id="inEmail" placeholder="Masukkan NIS Anda">
+      <label>NIS Siswa / Email Admin</label>
+      <input type="text" id="inEmail" placeholder="Masukkan NIS atau Email Admin">
     </div>
     <div class="form-group">
       <label>Password</label>
@@ -54,30 +54,49 @@
     const auth = getAuth(app);
 
     window.login = function() {
-      const nisInput = document.getElementById("inEmail").value.trim();
+      const input = document.getElementById("inEmail").value.trim();
       const password = document.getElementById("inPassword").value;
       const errorMsg = document.getElementById("errorMsg");
 
       errorMsg.style.display = "none";
 
-      if (!nisInput || !password) {
+      if (!input || !password) {
         errorMsg.style.display = "block";
-        errorMsg.textContent = "NIS dan Password tidak boleh kosong!";
+        errorMsg.textContent = "NIS/Email dan Password tidak boleh kosong!";
         return;
       }
 
-      // Trik: Ubah NIS menjadi format email agar diterima Firebase
-      const email = nisInput + "@irma.sch.id";
+      // LOGIKA PEMBEDA ADMIN & SISWA
+      let email = input;
+      if (!input.includes("@")) {
+        // Jika tidak ada @ (berarti NIS siswa), ubah ke format email
+        email = input + "@irma.sch.id";
+      }
 
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
+          const user = userCredential.user;
           localStorage.setItem("irmaLogin", "true");
-          // Arahkan ke beranda siswa (bisa diubah nanti untuk membedakan admin/siswa)
-          window.location.href = "beranda-siswa.html"; 
+          localStorage.setItem("userLoginData", JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            nama: input,
+            nis: input
+          }));
+
+          // Arahkan berdasarkan email
+          if (user.email.endsWith("@irma.sch.id")) {
+            // Ini email siswa
+            window.location.href = "beranda-siswa.html"; 
+          } else {
+            // Ini email admin (selain @irma.sch.id)
+            window.location.href = "beranda.html"; 
+          }
         })
         .catch((error) => {
           errorMsg.style.display = "block";
-          errorMsg.textContent = "Gagal login: NIS atau password salah!";
+          errorMsg.textContent = "Gagal login: NIS/Email atau password salah!";
+          console.error(error);
         });
     }
   </script>
