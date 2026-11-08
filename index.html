@@ -84,13 +84,13 @@
             nis: input
           }));
 
-          // Arahkan berdasarkan email
-          if (user.email.endsWith("@irma.sch.id")) {
-            // Ini email siswa
-            window.location.href = "beranda-siswa.html"; 
+          // LOGIKA KHUSUS: Pengecualian untuk admin@irma.sch.id
+          if (user.email === "admin@irma.sch.id") {
+            window.location.href = "beranda.html"; // Admin
+          } else if (user.email.endsWith("@irma.sch.id")) {
+            window.location.href = "beranda-siswa.html"; // Siswa
           } else {
-            // Ini email admin (selain @irma.sch.id)
-            window.location.href = "beranda.html"; 
+            window.location.href = "beranda.html"; // Admin lain (jika ada)
           }
         })
         .catch((error) => {
