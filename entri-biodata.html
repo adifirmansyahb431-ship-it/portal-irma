@@ -68,19 +68,6 @@
         </div>
 
         <div class="data-section">
-          <!-- TAMBAHAN NO ID DAN JABATAN -->
-          <div class="form-row">
-            <div class="form-group">
-              <label for="noId">No. ID Anggota</label>
-              <input type="text" id="noId" name="noId" placeholder="Contoh: IRMA-001" required>
-            </div>
-            <div class="form-group">
-              <label for="jabatan">Jabatan</label>
-              <input type="text" id="jabatan" name="jabatan" placeholder="Contoh: Ketua / Anggota" required>
-            </div>
-          </div>
-          <!-- ------------------------- -->
-
           <div class="form-row">
             <div class="form-group">
               <label for="nis">NIS</label>
@@ -126,7 +113,7 @@
             <input type="tel" id="noHp" name="noHp" placeholder="Contoh: 08123456789" required>
           </div>
           
-          <!-- DATA ORANG TUA -->
+          <!-- TAMBAHAN DATA ORANG TUA -->
           <div class="form-row">
             <div class="form-group">
               <label for="namaOrtu">Nama Orang Tua / Wali</label>
@@ -137,6 +124,7 @@
               <input type="tel" id="noHpOrtu" name="noHpOrtu" placeholder="08xxxx">
             </div>
           </div>
+          <!-- ------------------------- -->
 
           <div class="form-group">
             <label for="alamat">Alamat Lengkap</label>
@@ -185,14 +173,12 @@
 
     async function ambilDataSiswa(uid) {
       try {
-        const docRef = doc(db, "AnggotaIRMA", uid);
+        const docRef = doc(db, "biodata_siswa", uid);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const data = docSnap.data();
           
-          document.getElementById('noId').value = data.noId || '';
-          document.getElementById('jabatan').value = data.jabatan || '';
           document.getElementById('nis').value = data.nis || '';
           document.getElementById('nama').value = data.nama || '';
           document.getElementById('kelas').value = data.kelas || '';
@@ -264,8 +250,6 @@
         }
 
         const dataSiswa = {
-          noId: document.getElementById('noId').value,
-          jabatan: document.getElementById('jabatan').value,
           nis: document.getElementById('nis').value,
           nama: document.getElementById('nama').value,
           kelas: document.getElementById('kelas').value,
@@ -280,7 +264,7 @@
           updatedAt: new Date().toISOString()
         };
 
-        await setDoc(doc(db, "AnggotaIRMA", currentUserUid), dataSiswa);
+        await setDoc(doc(db, "biodata_siswa", currentUserUid), dataSiswa);
 
         fotoUrlLama = fotoUrlFinal; 
         fileFotoBaru = null; 
