@@ -127,18 +127,43 @@
     </div>
   </div>
 
-  <script>
-    // CEK LOGIN
-    if (localStorage.getItem("irmaLogin") !== "true") {
-      window.location.href = "index.html";
-    }
+  <!-- IMPORT FIREBASE SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    function toggleSidebar() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // CEK LOGIN & SIMPAN ID USER
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Simpan UID ke localStorage agar bisa diakses halaman lain (Entri Biodata)
+        localStorage.setItem("irmaUserId", user.uid); 
+      } else {
+        if (localStorage.getItem("irmaLogin") !== "true") {
+           window.location.href = "index.html";
+        }
+      }
+    });
+
+    // Fungsi Buka/Tutup Sidebar (HP)
+    window.toggleSidebar = function() {
       document.getElementById("sidebar").classList.toggle("active");
       document.getElementById("sidebarOverlay").classList.toggle("active");
     }
 
-    function bukaMenu(menu, element) {
+    // Fungsi Navigasi Menu
+    window.bukaMenu = function(menu, element) {
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
 
@@ -168,7 +193,8 @@
       }
     }
 
-    function logout() {
+    // Fungsi Logout
+    window.logout = function() {
       if (confirm("Yakin ingin keluar dari portal?")) {
         localStorage.removeItem("irmaLogin");
         localStorage.removeItem("irmaUserId");
