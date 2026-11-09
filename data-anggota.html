@@ -23,7 +23,7 @@
 
     /* Modal untuk detail biodata */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow: auto; }
-    .modal-content { background: white; margin: 30px auto; padding: 30px; border-radius: 12px; max-width: 600px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .modal-content { background: white; margin: 30px auto; padding: 30px; border-radius: 12px; max-width: 650px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
     .close { position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #333; }
     .modal-content h2 { color: #0a3622; text-align: center; margin-top: 0; }
     
@@ -55,7 +55,7 @@
 <body>
 
   <div class="card">
-    <h3>📋 Daftar Biodata Anggota IRMA</h3>
+    <h3>📋 Daftar Anggota IRMA</h3>
     <div style="overflow-x: auto;">
       <table>
         <thead>
@@ -85,11 +85,15 @@
         <img id="modalFoto" src="" class="modal-foto" alt="Foto Profil">
         
         <div class="modal-data">
+          <div class="form-group"><label>No. ID Anggota</label><input type="text" id="modalNoId" readonly></div>
+          <div class="form-group"><label>Jabatan</label><input type="text" id="modalJabatan" readonly></div>
           <div class="form-group"><label>Nama Lengkap</label><input type="text" id="modalNama" readonly></div>
           <div class="form-group"><label>NIS</label><input type="text" id="modalNis" readonly></div>
           <div class="form-group"><label>Kelas / Jurusan</label><input type="text" id="modalKelas" readonly></div>
           <div class="form-group"><label>Tempat, Tanggal Lahir</label><input type="text" id="modalTtl" readonly></div>
-          <div class="form-group"><label>No. HP / WhatsApp</label><input type="text" id="modalNoHp" readonly></div>
+          <div class="form-group"><label>No. HP Siswa</label><input type="text" id="modalNoHp" readonly></div>
+          <div class="form-group"><label>Nama Orang Tua</label><input type="text" id="modalNamaOrtu" readonly></div>
+          <div class="form-group"><label>No. HP Orang Tua</label><input type="text" id="modalHpOrtu" readonly></div>
           <div class="form-group"><label>Alamat</label><textarea id="modalAlamat" rows="2" readonly></textarea></div>
         </div>
       </div>
@@ -97,17 +101,16 @@
   </div>
 
   <script>
-    // FUNGSI MEMUAT DATA DARI KOLEKSI biodata_siswa
     async function muatData() {
       const tbody = document.getElementById("tabelAnggota");
       tbody.innerHTML = '<tr><td colspan="6" class="loading">Memuat data...</td></tr>';
 
       try {
         const { collection, getDocs } = window.fb;
-        const querySnapshot = await getDocs(collection(window.db, "biodata_siswa"));
+        const querySnapshot = await getDocs(collection(window.db, "AnggotaIRMA"));
         
         if (querySnapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data biodata siswa.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data anggota.</td></tr>';
           return;
         }
 
@@ -140,20 +143,23 @@
       }
     }
 
-    // FUNGSI LIHAT DETAIL (MENAMPILKAN MODAL)
     window.lihatDetail = async function(id) {
       try {
         const { doc, getDoc } = window.fb;
-        const docSnap = await getDoc(doc(window.db, "biodata_siswa", id));
+        const docSnap = await getDoc(doc(window.db, "AnggotaIRMA", id));
         if (docSnap.exists()) {
           const d = docSnap.data();
           
           document.getElementById("modalFoto").src = d.fotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.nama)}&background=0a3622&color=fff&size=120`;
+          document.getElementById("modalNoId").value = d.noId || "-";
+          document.getElementById("modalJabatan").value = d.jabatan || "-";
           document.getElementById("modalNama").value = d.nama || "-";
           document.getElementById("modalNis").value = d.nis || "-";
           document.getElementById("modalKelas").value = (d.kelas || "-") + " / " + (d.jurusan || "-");
           document.getElementById("modalTtl").value = (d.tempatLahir || "-") + ", " + (d.tanggalLahir || "-");
           document.getElementById("modalNoHp").value = d.noHp || "-";
+          document.getElementById("modalNamaOrtu").value = d.namaOrtu || "-";
+          document.getElementById("modalHpOrtu").value = d.noHpOrtu || "-";
           document.getElementById("modalAlamat").value = d.alamat || "-";
           
           document.getElementById("modalDetail").style.display = "block";
@@ -168,12 +174,11 @@
       document.getElementById("modalDetail").style.display = "none";
     }
 
-    // FUNGSI HAPUS DATA
     window.hapusData = async function(id, nama) {
       if (!confirm(`Yakin ingin menghapus data "${nama}"?`)) return;
       try {
         const { doc, deleteDoc } = window.fb;
-        await deleteDoc(doc(window.db, "biodata_siswa", id));
+        await deleteDoc(doc(window.db, "AnggotaIRMA", id));
         alert("🗑️ Data berhasil dihapus!");
         muatData();
       } catch (error) {
@@ -182,7 +187,6 @@
       }
     }
 
-    // JALANKAN SAAT HALAMAN DIMUAT
     window.onload = muatData;
   </script>
 </body>
