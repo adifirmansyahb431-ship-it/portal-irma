@@ -9,8 +9,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Poppins', sans-serif; background: #f4f7f6; display: flex; height: 100vh; overflow: hidden; }
     
-    /* SIDEBAR KIRI (Versi Siswa) */
-    .sidebar { width: 260px; background: #0a3622; color: white; display: flex; flex-direction: column; transition: 0.3s; }
+    /* SIDEBAR KIRI */
+    .sidebar { width: 260px; background: #0a3622; color: white; display: flex; flex-direction: column; transition: transform 0.3s ease-in-out; z-index: 100; }
     .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-header img { width: 60px; margin-bottom: 5px; }
     .sidebar-header h2 { font-size: 18px; color: #d4af37; margin-bottom: 5px; }
@@ -22,9 +22,14 @@
     .menu-item i { font-size: 18px; width: 20px; text-align: center; }
 
     /* KONTEN KANAN */
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 90; }
     .topbar h3 { color: #0a3622; font-size: 18px; }
+    .topbar-left { display: flex; align-items: center; gap: 15px; }
+    
+    /* TOMBOL MENU (Hanya muncul di HP) */
+    .menu-toggle { display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: #0a3622; padding: 5px; }
+    
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-logout:hover { background: #c0392b; }
 
@@ -44,15 +49,26 @@
     /* IFRAME UNTUK KONTEN */
     #contentFrame { width: 100%; height: 100%; border: none; display: none; background: transparent; }
 
-    /* RESPONSIF */
+    /* OVERLAY UNTUK HP */
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 95; }
+
+    /* RESPONSIF UNTUK HP */
     @media (max-width: 768px) {
-      .sidebar { width: 0; position: absolute; height: 100%; z-index: 100; }
-      .sidebar.show { width: 260px; }
+      .menu-toggle { display: block; }
+      .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar-overlay.active { display: block; }
       .content-area { padding: 15px; }
+      .topbar { padding: 10px 15px; }
+      .welcome-box { padding: 20px; }
+      .welcome-box h2 { font-size: 20px; }
     }
   </style>
 </head>
 <body>
+
+  <!-- OVERLAY UNTUK HP -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
   <!-- SIDEBAR KIRI -->
   <div class="sidebar" id="sidebar">
@@ -63,14 +79,10 @@
     </div>
     <ul class="menu-list">
       <li class="menu-item active" onclick="bukaMenu('home', this)"><i>🏠</i> Home</li>
-      
-      <!-- MENU PROFIL & BIODATA -->
       <li class="menu-item" onclick="bukaMenu('profil-irma', this)"><i>📖</i> Visi Misi IRMA</li>
       <li class="menu-item" onclick="bukaMenu('entri-biodata', this)"><i>📝</i> Entri Biodata</li>
       <li class="menu-item" onclick="bukaMenu('ubah-password', this)"><i>🔒</i> Ubah Password</li>
-      <!-- ------------------------- -->
-      
-      <li class="menu-item" onclick="bukaMenu('program-kerja', this)"><i>📋</i> Program Kerja</li>
+      <li class="menu-item" onclick="bukaMenu('program-kerja', this)"><i>📝</i> Program Kerja</li>
       <li class="menu-item" onclick="bukaMenu('informasi', this)"><i>📢</i> Informasi</li>
       <li class="menu-item" onclick="bukaMenu('kehadiran', this)"><i>📋</i> Kehadiran Saya</li>
       <li class="menu-item" onclick="bukaMenu('kegiatan', this)"><i>📅</i> Kegiatan</li>
@@ -81,7 +93,10 @@
   <!-- KONTEN KANAN -->
   <div class="main-content">
     <div class="topbar">
-      <h3 id="pageTitle">Home</h3>
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h3 id="pageTitle">Home</h3>
+      </div>
       <button class="btn-logout" onclick="logout()">Keluar</button>
     </div>
 
@@ -112,35 +127,18 @@
     </div>
   </div>
 
-  <!-- IMPORT FIREBASE SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  <script>
+    // CEK LOGIN
+    if (localStorage.getItem("irmaLogin") !== "true") {
+      window.location.href = "index.html";
+    }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
-      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
-      projectId: "portal-irma-man-3-bogor",
-      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
-      messagingSenderId: "582215464487",
-      appId: "1:582215464487:web:4d0583016ebec700dec002"
-    };
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+      document.getElementById("sidebarOverlay").classList.toggle("active");
+    }
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // CEK LOGIN & SIMPAN ID USER
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        localStorage.setItem("irmaUserId", user.uid); 
-      } else {
-        if (localStorage.getItem("irmaLogin") !== "true") {
-           window.location.href = "index.html";
-        }
-      }
-    });
-
-    window.bukaMenu = function(menu, element) {
+    function bukaMenu(menu, element) {
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
 
@@ -157,23 +155,23 @@
         iframe.src = "";
       } else {
         const savedUid = localStorage.getItem("irmaUserId");
-        
         if (savedUid) {
           iframe.src = menu + ".html?uid=" + savedUid;
         } else {
-          iframe.src = menu + ".html"; 
+          iframe.src = menu + ".html";
         }
       }
 
+      // Tutup sidebar di HP
       if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('show');
+        toggleSidebar();
       }
     }
 
-    window.logout = function() {
+    function logout() {
       if (confirm("Yakin ingin keluar dari portal?")) {
         localStorage.removeItem("irmaLogin");
-        localStorage.removeItem("irmaUserId"); 
+        localStorage.removeItem("irmaUserId");
         window.location.href = "index.html";
       }
     }
