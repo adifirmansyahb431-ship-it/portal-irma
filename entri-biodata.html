@@ -69,7 +69,7 @@
 
         <div class="data-section">
           
-          <!-- TAMBAHAN NO ID DAN JABATAN -->
+          <!-- NO ID DAN JABATAN -->
           <div class="form-row">
             <div class="form-group">
               <label for="noId">No. ID Anggota (IRMA)</label>
@@ -77,10 +77,22 @@
             </div>
             <div class="form-group">
               <label for="jabatan">Jabatan</label>
-              <input type="text" id="jabatan" name="jabatan" placeholder="Contoh: Ketua / Anggota" required>
+              <select id="jabatan" name="jabatan" required>
+                <option value="">-- Pilih Jabatan --</option>
+                <option value="Ketua">1. Ketua</option>
+                <option value="Wakil Ketua">2. Wakil Ketua</option>
+                <option value="Sekretaris 1">3. Sekretaris 1</option>
+                <option value="Sekretaris 2">4. Sekretaris 2</option>
+                <option value="Bendahara 1">5. Bendahara 1</option>
+                <option value="Bendahara 2">6. Bendahara 2</option>
+                <option value="Divisi Pendidikan">7. Divisi Pendidikan</option>
+                <option value="Divisi Masjid dan Dakwah">8. Divisi Masjid dan Dakwah</option>
+                <option value="Divisi TIK">9. Divisi TIK (Teknologi Informasi dan Komunikasi)</option>
+                <option value="Divisi Hubungan Masyarakat">10. Divisi Hubungan Masyarakat</option>
+                <option value="Anggota">11. Anggota</option>
+              </select>
             </div>
           </div>
-          <!-- ------------------------- -->
 
           <div class="form-row">
             <div class="form-group">
