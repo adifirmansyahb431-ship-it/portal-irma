@@ -68,6 +68,19 @@
         </div>
 
         <div class="data-section">
+          <!-- TAMBAHAN NO ID DAN JABATAN -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="noId">No. ID Anggota</label>
+              <input type="text" id="noId" name="noId" placeholder="Contoh: IRMA-001" required>
+            </div>
+            <div class="form-group">
+              <label for="jabatan">Jabatan</label>
+              <input type="text" id="jabatan" name="jabatan" placeholder="Contoh: Ketua / Anggota" required>
+            </div>
+          </div>
+          <!-- ------------------------- -->
+
           <div class="form-row">
             <div class="form-group">
               <label for="nis">NIS</label>
@@ -109,9 +122,22 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="noHp">Nomor WhatsApp</label>
+            <label for="noHp">Nomor WhatsApp Siswa</label>
             <input type="tel" id="noHp" name="noHp" placeholder="Contoh: 08123456789" required>
           </div>
+          
+          <!-- DATA ORANG TUA -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="namaOrtu">Nama Orang Tua / Wali</label>
+              <input type="text" id="namaOrtu" name="namaOrtu" placeholder="Nama Orang Tua">
+            </div>
+            <div class="form-group">
+              <label for="noHpOrtu">No. HP Orang Tua</label>
+              <input type="tel" id="noHpOrtu" name="noHpOrtu" placeholder="08xxxx">
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="alamat">Alamat Lengkap</label>
             <textarea id="alamat" name="alamat" rows="2" placeholder="Tuliskan alamat lengkap" required></textarea>
@@ -159,12 +185,14 @@
 
     async function ambilDataSiswa(uid) {
       try {
-        const docRef = doc(db, "biodata_siswa", uid);
+        const docRef = doc(db, "AnggotaIRMA", uid);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const data = docSnap.data();
           
+          document.getElementById('noId').value = data.noId || '';
+          document.getElementById('jabatan').value = data.jabatan || '';
           document.getElementById('nis').value = data.nis || '';
           document.getElementById('nama').value = data.nama || '';
           document.getElementById('kelas').value = data.kelas || '';
@@ -172,19 +200,19 @@
           document.getElementById('tempatLahir').value = data.tempatLahir || '';
           document.getElementById('tanggalLahir').value = data.tanggalLahir || '';
           document.getElementById('noHp').value = data.noHp || '';
+          document.getElementById('namaOrtu').value = data.namaOrtu || '';
+          document.getElementById('noHpOrtu').value = data.noHpOrtu || '';
           document.getElementById('alamat').value = data.alamat || '';
 
           const img = document.getElementById('previewFoto');
           const placeholder = document.getElementById('textPlaceholder');
 
           if (data.fotoUrl && data.fotoUrl.startsWith('data:image')) {
-            // Jika foto berupa Base64 (foto asli)
             fotoUrlLama = data.fotoUrl;
             img.src = data.fotoUrl;
             img.style.display = 'block';
             placeholder.style.display = 'none';
           } else {
-            // Jika belum ada foto, tampilkan avatar dari nama
             const namaSiswa = data.nama || "Siswa";
             const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(namaSiswa)}&background=0a3622&color=fff&size=150`;
             img.src = avatarUrl;
@@ -228,7 +256,6 @@
         let fotoUrlFinal = fotoUrlLama;
 
         if (fileFotoBaru) {
-          // Ubah file menjadi Base64
           fotoUrlFinal = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
@@ -237,6 +264,8 @@
         }
 
         const dataSiswa = {
+          noId: document.getElementById('noId').value,
+          jabatan: document.getElementById('jabatan').value,
           nis: document.getElementById('nis').value,
           nama: document.getElementById('nama').value,
           kelas: document.getElementById('kelas').value,
@@ -244,6 +273,8 @@
           tempatLahir: document.getElementById('tempatLahir').value,
           tanggalLahir: document.getElementById('tanggalLahir').value,
           noHp: document.getElementById('noHp').value,
+          namaOrtu: document.getElementById('namaOrtu').value,
+          noHpOrtu: document.getElementById('noHpOrtu').value,
           alamat: document.getElementById('alamat').value,
           fotoUrl: fotoUrlFinal,
           updatedAt: new Date().toISOString()
