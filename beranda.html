@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - Portal IRMA</title>
+  <title>Dashboard Induk - Portal IRMA</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Poppins', sans-serif; background: #f4f7f6; display: flex; height: 100vh; overflow: hidden; }
     
     /* SIDEBAR KIRI */
-    .sidebar { width: 260px; background: #0a3622; color: white; display: flex; flex-direction: column; transition: 0.3s; }
+    .sidebar { width: 260px; background: #0a3622; color: white; display: flex; flex-direction: column; transition: transform 0.3s ease-in-out; z-index: 100; }
     .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .sidebar-header h2 { font-size: 20px; color: #d4af37; margin-bottom: 5px; }
+    .sidebar-header img { width: 60px; margin-bottom: 5px; border-radius: 8px; }
+    .sidebar-header h2 { font-size: 18px; color: #d4af37; margin-bottom: 5px; }
     .sidebar-header p { font-size: 12px; color: #ccc; }
     
     .menu-list { list-style: none; flex: 1; overflow-y: auto; padding: 10px 0; }
@@ -21,34 +22,52 @@
     .menu-item i { font-size: 18px; width: 20px; text-align: center; }
 
     /* KONTEN KANAN */
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 90; }
     .topbar h3 { color: #0a3622; font-size: 18px; }
+    .topbar-left { display: flex; align-items: center; gap: 15px; }
+    
+    /* TOMBOL MENU (Hanya muncul di HP) */
+    .menu-toggle { display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: #0a3622; padding: 5px; }
+    
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-logout:hover { background: #c0392b; }
 
     .content-area { padding: 30px; overflow-y: auto; flex: 1; }
-    .welcome-box { background: linear-gradient(135deg, #0a3622, #1a5c3a); color: white; padding: 30px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(10,54,34,0.3); }
+    
+    /* KARTU-KARTU INFORMASI */
+    .welcome-box { background: linear-gradient(135deg, #0a3622, #1a5c3a); color: white; padding: 30px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(10,54,34,0.3); }
     .welcome-box h2 { margin-bottom: 10px; font-size: 24px; }
     .welcome-box p { font-size: 14px; opacity: 0.9; }
 
     /* IFRAME UNTUK KONTEN */
     #contentFrame { width: 100%; height: 100%; border: none; display: none; background: transparent; }
 
-    /* RESPONSIF */
+    /* OVERLAY UNTUK HP */
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 95; }
+
+    /* RESPONSIF UNTUK HP */
     @media (max-width: 768px) {
-      .sidebar { width: 0; position: absolute; height: 100%; z-index: 100; }
-      .sidebar.show { width: 260px; }
+      .menu-toggle { display: block; }
+      .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar-overlay.active { display: block; }
       .content-area { padding: 15px; }
+      .topbar { padding: 10px 15px; }
+      .welcome-box { padding: 20px; }
+      .welcome-box h2 { font-size: 20px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- OVERLAY UNTUK HP -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
   <!-- SIDEBAR KIRI -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <img src="logo.png" alt="Logo IRMA" style="width: 60px; height: auto; margin-bottom: 5px; border-radius: 8px;">
+      <img src="logo.png" alt="Logo IRMA">
       <h2>PORTAL IRMA</h2>
       <p>MAN 3 BOGOR</p>
     </div>
@@ -58,18 +77,23 @@
       <li class="menu-item" onclick="bukaMenu('informasi', this)"><i>📢</i> Informasi</li>
       <li class="menu-item" onclick="bukaMenu('keuangan', this)"><i>💰</i> Keuangan</li>
       <li class="menu-item" onclick="bukaMenu('kehadiran', this)"><i>📋</i> Kehadiran</li>
+      
+      <!-- MENU SISTEM AKUNTANSI -->
+      <li class="menu-item" onclick="bukaMenu('bendahara', this)"><i>📊</i> Sistem Akuntansi IRMA</li>
+      
       <li class="menu-item" onclick="bukaMenu('data-anggota', this)"><i>👥</i> Data Anggota</li>
       <li class="menu-item" onclick="bukaMenu('kegiatan', this)"><i>📅</i> Kegiatan</li>
-      <!-- MENU PROGRAM KERJA DITAMBAHKAN DI SINI -->
       <li class="menu-item" onclick="bukaMenu('program-kerja', this)"><i>📝</i> Program Kerja</li>
-      <!-- ------------------------- -->
     </ul>
   </div>
 
   <!-- KONTEN KANAN -->
   <div class="main-content">
     <div class="topbar">
-      <h3 id="pageTitle">Home</h3>
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h3 id="pageTitle">Home</h3>
+      </div>
       <button class="btn-logout" onclick="logout()">Keluar</button>
     </div>
 
@@ -91,39 +115,43 @@
       window.location.href = "index.html";
     }
 
+    // Fungsi Buka/Tutup Sidebar (HP)
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+      document.getElementById("sidebarOverlay").classList.toggle("active");
+    }
+
+    // Fungsi Navigasi Menu
     function bukaMenu(menu, element) {
-      // Ganti status aktif menu
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
 
-      // Ganti judul di topbar
       const judul = element.innerText.replace(/[^\w\s]/g, '').trim();
       document.getElementById('pageTitle').innerText = judul;
 
-      // Sembunyikan welcome box, tampilkan iframe
       document.getElementById('welcomeBox').style.display = 'none';
       const iframe = document.getElementById('contentFrame');
       iframe.style.display = 'block';
 
-      // Arahkan iframe ke halaman yang sesuai
       if (menu === 'home') {
-        // Jika home, tampilkan welcome box lagi
         document.getElementById('welcomeBox').style.display = 'block';
         iframe.style.display = 'none';
         iframe.src = "";
       } else {
-        iframe.src = menu + ".html"; // Memanggil file seperti program-kerja.html
+        iframe.src = menu + ".html";
       }
 
       // Tutup sidebar di HP
       if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('show');
+        toggleSidebar();
       }
     }
 
+    // Fungsi Logout
     function logout() {
       if (confirm("Yakin ingin keluar dari portal?")) {
         localStorage.removeItem("irmaLogin");
+        localStorage.removeItem("irmaUserId");
         window.location.href = "index.html";
       }
     }
