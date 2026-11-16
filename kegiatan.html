@@ -5,42 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laporan Kegiatan - Portal IRMA</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
-    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
-    body { background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
 
-    /* --- SIDEBAR (Hanya muncul jika dibuka dari Admin) --- */
-    .sidebar { width: 260px; background-color: #0a3622; color: white; display: flex; flex-direction: column; transition: 0.3s; z-index: 100; }
-    .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .sidebar-header img { width: 60px; margin-bottom: 10px; }
-    .sidebar-header h2 { color: #d4af37; font-size: 18px; margin-bottom: 5px; }
-    .sidebar-header p { font-size: 11px; color: #ccc; }
-    .sidebar-menu { flex: 1; overflow-y: auto; padding: 15px 0; }
-    .sidebar-menu a { display: flex; align-items: center; padding: 12px 20px; color: #e0e0e0; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; border-left: 4px solid transparent; }
-    .sidebar-menu a:hover, .sidebar-menu a.active { background-color: rgba(255,255,255,0.05); border-left-color: #d4af37; color: #d4af37; }
-    .sidebar-menu a span { margin-right: 15px; font-size: 16px; }
+    /* --- HEADER POLOS (Untuk Iframe Siswa) --- */
+    .page-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #e0e0e0; padding-bottom: 15px; }
+    .btn-kembali { background: #6c757d; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; border: none; cursor: pointer; }
+    .btn-kembali:hover { background: #5a6268; }
+    .page-header h2 { color: #0a3622; font-size: 22px; }
 
     /* --- MAIN CONTENT --- */
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
-    .top-header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
-    .top-header h1 { font-size: 20px; color: #0a3622; }
-    .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
-    .menu-toggle { display: none; font-size: 24px; background: none; border: none; color: #0a3622; cursor: pointer; margin-right: 15px; }
-
-    /* --- KONTEN KEGIATAN --- */
-    .content-body { padding: 30px; flex: 1; }
+    .container { max-width: 900px; margin: 0 auto; }
     .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    h2, h3 { color: #0a3622; margin-top: 0; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: inline-block; margin-bottom: 20px; }
+    h3 { color: #0a3622; margin-top: 0; border-bottom: 2px solid #d4af37; padding-bottom: 10px; display: inline-block; margin-bottom: 20px; }
     
-    /* FORM INPUT (Hanya muncul untuk Admin) */
-    #formInputContainer { display: none; }
+    /* --- FORM INPUT (Muncul untuk Admin & Siswa) --- */
     .form-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .form-group input, .form-group textarea { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
+    .form-group input, .form-group textarea { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 14px; }
     .form-group textarea { min-height: 80px; resize: vertical; }
-    .btn-simpan { background: #0a3622; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; }
+    .btn-simpan { background: #0a3622; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; transition: 0.2s; }
     .btn-simpan:hover { background: #1a5c3a; }
+    .preview-img { max-width: 100px; margin-top: 10px; border-radius: 6px; display: none; }
 
-    /* DAFTAR KEGIATAN */
+    /* --- DAFTAR KEGIATAN --- */
     .kegiatan-item { display: flex; gap: 20px; padding: 15px; border-bottom: 1px solid #eee; align-items: flex-start; }
     .kegiatan-item:last-child { border-bottom: none; }
     .tanggal-box { background: #0a3622; color: #d4af37; padding: 10px; border-radius: 8px; text-align: center; min-width: 80px; }
@@ -51,8 +39,8 @@
     .info-kegiatan p { margin: 0 0 5px 0; color: #666; font-size: 13px; line-height: 1.4; }
     .lampiran a { display: inline-block; background: #e8f5e9; color: #0a3622; padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 12px; margin-right: 5px; border: 1px solid #c8e6c9; }
     .lampiran a:hover { background: #c8e6c9; }
-    
-    /* TOMBOL AKSI ADMIN */
+
+    /* Tombol aksi admin (Edit/Hapus) */
     .admin-actions { display: none; margin-top: 10px; }
     .btn-action { padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; border: none; color: white; margin-right: 5px; margin-top: 5px; }
     .btn-edit { background: #f39c12; }
@@ -60,19 +48,10 @@
     .btn-cetak { background: #3498db; }
     
     .loading { text-align: center; color: #666; font-style: italic; padding: 20px; }
-    .preview-img { max-width: 100px; margin-top: 10px; border-radius: 6px; display: none; }
 
-    /* --- TOMBOL KEMBALI --- */
-    .btn-kembali { background: #6c757d; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; display: none; align-items: center; gap: 5px; transition: 0.2s; border: none; cursor: pointer; }
-    .btn-kembali:hover { background: #5a6268; }
-
-    /* --- RESPONSIF HP --- */
-    @media (max-width: 768px) {
-      .sidebar { position: fixed; left: -260px; height: 100vh; }
-      .sidebar.open { left: 0; }
-      .menu-toggle { display: block; }
-      .top-header { padding: 15px 20px; }
-      .content-body { padding: 15px; }
+    @media (max-width: 600px) {
+      .kegiatan-item { flex-direction: column; gap: 10px; }
+      .tanggal-box { width: 100%; display: flex; justify-content: center; gap: 10px; align-items: center; }
     }
   </style>
 
@@ -95,78 +74,44 @@
 </head>
 <body>
 
-  <!-- SIDEBAR (Hanya muncul untuk Admin) -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <img src="logo.png" alt="Logo IRMA">
-      <h2>PORTAL IRMA</h2>
-      <p>MAN 3 BOGOR</p>
-    </div>
-    <div class="sidebar-menu">
-      <a href="beranda.html"><span>🏠</span> Home</a>
-      <a href="profil.html"><span>📖</span> Profil IRMA</a>
-      <a href="admin-informasi.html"><span>📢</span> Informasi</a>
-      <a href="keuangan.html"><span>💰</span> Keuangan</a>
-      <a href="kehadiran.html"><span>📋</span> Kehadiran</a>
-      <a href="data-anggota.html"><span>👥</span> Data Anggota</a>
-      <a href="kegiatan.html" class="active"><span>📅</span> Kegiatan</a>
-      <a href="program-kerja.html"><span>💼</span> Program Kerja</a>
-      <a href="bendahara.html"><span>📊</span> Sistem Akuntansi IRMA</a> 
-      <a href="daftar-anggota.html"><span>📋</span> Daftar Anggota IRMA</a>
-    </div>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="main-content">
+  <div class="container">
     
     <!-- HEADER -->
-    <div class="top-header">
-      <div style="display: flex; align-items: center;">
-        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-        <h1 id="pageTitle">Laporan Kegiatan</h1>
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <!-- TOMBOL KEMBALI (Muncul untuk kedua pengguna) -->
-        <button onclick="kembaliCerdas()" class="btn-kembali" id="btnKembali">⬅️ Kembali</button>
-        <button onclick="logout()" class="btn-logout" id="btnLogout">Keluar</button>
-      </div>
+    <div class="page-header" id="headerKegiatan">
+      <button onclick="kembaliCerdas()" class="btn-kembali" id="btnKembali">← Kembali</button>
+      <h2>📅 Laporan Kegiatan IRMA</h2>
     </div>
 
-    <!-- ISI KONTEN -->
-    <div class="content-body">
-      
-      <!-- FORM INPUT (Hanya muncul untuk Admin) -->
-      <div class="card" id="formInputContainer">
-        <h2>📝 Input Laporan Kegiatan</h2>
-        <div class="form-group">
-          <input type="date" id="inTanggal">
-          <input type="time" id="inJam">
-        </div>
-        <div class="form-group">
-          <input type="text" id="inNamaKegiatan" placeholder="Nama Kegiatan (Contoh: Kerja Bakti)">
-        </div>
-        <div class="form-group">
-          <textarea id="inDeskripsi" placeholder="Deskripsi singkat kegiatan..."></textarea>
-        </div>
-        <div class="form-group">
-          <input type="text" id="inCatatan" placeholder="Link Catatan Materi (Google Drive/Docs)">
-        </div>
-        <div class="form-group" style="flex-direction: column; align-items: flex-start;">
-          <label style="font-size:13px; font-weight:bold; color:#0a3622; margin-bottom:5px;">Upload Foto Kegiatan (Opsional)</label>
-          <input type="file" id="inFotoFile" accept="image/*" style="padding:5px; border:none;">
-          <img id="previewFoto" class="preview-img" alt="Preview">
-        </div>
-        <button class="btn-simpan" id="btnKirim" onclick="simpanKegiatan()">Kirim Laporan</button>
+    <!-- FORM INPUT (MUNCUL UNTUK SEMUA) -->
+    <div class="card" id="formInputContainer">
+      <h3>📝 Input Laporan Kegiatan</h3>
+      <div class="form-group">
+        <input type="date" id="inTanggal" required>
+        <input type="time" id="inJam">
       </div>
-
-      <!-- DAFTAR KEGIATAN -->
-      <div class="card">
-        <h3>📋 Riwayat Laporan Kegiatan</h3>
-        <div id="listKegiatan">
-          <p class="loading">Memuat data...</p>
-        </div>
+      <div class="form-group">
+        <input type="text" id="inNamaKegiatan" placeholder="Nama Kegiatan (Contoh: Kerja Bakti)" required>
       </div>
+      <div class="form-group">
+        <textarea id="inDeskripsi" placeholder="Deskripsi singkat kegiatan..."></textarea>
+      </div>
+      <div class="form-group">
+        <input type="text" id="inCatatan" placeholder="Link Catatan Materi (Google Drive/Docs)">
+      </div>
+      <div class="form-group" style="flex-direction: column; align-items: flex-start;">
+        <label style="font-size:13px; font-weight:bold; color:#0a3622; margin-bottom:5px;">Upload Foto Kegiatan (Opsional)</label>
+        <input type="file" id="inFotoFile" accept="image/*" style="padding:5px; border:none;">
+        <img id="previewFoto" class="preview-img" alt="Preview">
+      </div>
+      <button class="btn-simpan" id="btnKirim" onclick="simpanKegiatan()">Kirim Laporan</button>
+    </div>
 
+    <!-- DAFTAR KEGIATAN -->
+    <div class="card">
+      <h3>📋 Riwayat Laporan Kegiatan</h3>
+      <div id="listKegiatan">
+        <p class="loading">Memuat data...</p>
+      </div>
     </div>
 
   </div>
@@ -178,33 +123,24 @@
     let urlFotoBaru = "";
     let isAdminMode = false;
 
-    // --- DETEKSI MODE & TAMPILAN AWAL ---
+    // --- DETEKSI MODE ---
     document.addEventListener("DOMContentLoaded", () => {
-      // Cek apakah dibuka di dalam iframe (Berarti ini Siswa)
+      // Jika dibuka di dalam iframe, kita anggap mode Siswa
       if (window.parent && window.parent !== window) {
         isAdminMode = false;
-        // Sembunyikan sidebar, form input, dan tombol logout
-        document.getElementById("sidebar").style.display = "none";
-        document.getElementById("formInputContainer").style.display = "none";
-        document.getElementById("btnLogout").style.display = "none";
-        document.querySelector(".menu-toggle").style.display = "none";
-        
         // Tampilkan tombol kembali
         document.getElementById("btnKembali").style.display = "inline-flex";
-        document.getElementById("pageTitle").innerText = "Kegiatan Siswa";
       } else {
-        // Jika dibuka langsung, cek apakah dari Admin
+        // Jika dibuka langsung (bukan iframe), cek apakah Admin
         const userData = localStorage.getItem("userLoginData");
         if (userData) {
           const user = JSON.parse(userData);
           if (user.email === "admin@irma.sch.id" || user.email === "bendahara@irma.sch.id") {
             isAdminMode = true;
-            // Tampilkan form input dan sidebar
-            document.getElementById("formInputContainer").style.display = "block";
           }
         }
-        // Tampilkan tombol kembali juga untuk admin
-        document.getElementById("btnKembali").style.display = "inline-flex";
+        // Sembunyikan tombol kembali untuk Admin (karena akses lewat sidebar)
+        document.getElementById("btnKembali").style.display = "none";
       }
 
       muatData();
@@ -212,11 +148,9 @@
 
     // --- TOMBOL KEMBALI CERDAS ---
     window.kembaliCerdas = function() {
-      // Jika di dalam iframe, kirim pesan ke parent untuk menutup iframe
       if (window.parent && window.parent !== window) {
         window.parent.postMessage('tutup-iframe', '*');
       } else {
-        // Jika dibuka langsung, kembalikan ke beranda sesuai role
         const userData = localStorage.getItem("userLoginData");
         if (userData) {
           const user = JSON.parse(userData);
@@ -293,6 +227,7 @@
           alert("✅ Laporan berhasil dikirim!");
         }
 
+        // Reset Form
         document.getElementById("inTanggal").value = "";
         document.getElementById("inJam").value = "";
         document.getElementById("inNamaKegiatan").value = "";
@@ -405,17 +340,6 @@
     }
 
     window.cetakData = function(id) { window.print(); }
-
-    function logout() {
-      if (confirm("Yakin ingin keluar dari Portal IRMA?")) {
-        localStorage.removeItem("irmaLogin");
-        localStorage.removeItem("userLoginData");
-        window.location.href = "index.html";
-      }
-    }
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("open");
-    }
   </script>
 
 </body>
