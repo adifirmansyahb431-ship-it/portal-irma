@@ -20,7 +20,6 @@
       color: var(--text-color);
     }
 
-    /* TOMBOL KEMBALI DI ATAS */
     .top-nav {
       max-width: 1000px;
       margin: 0 auto 15px auto;
@@ -97,13 +96,8 @@
       font-weight: 600;
     }
 
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    tr:hover {
-      background-color: #f1f1f1;
-    }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    tr:hover { background-color: #f1f1f1; }
 
     .info-box {
       background-color: #e8f5e9;
@@ -123,9 +117,8 @@
 </head>
 <body>
 
-  <!-- TOMBOL KEMBALI (SUDAH DIPINDAH KE PALING ATAS) -->
   <div class="top-nav">
-    <button onclick="kembaliKeBeranda()" class="btn-kembali">← Kembali ke Beranda</button>
+    <button onclick="kembaliCerdas()" class="btn-kembali">← Kembali</button>
   </div>
 
   <div class="container">
@@ -259,15 +252,38 @@
 
   </div>
 
-  <!-- SCRIPT UNTUK TOMBOL KEMBALI -->
+  <!-- SCRIPT CERDAS UNTUK TOMBOL KEMBALI -->
   <script>
-    function kembaliKeBeranda() {
-      // Jika halaman dimuat di dalam iframe (beranda-siswa)
+    function kembaliCerdas() {
+      // 1. CEK JIKA BERADA DI DALAM IFRAME (Berarti dibuka dari beranda-siswa.html)
       if (window.parent && window.parent !== window) {
         window.parent.postMessage('tutup-iframe', '*');
-      } else {
-        // Jika dibuka langsung tanpa iframe, arahkan ke beranda
+        return;
+      }
+
+      // 2. JIKA DIBUKA LANGSUNG (Bukan iframe), CEK DARI MANA ASALNYA
+      // Kita menggunakan document.referrer untuk melihat halaman sebelumnya
+      const asalHalaman = document.referrer;
+
+      if (asalHalaman.includes("beranda.html") || asalHalaman.includes("bendahara.html") || asalHalaman.includes("admin-informasi.html")) {
+        // Jika sebelumnya berada di area Admin/Bendahara, kembalikan ke beranda admin
+        window.location.href = 'beranda.html';
+      } else if (asalHalaman.includes("beranda-siswa.html")) {
+        // Jika sebelumnya berada di area siswa, kembalikan ke beranda siswa
         window.location.href = 'beranda-siswa.html';
+      } else {
+        // Fallback (jika referrer kosong atau tidak diketahui): Cek data role di localStorage
+        const userLoginData = localStorage.getItem("userLoginData");
+        if (userLoginData) {
+          const user = JSON.parse(userLoginData);
+          if (user.email === "admin@irma.sch.id" || user.email === "bendahara@irma.sch.id") {
+            window.location.href = 'beranda.html';
+          } else {
+            window.location.href = 'beranda-siswa.html';
+          }
+        } else {
+          window.location.href = 'index.html';
+        }
       }
     }
   </script>
