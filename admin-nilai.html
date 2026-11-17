@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kelola Nilai Ekstrakurikuler - Admin IRMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+    
+    /* SIDEBAR (Sama seperti admin-informasi) */
+    .sidebar { width: 260px; background-color: #0b3c29; color: white; display: flex; flex-direction: column; padding: 20px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+    .sidebar-logo { text-align: center; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo img { width: 50px; height: 50px; object-fit: contain; }
+    .sidebar-logo h3 { margin: 10px 0 2px; font-size: 16px; color: #ffb703; }
+    .sidebar-logo p { margin: 0; font-size: 11px; color: #adb5bd; }
+    .menu-list { list-style: none; padding: 0; margin: 20px 0; overflow-y: auto; flex-grow: 1; }
+    .menu-item a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #adb5bd; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; }
+    .menu-item.active a, .menu-item a:hover { background-color: rgba(255,255,255,0.1); color: white; border-left: 4px solid #ffb703; }
+
+    /* MAIN CONTENT */
+    .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .topbar h2 { margin: 0; color: #0b3c29; font-size: 18px; }
+    .btn-keluar { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
+
+    .content-body { padding: 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+    .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    
+    /* TABEL NILAI */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
+    th { background: #f8f9fa; color: #0b3c29; font-weight: 700; text-transform: uppercase; font-size: 11px; }
+    input[type="number"] { width: 60px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-weight: bold; }
+    
+    .btn-simpan { background: #2a9d8f; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; margin-bottom: 20px; }
+    .btn-simpan:hover { background: #21867a; }
+    
+    .nilai-akhir { font-weight: 700; color: #0b3c29; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
+    .loading { text-align: center; padding: 20px; color: #777; }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener("DOMContentLoaded", () => { muatSiswaUntukNilai(); });
+
+    async function muatSiswaUntukNilai() {
+      const container = document.getElementById("tabelNilaiBody");
+      container.innerHTML = `<tr><td colspan="8" class="loading">Memuat data siswa...</td></tr>`;
+      
+      try {
+        const snapSiswa = await getDocs(collection(db, "biodata_siswa"));
+        if (snapSiswa.empty) {
+          container.innerHTML = `<tr><td colspan="8" class="loading">Belum ada data siswa.</td></tr>`;
+          return;
+        }
+
+        let html = "";
+        let no = 1;
+        
+        for (const docSiswa of snapSiswa.docs) {
+          const siswa = docSiswa.data();
+          const siswaId = docSiswa.id;
+          const nama = siswa.nama || siswa["Nama Lengkap"] || "-";
+          const kelas = siswa.kelas || siswa.Kelas || "-";
+
+          // Ambil nilai yang sudah ada (jika ada)
+          const nilaiRef = doc(db, "nilai_ekstrakurikuler", siswaId);
+          const nilaiSnap = await getDoc(nilaiRef);
+          let nilai = { kehadiran: 0, keaktifan: 0, tugas: 0, sikap: 0 };
+          if (nilaiSnap.exists()) {
+            nilai = nilaiSnap.data();
+          }
+
+          const nilaiAkhir = ((nilai.kehadiran * 0.3) + (nilai.keaktifan * 0.3) + (nilai.tugas * 0.2) + (nilai.sikap * 0.2)).toFixed(1);
+
+          html += `
+            <tr>
+              <td class="text-center">${no++}</td>
+              <td><strong>${nama}</strong></td>
+              <td class="text-center">${kelas}</td>
+              <td class="text-center"><input type="number" min="0" max="100" id="hadir_${siswaId}" value="${nilai.kehadiran || ''}" placeholder="0"></td>
+              <td class="text-center"><input type="number" min="0" max="100" id="aktif_${siswaId}" value="${nilai.keaktifan || ''}" placeholder="0"></td>
+              <td class="text-center"><input type="number" min="0" max="100" id="tugas_${siswaId}" value="${nilai.tugas || ''}" placeholder="0"></td>
+              <td class="text-center"><input type="number" min="0" max="100" id="sikap_${siswaId}" value="${nilai.sikap || ''}" placeholder="0"></td>
+              <td class="text-center"><span class="nilai-akhir" id="akhir_${siswaId}">${nilaiAkhir}</span></td>
+            </tr>
+          `;
+        }
+        container.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<tr><td colspan="8" class="loading" style="color:red;">Gagal memuat data.</td></tr>`;
+      }
+    }
+
+    // Fungsi Simpan Nilai Massal
+    window.simpanSemuaNilai = async function() {
+      if (!confirm("💾 Simpan semua perubahan nilai ekstrakurikuler?")) return;
+      
+      const inputs = document.querySelectorAll("input[type='number']");
+      let dataSimpan = {};
+
+      // Kelompokkan input berdasarkan ID Siswa
+      inputs.forEach(inp => {
+        const [komponen, siswaId] = inp.id.split('_');
+        if (!dataSimpan[siswaId]) dataSimpan[siswaId] = {};
+        
+        let val = parseFloat(inp.value) || 0;
+        if (val > 100) val = 100;
+        if (val < 0) val = 0;
+        
+        dataSimpan[siswaId][komponen] = val;
+      });
+
+      try {
+        for (const siswaId in dataSimpan) {
+          const nilai = dataSimpan[siswaId];
+          const nilaiAkhir = ((nilai.hadir * 0.3) + (nilai.aktif * 0.3) + (nilai.tugas * 0.2) + (nilai.sikap * 0.2)).toFixed(1);
+          
+          await setDoc(doc(db, "nilai_ekstrakurikuler", siswaId), {
+            kehadiran: nilai.hadir,
+            keaktifan: nilai.aktif,
+            tugas: nilai.tugas,
+            sikap: nilai.sikap,
+            nilaiAkhir: parseFloat(nilaiAkhir),
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+
+          // Update tampilan nilai akhir tanpa reload
+          document.getElementById(`akhir_${siswaId}`).innerText = nilaiAkhir;
+        }
+        alert("✅ Semua nilai berhasil disimpan!");
+      } catch (err) {
+        alert("❌ Gagal menyimpan nilai: " + err.message);
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <img src="logo.png" alt="Logo">
+      <h3>PORTAL IRMA</h3>
+      <p>MAN 3 BOGOR</p>
+    </div>
+    <ul class="menu-list">
+      <li class="menu-item"><a href="beranda.html">🏠 Home</a></li>
+      <li class="menu-item"><a href="admin-informasi.html">📢 Kelola Informasi</a></li>
+      <li class="menu-item"><a href="kegiatan.html">📅 Kelola Kegiatan</a></li>
+      <li class="menu-item active"><a href="admin-nilai.html">📊 Nilai Ekstrakurikuler</a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <div class="topbar">
+      <h2>📊 Panel Penilaian Ekstrakurikuler</h2>
+      <button onclick="localStorage.clear(); window.location.href='index.html';" class="btn-keluar">Keluar</button>
+    </div>
+
+    <div class="content-body">
+      <div class="box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div>
+            <h3 style="margin:0; color:#0b3c29;">Input Nilai Siswa</h3>
+            <p style="font-size:12px; color:#666; margin-top:5px;">Bobot: Kehadiran (30%), Keaktifan (30%), Tugas (20%), Sikap (20%)</p>
+          </div>
+          <button class="btn-simpan" onclick="simpanSemuaNilai()">💾 Simpan Semua Nilai</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px; text-align: center;">No</th>
+              <th>Nama Siswa</th>
+              <th style="text-align: center;">Kelas</th>
+              <th style="text-align: center;">Kehadiran</th>
+              <th style="text-align: center;">Keaktifan</th>
+              <th style="text-align: center;">Tugas</th>
+              <th style="text-align: center;">Sikap</th>
+              <th style="text-align: center;">Nilai Akhir</th>
+            </tr>
+          </thead>
+          <tbody id="tabelNilaiBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
