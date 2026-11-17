@@ -9,7 +9,7 @@
     * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
     body { background-color: #f4f6f9; margin: 0; display: flex; height: 100vh; overflow: hidden; }
     
-    /* SIDEBAR (Sama seperti admin-informasi) */
+    /* SIDEBAR */
     .sidebar { width: 260px; background-color: #0b3c29; color: white; display: flex; flex-direction: column; padding: 20px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
     .sidebar-logo { text-align: center; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-logo img { width: 50px; height: 50px; object-fit: contain; }
@@ -28,16 +28,28 @@
     .content-body { padding: 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
     .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     
+    /* FILTER KELAS */
+    .filter-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 15px 20px; border-radius: 8px; border: 1px solid #eee; }
+    .filter-container label { font-weight: 700; color: #0b3c29; font-size: 14px; }
+    .filter-container select { padding: 10px 15px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 14px; font-weight: 600; color: #333; min-width: 200px; cursor: pointer; }
+
     /* TABEL NILAI */
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
     th { background: #f8f9fa; color: #0b3c29; font-weight: 700; text-transform: uppercase; font-size: 11px; }
     input[type="number"] { width: 60px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-weight: bold; }
     
-    .btn-simpan { background: #2a9d8f; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; margin-bottom: 20px; }
+    .btn-simpan { background: #2a9d8f; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; }
     .btn-simpan:hover { background: #21867a; }
     
-    .nilai-akhir { font-weight: 700; color: #0b3c29; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
+    /* BADGE NILAI & PREDIKAT */
+    .nilai-akhir { font-weight: 700; color: #0b3c29; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; font-size: 12px;}
+    .predikat-badge { font-weight: 700; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: inline-block; min-width: 30px; text-align: center; }
+    .predikat-A { background: #2a9d8f; } /* Hijau */
+    .predikat-B { background: #3498db; } /* Biru */
+    .predikat-C { background: #f39c12; } /* Oranye */
+    .predikat-D { background: #e74c3c; } /* Merah */
+    
     .loading { text-align: center; padding: 20px; color: #777; }
   </style>
 
@@ -56,66 +68,138 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.addEventListener("DOMContentLoaded", () => { muatSiswaUntukNilai(); });
+    let semuaDataSiswa = [];
 
-    async function muatSiswaUntukNilai() {
+    // FUNGSI KONVERSI NILAI KE HURUF
+    window.getPredikat = function(nilai) {
+      if (nilai >= 85) return { huruf: 'A', class: 'predikat-A' };
+      if (nilai >= 75) return { huruf: 'B', class: 'predikat-B' };
+      if (nilai >= 65) return { huruf: 'C', class: 'predikat-C' };
+      return { huruf: 'D', class: 'predikat-D' };
+    }
+
+    window.addEventListener("DOMContentLoaded", () => { 
+      muatDataAwal(); 
+    });
+
+    async function muatDataAwal() {
       const container = document.getElementById("tabelNilaiBody");
-      container.innerHTML = `<tr><td colspan="8" class="loading">Memuat data siswa...</td></tr>`;
+      container.innerHTML = `<tr><td colspan="9" class="loading">Memuat data siswa...</td></tr>`;
       
       try {
         const snapSiswa = await getDocs(collection(db, "biodata_siswa"));
         if (snapSiswa.empty) {
-          container.innerHTML = `<tr><td colspan="8" class="loading">Belum ada data siswa.</td></tr>`;
+          container.innerHTML = `<tr><td colspan="9" class="loading">Belum ada data siswa.</td></tr>`;
           return;
         }
 
-        let html = "";
-        let no = 1;
-        
+        semuaDataSiswa = [];
         for (const docSiswa of snapSiswa.docs) {
           const siswa = docSiswa.data();
           const siswaId = docSiswa.id;
           const nama = siswa.nama || siswa["Nama Lengkap"] || "-";
           const kelas = siswa.kelas || siswa.Kelas || "-";
 
-          // Ambil nilai yang sudah ada (jika ada)
           const nilaiRef = doc(db, "nilai_ekstrakurikuler", siswaId);
           const nilaiSnap = await getDoc(nilaiRef);
-          let nilai = { kehadiran: 0, keaktifan: 0, tugas: 0, sikap: 0 };
+          let nilai = { kehadiran: 0, keaktifan: 0, tugas: 0, sikap: 0, nilaiAkhir: 0 };
           if (nilaiSnap.exists()) {
-            nilai = nilaiSnap.data();
+            nilai = { ...nilai, ...nilaiSnap.data() };
           }
 
-          const nilaiAkhir = ((nilai.kehadiran * 0.3) + (nilai.keaktifan * 0.3) + (nilai.tugas * 0.2) + (nilai.sikap * 0.2)).toFixed(1);
-
-          html += `
-            <tr>
-              <td class="text-center">${no++}</td>
-              <td><strong>${nama}</strong></td>
-              <td class="text-center">${kelas}</td>
-              <td class="text-center"><input type="number" min="0" max="100" id="hadir_${siswaId}" value="${nilai.kehadiran || ''}" placeholder="0"></td>
-              <td class="text-center"><input type="number" min="0" max="100" id="aktif_${siswaId}" value="${nilai.keaktifan || ''}" placeholder="0"></td>
-              <td class="text-center"><input type="number" min="0" max="100" id="tugas_${siswaId}" value="${nilai.tugas || ''}" placeholder="0"></td>
-              <td class="text-center"><input type="number" min="0" max="100" id="sikap_${siswaId}" value="${nilai.sikap || ''}" placeholder="0"></td>
-              <td class="text-center"><span class="nilai-akhir" id="akhir_${siswaId}">${nilaiAkhir}</span></td>
-            </tr>
-          `;
+          semuaDataSiswa.push({
+            id: siswaId, nama: nama, kelas: kelas, nilai: nilai
+          });
         }
-        container.innerHTML = html;
+
+        isiDropdownKelas();
+        renderTabel(semuaDataSiswa);
+
       } catch (err) {
         console.error(err);
-        container.innerHTML = `<tr><td colspan="8" class="loading" style="color:red;">Gagal memuat data.</td></tr>`;
+        container.innerHTML = `<tr><td colspan="9" class="loading" style="color:red;">Gagal memuat data.</td></tr>`;
       }
     }
 
-    // Fungsi Simpan Nilai Massal
+    function isiDropdownKelas() {
+      const select = document.getElementById("filterKelas");
+      const daftarKelas = [...new Set(semuaDataSiswa.map(s => s.kelas))].sort();
+      
+      let html = `<option value="semua">-- Tampilkan Semua Kelas --</option>`;
+      daftarKelas.forEach(k => {
+        html += `<option value="${k}">Kelas ${k}</option>`;
+      });
+      select.innerHTML = html;
+    }
+
+    window.filterTabel = function() {
+      const kelasDipilih = document.getElementById("filterKelas").value;
+      if (kelasDipilih === "semua") {
+        renderTabel(semuaDataSiswa);
+      } else {
+        const filtered = semuaDataSiswa.filter(s => s.kelas === kelasDipilih);
+        renderTabel(filtered);
+      }
+    }
+
+    function renderTabel(dataArray) {
+      const container = document.getElementById("tabelNilaiBody");
+      
+      if (dataArray.length === 0) {
+        container.innerHTML = `<tr><td colspan="9" class="loading">Tidak ada siswa di kelas ini.</td></tr>`;
+        return;
+      }
+
+      let html = "";
+      let no = 1;
+      
+      dataArray.forEach(s => {
+        const siswaId = s.id;
+        const nilai = s.nilai;
+        const nAngka = parseFloat(nilai.nilaiAkhir || 0).toFixed(1);
+        const predikat = window.getPredikat(parseFloat(nAngka));
+
+        html += `
+          <tr>
+            <td class="text-center">${no++}</td>
+            <td><strong>${s.nama}</strong></td>
+            <td class="text-center">${s.kelas}</td>
+            <td class="text-center"><input type="number" min="0" max="100" id="hadir_${siswaId}" value="${nilai.kehadiran || ''}" placeholder="0" oninput="hitungNilai('${siswaId}')"></td>
+            <td class="text-center"><input type="number" min="0" max="100" id="aktif_${siswaId}" value="${nilai.keaktifan || ''}" placeholder="0" oninput="hitungNilai('${siswaId}')"></td>
+            <td class="text-center"><input type="number" min="0" max="100" id="tugas_${siswaId}" value="${nilai.tugas || ''}" placeholder="0" oninput="hitungNilai('${siswaId}')"></td>
+            <td class="text-center"><input type="number" min="0" max="100" id="sikap_${siswaId}" value="${nilai.sikap || ''}" placeholder="0" oninput="hitungNilai('${siswaId}')"></td>
+            <td class="text-center"><span class="nilai-akhir" id="akhir_${siswaId}">${nAngka}</span></td>
+            <td class="text-center"><span class="predikat-badge ${predikat.class}" id="predikat_${siswaId}">${predikat.huruf}</span></td>
+          </tr>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // Fungsi untuk menghitung nilai akhir & predikat secara otomatis saat mengetik
+    window.hitungNilai = function(siswaId) {
+      const hadir = parseFloat(document.getElementById(`hadir_${siswaId}`).value) || 0;
+      const aktif = parseFloat(document.getElementById(`aktif_${siswaId}`).value) || 0;
+      const tugas = parseFloat(document.getElementById(`tugas_${siswaId}`).value) || 0;
+      const sikap = parseFloat(document.getElementById(`sikap_${siswaId}`).value) || 0;
+
+      const nilaiAkhir = ((hadir * 0.3) + (aktif * 0.3) + (tugas * 0.2) + (sikap * 0.2)).toFixed(1);
+      
+      document.getElementById(`akhir_${siswaId}`).innerText = nilaiAkhir;
+      
+      // Update Predikat
+      const predikat = window.getPredikat(parseFloat(nilaiAkhir));
+      const elPredikat = document.getElementById(`predikat_${siswaId}`);
+      elPredikat.innerText = predikat.huruf;
+      elPredikat.className = `predikat-badge ${predikat.class}`;
+    }
+
     window.simpanSemuaNilai = async function() {
-      if (!confirm("💾 Simpan semua perubahan nilai ekstrakurikuler?")) return;
+      if (!confirm("💾 Simpan perubahan nilai untuk siswa yang tampil di tabel?")) return;
       
       const inputs = document.querySelectorAll("input[type='number']");
       let dataSimpan = {};
 
-      // Kelompokkan input berdasarkan ID Siswa
       inputs.forEach(inp => {
         const [komponen, siswaId] = inp.id.split('_');
         if (!dataSimpan[siswaId]) dataSimpan[siswaId] = {};
@@ -131,6 +215,7 @@
         for (const siswaId in dataSimpan) {
           const nilai = dataSimpan[siswaId];
           const nilaiAkhir = ((nilai.hadir * 0.3) + (nilai.aktif * 0.3) + (nilai.tugas * 0.2) + (nilai.sikap * 0.2)).toFixed(1);
+          const predikat = window.getPredikat(parseFloat(nilaiAkhir));
           
           await setDoc(doc(db, "nilai_ekstrakurikuler", siswaId), {
             kehadiran: nilai.hadir,
@@ -138,11 +223,9 @@
             tugas: nilai.tugas,
             sikap: nilai.sikap,
             nilaiAkhir: parseFloat(nilaiAkhir),
+            predikat: predikat.huruf, // Simpan hurufnya juga ke database
             updatedAt: new Date().toISOString()
           }, { merge: true });
-
-          // Update tampilan nilai akhir tanpa reload
-          document.getElementById(`akhir_${siswaId}`).innerText = nilaiAkhir;
         }
         alert("✅ Semua nilai berhasil disimpan!");
       } catch (err) {
@@ -174,12 +257,18 @@
 
     <div class="content-body">
       <div class="box">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <div>
-            <h3 style="margin:0; color:#0b3c29;">Input Nilai Siswa</h3>
-            <p style="font-size:12px; color:#666; margin-top:5px;">Bobot: Kehadiran (30%), Keaktifan (30%), Tugas (20%), Sikap (20%)</p>
-          </div>
-          <button class="btn-simpan" onclick="simpanSemuaNilai()">💾 Simpan Semua Nilai</button>
+        
+        <div class="filter-container">
+          <label>Filter Kelas:</label>
+          <select id="filterKelas" onchange="filterTabel()">
+            <option value="semua">-- Tampilkan Semua Kelas --</option>
+          </select>
+          <div style="flex-grow:1;"></div>
+          <button class="btn-simpan" onclick="simpanSemuaNilai()">💾 Simpan Perubahan</button>
+        </div>
+
+        <div style="margin-bottom:15px;">
+          <p style="font-size:12px; color:#666; margin:0;">Standar Predikat: A (≥85), B (75-84), C (65-74), D (<65)</p>
         </div>
 
         <table>
@@ -192,7 +281,8 @@
               <th style="text-align: center;">Keaktifan</th>
               <th style="text-align: center;">Tugas</th>
               <th style="text-align: center;">Sikap</th>
-              <th style="text-align: center;">Nilai Akhir</th>
+              <th style="text-align: center;">Nilai</th>
+              <th style="text-align: center;">Predikat</th>
             </tr>
           </thead>
           <tbody id="tabelNilaiBody"></tbody>
