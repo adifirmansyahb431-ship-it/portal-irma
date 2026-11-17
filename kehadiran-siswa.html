@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kehadiran Saya - Portal IRMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+
+    /* HEADER */
+    .page-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #e0e0e0; padding-bottom: 15px; }
+    .btn-kembali { background: #6c757d; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; border: none; cursor: pointer; }
+    .btn-kembali:hover { background: #5a6268; }
+    .page-header h2 { color: #0a3622; font-size: 22px; }
+
+    .container { max-width: 800px; margin: 0 auto; }
+    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    h3 { color: #0a3622; margin-top: 0; border-bottom: 2px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px; font-size: 18px; }
+
+    .info-lokasi { background: #eaf2ed; border-left: 4px solid #0a3622; padding: 12px 15px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; line-height: 1.5; color: #0a3622; }
+    
+    .status-box { text-align: center; padding: 15px; background: #fff8e1; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffe0b2; }
+    .status-box h4 { color: #f57f17; font-size: 14px; margin-bottom: 5px; }
+    .status-box p { font-size: 11px; color: #666; margin-top: 3px; }
+
+    .btn-absen { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; margin-bottom: 12px; }
+    .btn-masuk { background-color: #27ae60; }
+    .btn-masuk:hover { background-color: #219653; }
+    .btn-pulang { background-color: #e67e22; }
+    .btn-pulang:hover { background-color: #d35400; }
+
+    .summary-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
+    .summary-card { background: white; padding: 15px 10px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
+    .summary-card.hadir { border-top-color: #27ae60; }
+    .summary-card.sakit { border-top-color: #f39c12; }
+    .summary-card.izin { border-top-color: #3498db; }
+    .summary-card.alpa { border-top-color: #e74c3c; }
+    .summary-card h4 { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+    .summary-card .count { font-size: 20px; font-weight: 700; color: #0a3622; }
+
+    .riwayat-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+    .riwayat-table th, .riwayat-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    .riwayat-table th { background-color: #0a3622; color: white; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
+    .badge-hadir { background-color: #27ae60; }
+    .badge-terlambat { background-color: #e74c3c; }
+    .badge-pulang { background-color: #e67e22; }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const TARGET_LAT = -6.457952;
+    const TARGET_LNG = 107.055545;
+    const MAX_JARAK_METER = 200; 
+
+    function hitungJarak(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; 
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2-lat1) * Math.PI/180;
+      const Δλ = (lon2-lon1) * Math.PI/180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c; 
+    }
+
+    window.kembaliCerdas = function() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage('tutup-iframe', '*');
+      } else {
+        window.location.href = 'beranda-siswa.html';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const userId = localStorage.getItem("irmaUserId");
+      if (!userId) {
+        alert("Sesi login tidak ditemukan. Silakan login ulang.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      try {
+        const userDoc = await getDoc(doc(db, "biodata_siswa", userId));
+        if (userDoc.exists()) {
+          document.getElementById("namaSiswa").innerText = userDoc.data().nama || "Anggota IRMA";
+        }
+      } catch (e) { console.error(e); }
+
+      muatRiwayatDanRekap(userId);
+    });
+
+    window.kirimAbsen = function(tipe) {
+      const userId = localStorage.getItem("irmaUserId");
+      if (!userId) return;
+
+      if (!navigator.geolocation) {
+        alert("❌ Browser Anda tidak Mendukung Geolocation.");
+        return;
+      }
+
+      document.getElementById("statusGPS").innerText = "📍 Sedang mendeteksi posisi GPS Anda...";
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+
+        const jarak = hitungJarak(userLat, userLng, TARGET_LAT, TARGET_LNG);
+        document.getElementById("statusGPS").innerText = `📍 Jarak Anda dari MAN 3 Bogor: ${Math.round(jarak)} meter`;
+
+        if (jarak > MAX_JARAK_METER) {
+          alert(`❌ Absen Gagal! Anda berada di luar radius MAN 3 Bogor (Jarak: ${Math.round(jarak)} meter). Harap berada di lingkungan madrasah.`);
+          return;
+        }
+
+        const sekarang = new Date();
+        const tanggalHariIni = sekarang.toISOString().split('T')[0]; 
+        const jamSekarang = sekarang.toTimeString().split(' ')[0]; 
+
+        const docId = `${userId}_${tanggalHariIni}`;
+        const absenRef = doc(db, "kehadiran_siswa", docId);
+
+        try {
+          const docSnap = await getDoc(absenRef);
+          let dataAbsen = docSnap.exists() ? docSnap.data() : { userId, tanggal: tanggalHariIni };
+
+          if (tipe === 'masuk') {
+            const batasMasuk = "08:00:00";
+            const statusMasuk = jamSekarang <= batasMasuk ? "Hadir" : "Terlambat";
+            
+            dataAbsen.jamMasuk = jamSekarang;
+            dataAbsen.statusMasuk = statusMasuk;
+            
+            await setDoc(absenRef, dataAbsen, { merge: true });
+            alert(`✅ Absen Masuk Berhasil pada Pukul ${jamSekarang}! Status: ${statusMasuk}`);
+          } 
+          else if (tipe === 'pulang') {
+            const batasPulang = "12:00:00";
+            if (jamSekarang < "12:00:00") {
+              if (!confirm("⚠️ Belum pukul 12.00 WIB. Yakin ingin melakukan absensi pulang sekarang?")) {
+                return;
+              }
+            }
+            dataAbsen.jamPulang = jamSekarang;
+            dataAbsen.statusPulang = "Pulang";
+
+            await setDoc(absenRef, dataAbsen, { merge: true });
+            alert(`✅ Absen Pulang Berhasil dicatat pada Pukul ${jamSekarang}!`);
+          }
+
+          muatRiwayatDanRekap(userId);
+
+        } catch (error) {
+          alert("❌ Gagal menyimpan absensi: " + error.message);
+        }
+
+      }, (error) => {
+        alert("❌ Gagal mendeteksi lokasi GPS. Pastikan izin lokasi (Location Permission) browser aktif.");
+        console.error(error);
+      }, { enableHighAccuracy: true });
+    }
+
+    async function muatRiwayatDanRekap(userId) {
+      const tbody = document.getElementById("riwayatBody");
+      const summaryContainer = document.getElementById("summaryKehadiran");
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">⏳ Memuat riwayat...</td></tr>`;
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "kehadiran_siswa"));
+        let dataHadir = [];
+        
+        querySnapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          if (d.userId === userId) {
+            dataHadir.push(d);
+          }
+        });
+
+        dataHadir.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        const bulanIni = new Date().getMonth();
+        const tahunIni = new Date().getFullYear();
+        let rekap = { hadir: 0, sakit: 0, izin: 0, alpa: 0 };
+
+        dataHadir.forEach(d => {
+          const tgl = new Date(d.tanggal);
+          if (tgl.getMonth() === bulanIni && tgl.getFullYear() === tahunIni) {
+            if (d.jamMasuk) rekap.hadir++;
+          }
+        });
+
+        summaryContainer.innerHTML = `
+          <div class="summary-card hadir"><h4>Hadir</h4><div class="count">${rekap.hadir}</div></div>
+          <div class="summary-card sakit"><h4>Sakit</h4><div class="count">${rekap.sakit}</div></div>
+          <div class="summary-card izin"><h4>Izin</h4><div class="count">${rekap.izin}</div></div>
+          <div class="summary-card alpa"><h4>Tanpa Ket.</h4><div class="count">${rekap.alpa}</div></div>
+        `;
+
+        tbody.innerHTML = "";
+        let no = 1;
+
+        if (dataHadir.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada riwayat kehadiran.</td></tr>`;
+          return;
+        }
+
+        dataHadir.forEach(d => {
+          const badgeMasuk = d.statusMasuk === "Terlambat" ? "badge-terlambat" : "badge-hadir";
+          
+          tbody.innerHTML += `
+            <tr>
+              <td>${no++}</td>
+              <td>${d.tanggal}</td>
+              <td>${d.jamMasuk || '-'} <br><span class="badge ${badgeMasuk}">${d.statusMasuk || ''}</span></td>
+              <td>${d.jamPulang || '-'}</td>
+              <td>${d.statusPulang || 'Belum Pulang'}</td>
+            </tr>
+          `;
+        });
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat riwayat.</td></tr>`;
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <div class="page-header">
+    <button onclick="kembaliCerdas()" class="btn-kembali">← Kembali</button>
+    <h2>📋 Kehadiran Saya</h2>
+  </div>
+
+  <div class="container">
+    <!-- KARTU ABSENSI GPS -->
+    <div class="card">
+      <h3>📍 Presensi Kehadiran - <span id="namaSiswa">Loading...</span></h3>
+      
+      <div class="info-lokasi">
+        <b>Lokasi Presensi:</b> MAN 3 Bogor<br>
+        Jl. Rawa Gumbira No. 39, Sukamaju, Jonggol, Kab. Bogor.<br>
+        ⏱️ <b>Jam Masuk:</b> 08.00 WIB | ⏱️ <b>Jam Pulang:</b> 12.00 WIB
+      </div>
+
+      <div class="status-box">
+        <h4 id="statusGPS">📍 Menunggu deteksi GPS lokasi Anda...</h4>
+        <p>Pastikan Anda berada di area lingkungan madrasah (radius ±200 meter).</p>
+      </div>
+
+      <button onclick="kirimAbsen('masuk')" class="btn-absen btn-masuk">🟢 Absen Masuk (Batas 08:00 WIB)</button>
+      <button onclick="kirimAbsen('pulang')" class="btn-absen btn-pulang">🟠 Absen Pulang (Mulai 12:00 WIB)</button>
+    </div>
+
+    <!-- KARTU REKAP BULANAN -->
+    <div class="card">
+      <h3>📊 Rekap Kehadiran Bulan Ini</h3>
+      <div class="summary-container" id="summaryKehadiran">
+        <!-- Diisi via JS -->
+      </div>
+    </div>
+
+    <!-- KARTU RIWAYAT DETAIL -->
+    <div class="card">
+      <h3>📜 Riwayat Kehadiran Saya</h3>
+      <div style="overflow-x: auto;">
+        <table class="riwayat-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Tanggal</th>
+              <th>Jam Masuk</th>
+              <th>Jam Pulang</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="riwayatBody">
+            <tr><td colspan="5" style="text-align:center;">Memuat riwayat...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
