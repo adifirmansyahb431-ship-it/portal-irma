@@ -1,1 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekap Kehadiran - Admin IRMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
 
+    /* SIDEBAR */
+    .sidebar { width: 260px; background-color: #0b3c29; color: white; display: flex; flex-direction: column; padding: 20px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+    .sidebar-logo { text-align: center; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo img { width: 50px; height: 50px; object-fit: contain; }
+    .sidebar-logo h3 { margin: 10px 0 2px; font-size: 16px; color: #ffb703; }
+    .sidebar-logo p { margin: 0; font-size: 11px; color: #adb5bd; }
+    .menu-list { list-style: none; padding: 0; margin: 20px 0; overflow-y: auto; flex-grow: 1; }
+    .menu-item a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #adb5bd; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; }
+    .menu-item.active a, .menu-item a:hover { background-color: rgba(255,255,255,0.1); color: white; border-left: 4px solid #ffb703; }
+
+    /* MAIN CONTENT */
+    .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .topbar-left { display: flex; align-items: center; gap: 20px; }
+    .topbar h2 { margin: 0; color: #0b3c29; font-size: 18px; }
+    
+    .btn-kembali { background: #6c757d; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; border: none; cursor: pointer; }
+    .btn-kembali:hover { background: #5a6268; }
+    .btn-keluar { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
+
+    .content-body { padding: 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+    .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
+    th { background: #f8f9fa; color: #0b3c29; font-weight: 700; text-transform: uppercase; font-size: 11px; text-align: center; }
+    td { text-align: center; }
+    
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; display: inline-block; }
+    .badge-hadir { background-color: #27ae60; }
+    .badge-terlambat { background-color: #e74c3c; }
+    .badge-pulang { background-color: #e67e22; }
+    .loading { text-align: center; padding: 20px; color: #777; }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener("DOMContentLoaded", () => { muatRekapAdmin(); });
+
+    async function muatRekapAdmin() {
+      const tbody = document.getElementById("tabelRekapBody");
+      tbody.innerHTML = `<tr><td colspan="6" class="loading">Memuat data...</td></tr>`;
+
+      try {
+        const snapSiswa = await getDocs(collection(db, "biodata_siswa"));
+        const snapHadir = await getDocs(collection(db, "kehadiran_siswa"));
+        
+        let mapKehadiran = {};
+        snapHadir.forEach(d => {
+          const data = d.data();
+          if(!mapKehadiran[data.userId]) mapKehadiran[data.userId] = [];
+          mapKehadiran[data.userId].push(data);
+        });
+
+        let html = "";
+        let no = 1;
+
+        if (snapSiswa.empty) {
+          tbody.innerHTML = `<tr><td colspan="6" class="loading">Belum ada data siswa.</td></tr>`;
+          return;
+        }
+
+        for (const docSiswa of snapSiswa.docs) {
+          const siswa = docSiswa.data();
+          const siswaId = docSiswa.id;
+          const nama = siswa.nama || "-";
+          const kelas = siswa.kelas || "-";
+
+          const dataHadirSiswa = mapKehadiran[siswaId] || [];
+          
+          let totalHadir = 0, totalTerlambat = 0, totalPulang = 0;
+          dataHadirSiswa.forEach(h => {
+            if (h.jamMasuk) {
+              if (h.statusMasuk === "Terlambat") totalTerlambat++;
+              else totalHadir++;
+            }
+            if (h.jamPulang) totalPulang++;
+          });
+
+          html += `
+            <tr>
+              <td>${no++}</td>
+              <td><strong>${nama}</strong></td>
+              <td>${kelas}</td>
+              <td><span class="badge badge-hadir">${totalHadir} Hadir</span></td>
+              <td><span class="badge badge-terlambat">${totalTerlambat} Terlambat</span></td>
+              <td><span class="badge badge-pulang">${totalPulang} Pulang</span></td>
+            </tr>
+          `;
+        }
+        tbody.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:red;">Gagal memuat data.</td></tr>`;
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <img src="logo.png" alt="Logo">
+      <h3>PORTAL IRMA</h3>
+      <p>MAN 3 BOGOR</p>
+    </div>
+    <ul class="menu-list">
+      <li class="menu-item"><a href="beranda.html">🏠 Home</a></li>
+      <li class="menu-item"><a href="admin-informasi.html">📢 Kelola Informasi</a></li>
+      <li class="menu-item"><a href="kegiatan.html">📅 Kelola Kegiatan</a></li>
+      <li class="menu-item"><a href="admin-nilai.html">📊 Nilai Ekstrakurikuler</a></li>
+      <li class="menu-item active"><a href="admin-kehadiran.html">📋 Rekap Kehadiran</a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <a href="beranda.html" class="btn-kembali">← Kembali ke Beranda</a>
+        <h2>📋 Rekap Kehadiran Seluruh Anggota</h2>
+      </div>
+      <button onclick="localStorage.clear(); window.location.href='index.html';" class="btn-keluar">Keluar</button>
+    </div>
+
+    <div class="content-body">
+      <div class="box">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px;">No</th>
+              <th>Nama Siswa</th>
+              <th>Kelas</th>
+              <th>Total Hadir (Tepat Waktu)</th>
+              <th>Total Terlambat</th>
+              <th>Total Absen Pulang</th>
+            </tr>
+          </thead>
+          <tbody id="tabelRekapBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
