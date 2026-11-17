@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nilai Ekstrakurikuler - Portal IRMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+
+    .page-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #e0e0e0; padding-bottom: 15px; }
+    .btn-kembali { background: #6c757d; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: none; cursor: pointer; }
+    .btn-kembali:hover { background: #5a6268; }
+    .page-header h2 { color: #0a3622; font-size: 22px; }
+
+    .card-nilai { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 600px; margin: 0 auto; text-align: center; }
+    .card-nilai h3 { color: #0a3622; font-size: 18px; margin-bottom: 5px; }
+    .card-nilai p { color: #666; font-size: 14px; margin-bottom: 25px; }
+    
+    .nilai-besar { font-size: 60px; font-weight: 700; color: #2a9d8f; line-height: 1; margin-bottom: 10px; }
+    .predikat { font-size: 16px; font-weight: 600; color: #d4af37; background: #fff3cd; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-bottom: 30px; }
+
+    .rincian { text-align: left; background: #f8f9fa; padding: 20px; border-radius: 10px; }
+    .rincian-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ddd; font-size: 14px; }
+    .rincian-item:last-child { border-bottom: none; }
+    .rincian-item span:last-child { font-weight: 700; color: #0a3622; }
+
+    .loading { text-align: center; padding: 40px; color: #777; font-style: italic; }
+    .error-box { background: #ffebee; color: #c62828; padding: 20px; border-radius: 8px; text-align: center; }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.kembaliCerdas = function() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage('tutup-iframe', '*');
+      } else {
+        window.location.href = 'beranda-siswa.html';
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const container = document.getElementById("kontenNilai");
+      const uidSiswa = localStorage.getItem("irmaUserId");
+      const userLogin = JSON.parse(localStorage.getItem("userLoginData") || "{}");
+      const nisSiswa = userLogin.nis || "";
+
+      if (!uidSiswa && !nisSiswa) {
+        container.innerHTML = `<div class="error-box">Sesi login tidak ditemukan.</div>`;
+        return;
+      }
+
+      try {
+        let siswaId = null;
+        let namaSiswa = "Siswa";
+
+        // 1. Cari ID Siswa berdasarkan NIS atau UID
+        const snapSiswa = await getDocs(collection(db, "biodata_siswa"));
+        snapSiswa.forEach(d => {
+          const data = d.data();
+          const nisnDB = String(data.nisn || data.nis || "").trim();
+          if (d.id === uidSiswa || nisnDB === String(nisSiswa).trim()) {
+            siswaId = d.id;
+            namaSiswa = data.nama || "Siswa";
+          }
+        });
+
+        if (!siswaId) {
+          container.innerHTML = `<div class="error-box">Data siswa tidak ditemukan.</div>`;
+          return;
+        }
+
+        // 2. Ambil data nilai
+        const nilaiSnap = await getDoc(doc(db, "nilai_ekstrakurikuler", siswaId));
+        
+        if (!nilaiSnap.exists()) {
+          container.innerHTML = `<div class="error-box" style="background:#f8f9fa; color:#666; border:1px solid #ddd;">Nilai belum diinput oleh Pembina. Silakan cek kembali nanti.</div>`;
+          return;
+        }
+
+        const nilai = nilaiSnap.data();
+        const nAkhir = nilai.nilaiAkhir || 0;
+        
+        // Tentukan Predikat
+        let predikat = "E";
+        if (nAkhir >= 85) predikat = "A (Sangat Baik)";
+        else if (nAkhir >= 75) predikat = "B (Baik)";
+        else if (nAkhir >= 65) predikat = "C (Cukup)";
+        else if (nAkhir >= 50) predikat = "D (Kurang)";
+
+        container.innerHTML = `
+          <div class="card-nilai">
+            <h3>${namaSiswa}</h3>
+            <p>Hasil Penilaian Ekstrakurikuler IRMA</p>
+            
+            <div class="nilai-besar">${nAkhir}</div>
+            <div class="predikat">Predikat: ${predikat}</div>
+
+            <div class="rincian">
+              <div class="rincian-item"><span>Kehadiran (30%)</span> <span>${nilai.kehadiran || 0}</span></div>
+              <div class="rincian-item"><span>Keaktifan (30%)</span> <span>${nilai.keaktifan || 0}</span></div>
+              <div class="rincian-item"><span>Tugas/Proyek (20%)</span> <span>${nilai.tugas || 0}</span></div>
+              <div class="rincian-item"><span>Sikap (20%)</span> <span>${nilai.sikap || 0}</span></div>
+            </div>
+          </div>
+        `;
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div class="error-box">Gagal memuat data nilai.</div>`;
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="page-header">
+    <button onclick="kembaliCerdas()" class="btn-kembali">← Kembali</button>
+    <h2>📊 Nilai Ekstrakurikuler</h2>
+  </div>
+
+  <div id="kontenNilai">
+    <div class="loading">Memuat data nilai...</div>
+  </div>
+
+</body>
+</html>
