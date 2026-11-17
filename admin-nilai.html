@@ -61,6 +61,7 @@
     .btn-cetak-orang:hover { background: #8e44ad; }
     
     .loading { text-align: center; padding: 20px; color: #777; }
+    .error-box { background: #ffebee; color: #c62828; padding: 20px; border-radius: 8px; text-align: center; font-weight: bold; }
   </style>
 
   <script type="module">
@@ -96,46 +97,63 @@
       
       try {
         const snapSiswa = await getDocs(collection(db, "biodata_siswa"));
+        
         if (snapSiswa.empty) {
-          container.innerHTML = `<tr><td colspan="10" class="loading">Belum ada data siswa.</td></tr>`;
+          container.innerHTML = `<tr><td colspan="10" class="loading">Belum ada data siswa di database.</td></tr>`;
           return;
         }
 
         semuaDataSiswa = [];
+        
+        // Menggunakan for...of agar proses async berjalan berurutan dan aman
         for (const docSiswa of snapSiswa.docs) {
-          const siswa = docSiswa.data();
-          const siswaId = docSiswa.id;
-          const nama = siswa.nama || siswa["Nama Lengkap"] || "-";
-          const kelas = siswa.kelas || siswa.Kelas || "-";
-          const nisn = siswa.nisn || siswa.nis || "-";
-          
-          // AMBIL FOTO: Prioritaskan fotoUrl (Base64) atau foto (URL)
-          const foto = siswa.fotoUrl || siswa.foto || ""; 
+          try {
+            const siswa = docSiswa.data();
+            const siswaId = docSiswa.id;
+            
+            // Ambil data dengan fallback jika kosong
+            const nama = siswa.nama || siswa["Nama Lengkap"] || "Tanpa Nama";
+            const kelas = siswa.kelas || siswa.Kelas || "-";
+            const nisn = siswa.nisn || siswa.nis || "-";
+            const foto = siswa.fotoUrl || siswa.foto || ""; 
 
-          const nilaiRef = doc(db, "nilai_ekstrakurikuler", siswaId);
-          const nilaiSnap = await getDoc(nilaiRef);
-          let nilai = { kehadiran: 0, keaktifan: 0, tugas: 0, sikap: 0, nilaiAkhir: 0 };
-          if (nilaiSnap.exists()) {
-            nilai = { ...nilai, ...nilaiSnap.data() };
+            // Ambil nilai (jika ada)
+            let nilai = { kehadiran: 0, keaktifan: 0, tugas: 0, sikap: 0, nilaiAkhir: 0 };
+            try {
+              const nilaiRef = doc(db, "nilai_ekstrakurikuler", siswaId);
+              const nilaiSnap = await getDoc(nilaiRef);
+              if (nilaiSnap.exists()) {
+                nilai = { ...nilai, ...nilaiSnap.data() };
+              }
+            } catch (e) {
+              console.warn("Gagal ambil nilai untuk:", nama, e);
+            }
+
+            semuaDataSiswa.push({
+              id: siswaId, nama: nama, kelas: kelas, nisn: nisn, foto: foto, nilai: nilai
+            });
+          } catch (errInner) {
+            console.error("Error parsing data siswa:", errInner);
           }
+        }
 
-          semuaDataSiswa.push({
-            id: siswaId, nama: nama, kelas: kelas, nisn: nisn, foto: foto, nilai: nilai
-          });
+        if (semuaDataSiswa.length === 0) {
+          container.innerHTML = `<tr><td colspan="10" class="loading">Data siswa kosong atau gagal dibaca.</td></tr>`;
+          return;
         }
 
         isiDropdownKelas();
         filterTabel();
 
       } catch (err) {
-        console.error(err);
-        container.innerHTML = `<tr><td colspan="10" class="loading" style="color:red;">Gagal memuat data.</td></tr>`;
+        console.error("Error Firebase:", err);
+        container.innerHTML = `<tr><td colspan="10"><div class="error-box">Gagal memuat data dari Firebase.<br>Error: ${err.message}</div></td></tr>`;
       }
     }
 
     function isiDropdownKelas() {
       const select = document.getElementById("filterKelas");
-      const daftarKelas = [...new Set(semuaDataSiswa.map(s => s.kelas))].sort();
+      const daftarKelas = [...new Set(semuaDataSiswa.map(s => String(s.kelas)))].sort();
       let html = `<option value="semua">-- Tampilkan Semua Kelas --</option>`;
       daftarKelas.forEach(k => { html += `<option value="${k}">Kelas ${k}</option>`; });
       select.innerHTML = html;
@@ -146,7 +164,7 @@
       if (kelasDipilih === "semua") {
         dataTampilSekarang = semuaDataSiswa;
       } else {
-        dataTampilSekarang = semuaDataSiswa.filter(s => s.kelas === kelasDipilih);
+        dataTampilSekarang = semuaDataSiswa.filter(s => String(s.kelas) === kelasDipilih);
       }
       renderTabel(dataTampilSekarang);
     }
@@ -163,7 +181,7 @@
       
       dataArray.forEach(s => {
         const siswaId = s.id;
-        const nilai = s.nilai;
+        const nilai = s.nilai || {};
         const nAngka = parseFloat(nilai.nilaiAkhir || 0).toFixed(1);
         const predikat = window.getPredikat(parseFloat(nAngka));
 
@@ -247,15 +265,10 @@
       
       const motivasi = "Teruslah bersemangat dalam menuntut ilmu dan berorganisasi. Jadilah pribadi yang berakhlak mulia, disiplin, dan bermanfaat bagi agama, nusa, dan bangsa.";
 
-      // LOGIKA FOTO: 
-      // Jika ada foto (Base64 atau URL), gunakan itu. 
-      // Jika tidak, gunakan avatar otomatis.
       let htmlFoto = "";
       if (siswa.foto && siswa.foto.length > 50) {
-        // Tampilkan foto asli (Base64 atau URL panjang)
         htmlFoto = `<img src="${siswa.foto}" style="width:100%; height:100%; object-fit:cover;">`;
       } else {
-        // Tampilkan avatar inisial nama
         htmlFoto = `<img src="https://ui-avatars.com/api/?name=${siswa.nama.replace(/ /g, '+')}&background=eee&color=aaa&size=200" style="width:100%; height:100%; object-fit:cover;">`;
       }
 
@@ -276,7 +289,6 @@
             .biodata-table { width: 100%; margin-bottom: 20px; font-size: 14px; }
             .biodata-table td { padding: 4px 0; vertical-align: top; }
             
-            /* CSS FOTO DIPERBAIKI */
             .foto-box { width: 100px; height: 130px; border: 1px solid #000; float: right; overflow: hidden; background: #f0f0f0; }
             .foto-box img { width: 100%; height: 100%; object-fit: cover; }
             
@@ -304,7 +316,6 @@
 
           <div class="judul-rapor">LAPORAN HASIL PENILAIAN EKSTRAKURIKULER</div>
 
-          <!-- FOTO PROFIL DENGAN LOGIKA BARU -->
           <div class="foto-box">
             ${htmlFoto}
           </div>
@@ -369,7 +380,7 @@
       `);
       
       win.document.close();
-      setTimeout(() => { win.print(); }, 800); // Waktu tunggu ditambah agar Base64 termuat
+      setTimeout(() => { win.print(); }, 800);
     };
 
     window.cetakRekap = function() {
