@@ -704,11 +704,12 @@
       }, 300);
     }
 
-    // FUNGSI SIMPAN SEMUA IURAN KELAS KETIKA TOMBOL SIMPAN DIKLIK
+    // ==========================================
+    // FUNGSI SIMPAN SEMUA IURAN (DIPERBAIKI)
+    // ==========================================
     window.simpanSemuaIuran = async function(kelasTarget) {
       const checkboxes = document.querySelectorAll(`.iuran-input-${kelasTarget}`);
       
-      // Panggil fungsi langsung dari window.fbTools agar dijamin tersedia
       const { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, getDocs, query, where, deleteDoc } = window.fbTools;
       
       if (!confirm(`💾 Simpan perubahan iuran untuk Kelas ${kelasTarget === '10' ? 'X' : 'XI'}?`)) return;
@@ -716,6 +717,7 @@
       try {
         let perubahanSiswa = {};
 
+        // 1. Kumpulkan data dari checkbox
         checkboxes.forEach(cb => {
           const sId = cb.getAttribute("data-siswa");
           const nama = cb.getAttribute("data-nama");
@@ -728,6 +730,10 @@
           perubahanSiswa[sId].bulan[bulan] = isChecked;
         });
 
+        let jumlahTambah = 0;
+        let jumlahHapus = 0;
+
+        // 2. Loop setiap siswa
         for (const sId in perubahanSiswa) {
           const iuranRef = doc(window.db, "iuran_bulanan", sId);
           const iuranSnap = await getDoc(iuranRef);
@@ -738,16 +744,18 @@
           const namaSiswa = perubahanSiswa[sId].nama;
           const jurnalRef = collection(window.db, "jurnal_irma");
 
+          // 3. Loop setiap bulan
           for (const b in bulanBaru) {
             const statusBaru = bulanBaru[b];
             const statusLama = !!dataLama.bulan[b];
 
+            // Jika ada perubahan status
             if (statusBaru !== statusLama) {
               dataLama.bulan[b] = statusBaru;
               const ketUnik = `Iuran Kas ${b.toUpperCase()} - ${namaSiswa} (${sId})`;
 
-              if (statusBaru) {
-                // Jika dicentang (Lunas)
+              if (statusBaru === true) {
+                // TAMBAH JURNAL
                 await addDoc(jurnalRef, {
                   jenisPost: "Pendapatan",
                   kategoriAkun: "411 - Iuran / Kas Bulanan",
@@ -756,25 +764,31 @@
                   waktu: serverTimestamp(),
                   tanggal: new Date().toLocaleDateString("id-ID")
                 });
+                jumlahTambah++;
               } else {
-                // Jika dicentang dihilangkan (Batal Lunas)
-                // Cari jurnal dengan keterangan yang sama lalu hapus
+                // HAPUS JURNAL
                 const qJurnal = query(jurnalRef, where("keterangan", "==", ketUnik));
                 const snapJurnal = await getDocs(qJurnal);
-                
-                // Gunakan loop for...of agar proses hapus selesai sebelum lanjut
                 for (const jDoc of snapJurnal.docs) {
                   await deleteDoc(doc(window.db, "jurnal_irma", jDoc.id));
+                  jumlahHapus++;
                 }
               }
             }
           }
 
+          // 4. Simpan status centang
           dataLama.updatedAt = new Date().toISOString();
           await setDoc(iuranRef, dataLama, { merge: true });
         }
 
-        alert("✅ Data iuran kas berhasil disimpan dan dicatat ke Jurnal Umum!");
+        // 5. Notifikasi Hasil
+        if (jumlahTambah === 0 && jumlahHapus === 0) {
+          alert("ℹ️ Tidak ada perubahan status iuran yang perlu disimpan.");
+        } else {
+          alert(`✅ Berhasil disimpan!\n- ${jumlahTambah} Jurnal Pendapatan ditambahkan.\n- ${jumlahHapus} Jurnal Pendapatan dibatalkan.`);
+        }
+        
         muatDataKas();
       } catch (error) {
         console.error("Error simpan iuran: ", error);
