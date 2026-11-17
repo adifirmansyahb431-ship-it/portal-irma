@@ -79,7 +79,7 @@
     const db = getFirestore(app);
 
     let semuaDataSiswa = [];
-    let dataTampilSekarang = []; // Untuk menyimpan data yang sedang difilter (untuk cetak rekap)
+    let dataTampilSekarang = []; 
 
     window.getPredikat = function(nilai) {
       if (nilai >= 85) return { huruf: 'A', class: 'predikat-A' };
@@ -108,7 +108,9 @@
           const nama = siswa.nama || siswa["Nama Lengkap"] || "-";
           const kelas = siswa.kelas || siswa.Kelas || "-";
           const nisn = siswa.nisn || siswa.nis || "-";
-          const foto = siswa.fotoUrl || siswa.foto || ""; // Ambil link foto jika ada
+          
+          // AMBIL FOTO: Prioritaskan fotoUrl (Base64) atau foto (URL)
+          const foto = siswa.fotoUrl || siswa.foto || ""; 
 
           const nilaiRef = doc(db, "nilai_ekstrakurikuler", siswaId);
           const nilaiSnap = await getDoc(nilaiRef);
@@ -234,9 +236,7 @@
     // FITUR CETAK
     // ==========================================
 
-    // 1. CETAK RAPOR PER ORANG
     window.cetakRaporIndividu = function(siswaId) {
-      // Cari data siswa yang dipilih
       const siswa = semuaDataSiswa.find(s => s.id === siswaId);
       if (!siswa) return;
 
@@ -245,13 +245,22 @@
       const predikat = window.getPredikat(parseFloat(nAngka));
       const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
       
-      // Teks Motivasi (Bisa Anda ubah sesuai selera)
       const motivasi = "Teruslah bersemangat dalam menuntut ilmu dan berorganisasi. Jadilah pribadi yang berakhlak mulia, disiplin, dan bermanfaat bagi agama, nusa, dan bangsa.";
 
-      // Membuka tab baru untuk mencetak
+      // LOGIKA FOTO: 
+      // Jika ada foto (Base64 atau URL), gunakan itu. 
+      // Jika tidak, gunakan avatar otomatis.
+      let htmlFoto = "";
+      if (siswa.foto && siswa.foto.length > 50) {
+        // Tampilkan foto asli (Base64 atau URL panjang)
+        htmlFoto = `<img src="${siswa.foto}" style="width:100%; height:100%; object-fit:cover;">`;
+      } else {
+        // Tampilkan avatar inisial nama
+        htmlFoto = `<img src="https://ui-avatars.com/api/?name=${siswa.nama.replace(/ /g, '+')}&background=eee&color=aaa&size=200" style="width:100%; height:100%; object-fit:cover;">`;
+      }
+
       const win = window.open('', '_blank');
       
-      // HTML untuk halaman cetak
       win.document.write(`
         <html>
         <head>
@@ -266,7 +275,10 @@
             
             .biodata-table { width: 100%; margin-bottom: 20px; font-size: 14px; }
             .biodata-table td { padding: 4px 0; vertical-align: top; }
-            .foto-box { width: 100px; height: 130px; border: 1px solid #000; text-align: center; line-height: 130px; font-size: 11px; background: #f0f0f0; float: right; }
+            
+            /* CSS FOTO DIPERBAIKI */
+            .foto-box { width: 100px; height: 130px; border: 1px solid #000; float: right; overflow: hidden; background: #f0f0f0; }
+            .foto-box img { width: 100%; height: 100%; object-fit: cover; }
             
             .nilai-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px; }
             .nilai-table th, .nilai-table td { border: 1px solid #000; padding: 10px; text-align: center; }
@@ -292,10 +304,9 @@
 
           <div class="judul-rapor">LAPORAN HASIL PENILAIAN EKSTRAKURIKULER</div>
 
+          <!-- FOTO PROFIL DENGAN LOGIKA BARU -->
           <div class="foto-box">
-            ${siswa.foto ? 
-    `<img src="${siswa.foto}" style="width:100%; height:100%; object-fit:cover;">` : 
-    `<img src="https://ui-avatars.com/api/?name=${siswa.nama.replace(/ /g, '+')}&background=eee&color=aaa" style="width:100%; height:100%; object-fit:cover;">`: 'FOTO 3x4'}
+            ${htmlFoto}
           </div>
 
           <table class="biodata-table">
@@ -358,11 +369,9 @@
       `);
       
       win.document.close();
-      // Beri jeda sedikit agar gambar/font termuat sebelum print
-      setTimeout(() => { win.print(); }, 500);
+      setTimeout(() => { win.print(); }, 800); // Waktu tunggu ditambah agar Base64 termuat
     };
 
-    // 2. CETAK REKAP KESELURUHAN (Sesuai Filter Kelas)
     window.cetakRekap = function() {
       if (dataTampilSekarang.length === 0) {
         alert("Tidak ada data untuk dicetak.");
@@ -498,7 +507,6 @@
           
           <div style="flex-grow:1;"></div>
           
-          <!-- TOMBOL CETAK REKAP & SIMPAN -->
           <button class="btn-cetak-rekap" onclick="cetakRekap()">🖨️ Cetak Rekap Kelas</button>
           <button class="btn-simpan" onclick="simpanSemuaNilai()">💾 Simpan Perubahan</button>
         </div>
