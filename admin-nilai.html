@@ -108,7 +108,7 @@
           const nama = siswa.nama || siswa["Nama Lengkap"] || "-";
           const kelas = siswa.kelas || siswa.Kelas || "-";
           const nisn = siswa.nisn || siswa.nis || "-";
-          const foto = siswa.foto || ""; // Ambil link foto jika ada
+          const foto = siswa.fotoUrl || siswa.foto || ""; // Ambil link foto jika ada
 
           const nilaiRef = doc(db, "nilai_ekstrakurikuler", siswaId);
           const nilaiSnap = await getDoc(nilaiRef);
@@ -293,7 +293,9 @@
           <div class="judul-rapor">LAPORAN HASIL PENILAIAN EKSTRAKURIKULER</div>
 
           <div class="foto-box">
-            ${siswa.foto ? `<img src="${siswa.foto}" style="width:100%; height:100%; object-fit:cover;">` : 'FOTO 3x4'}
+            ${siswa.foto ? 
+    `<img src="${siswa.foto}" style="width:100%; height:100%; object-fit:cover;">` : 
+    `<img src="https://ui-avatars.com/api/?name=${siswa.nama.replace(/ /g, '+')}&background=eee&color=aaa" style="width:100%; height:100%; object-fit:cover;">`: 'FOTO 3x4'}
           </div>
 
           <table class="biodata-table">
