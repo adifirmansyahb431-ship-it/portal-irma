@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rekap Kehadiran - Admin IRMA</title>
+  <title>Kelola Kehadiran - Admin IRMA</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
     * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
@@ -16,7 +16,7 @@
     .sidebar-logo h3 { margin: 10px 0 2px; font-size: 16px; color: #ffb703; }
     .sidebar-logo p { margin: 0; font-size: 11px; color: #adb5bd; }
     .menu-list { list-style: none; padding: 0; margin: 20px 0; overflow-y: auto; flex-grow: 1; }
-    .menu-item a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #adb5bd; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; }
+    .menu-item a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #adb5bd; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; cursor: pointer; }
     .menu-item.active a, .menu-item a:hover { background-color: rgba(255,255,255,0.1); color: white; border-left: 4px solid #ffb703; }
 
     /* MAIN CONTENT */
@@ -29,24 +29,56 @@
     .btn-kembali:hover { background: #5a6268; }
     .btn-keluar { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
 
-    .content-body { padding: 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+    .content-body { padding: 30px; max-width: 1200px; width: 100%; margin: 0 auto; }
     .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto; }
     
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
-    th { background: #f8f9fa; color: #0b3c29; font-weight: 700; text-transform: uppercase; font-size: 11px; text-align: center; }
-    td { text-align: center; }
+    /* TABS */
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .tab-btn { padding: 10px 20px; background: transparent; border: none; font-weight: 700; font-size: 14px; color: #666; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+    .tab-btn.active { background: #0b3c29; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* FILTER & PENCARIAN */
+    .filter-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+    .filter-container label { font-weight: 700; color: #0b3c29; font-size: 13px; }
+    .filter-container input, .filter-container select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 13px; }
+    .filter-container input[type="text"] { flex: 1; min-width: 200px; }
     
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; display: inline-block; }
-    .badge-hadir { background-color: #27ae60; }
-    .badge-terlambat { background-color: #e74c3c; }
-    .badge-pulang { background-color: #e67e22; }
+    .btn-cetak { background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-cetak:hover { background: #2980b9; }
+
+    /* TABEL TAB 1 (HARIAN) */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 8px; text-align: center; border: 1px solid #ddd; vertical-align: middle; }
+    th { background: #f8f9fa; color: #0b3c29; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+    td.nama-siswa { text-align: left; font-weight: 600; }
+    
+    .status-btn { padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; font-size: 11px; font-weight: bold; margin: 0 2px; }
+    .status-btn.active-H { background: #27ae60; color: white; border-color: #27ae60; }
+    .status-btn.active-S { background: #3498db; color: white; border-color: #3498db; }
+    .status-btn.active-I { background: #9b59b6; color: white; border-color: #9b59b6; }
+    .status-btn.active-A { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+    .action-btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; color: white; margin: 0 2px; }
+    .btn-edit { background: #f39c12; }
+    .btn-hapus { background: #e74c3c; }
+
+    /* TABEL TAB 2 (SIPADAK) */
+    .status-box { width: 24px; height: 24px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; cursor: pointer; margin: auto; }
+    .status-H { background-color: #27ae60; }
+    .status-T { background-color: #e67e22; }
+    .status-S { background-color: #3498db; }
+    .status-I { background-color: #9b59b6; }
+    .status-A { background-color: #e74c3c; }
+    .status-kosong { background-color: #f1f1f1; color: #999; border: 1px dashed #ccc; }
+
     .loading { text-align: center; padding: 20px; color: #777; }
   </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
@@ -59,65 +91,284 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.addEventListener("DOMContentLoaded", () => { muatRekapAdmin(); });
+    let semuaDataSiswa = [];
+    let semuaDataKehadiran = {};
+    let tanggalAktifTab1 = "";
+    let tanggalAktifTab2 = "";
 
-    async function muatRekapAdmin() {
-      const tbody = document.getElementById("tabelRekapBody");
-      tbody.innerHTML = `<tr><td colspan="6" class="loading">Memuat data...</td></tr>`;
+    window.addEventListener("DOMContentLoaded", () => { 
+      inisialisasiBulan();
+      muatDataAwal(); 
+    });
 
+    // Fungsi Buka Tab
+    window.bukaTab = function(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+      
+      // Jika buka Tab 1, set tanggal hari ini
+      if (tabId === 'tabHarian' && !tanggalAktifTab1) {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("tanggalHarian").value = today;
+        tanggalAktifTab1 = today;
+        renderTabelHarian();
+      }
+      // Jika buka Tab 2, render ulang
+      if (tabId === 'tabRekap') {
+        renderTabelBulanan();
+      }
+    }
+
+    function inisialisasiBulan() {
+      const selectBulan = document.getElementById("filterBulan");
+      const bulanArr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      let html = "";
+      bulanArr.forEach((b, i) => {
+        const val = String(i + 1).padStart(2, '0');
+        html += `<option value="${val}">${b}</option>`;
+      });
+      selectBulan.innerHTML = html;
+      
+      const now = new Date();
+      selectBulan.value = String(now.getMonth() + 1).padStart(2, '0');
+      document.getElementById("filterTahun").value = now.getFullYear();
+      
+      // Set default tanggal harian
+      const today = now.toISOString().split('T')[0];
+      document.getElementById("tanggalHarian").value = today;
+      tanggalAktifTab1 = today;
+    }
+
+    async function muatDataAwal() {
       try {
         const snapSiswa = await getDocs(collection(db, "biodata_siswa"));
+        semuaDataSiswa = snapSiswa.docs.map(d => ({ id: d.id, ...d.data() }));
+
         const snapHadir = await getDocs(collection(db, "kehadiran_siswa"));
-        
-        let mapKehadiran = {};
+        semuaDataKehadiran = {};
         snapHadir.forEach(d => {
           const data = d.data();
-          if(!mapKehadiran[data.userId]) mapKehadiran[data.userId] = [];
-          mapKehadiran[data.userId].push(data);
+          semuaDataKehadiran[`${data.userId}_${data.tanggal}`] = data;
         });
 
-        let html = "";
-        let no = 1;
-
-        if (snapSiswa.empty) {
-          tbody.innerHTML = `<tr><td colspan="6" class="loading">Belum ada data siswa.</td></tr>`;
-          return;
-        }
-
-        for (const docSiswa of snapSiswa.docs) {
-          const siswa = docSiswa.data();
-          const siswaId = docSiswa.id;
-          const nama = siswa.nama || "-";
-          const kelas = siswa.kelas || "-";
-
-          const dataHadirSiswa = mapKehadiran[siswaId] || [];
-          
-          let totalHadir = 0, totalTerlambat = 0, totalPulang = 0;
-          dataHadirSiswa.forEach(h => {
-            if (h.jamMasuk) {
-              if (h.statusMasuk === "Terlambat") totalTerlambat++;
-              else totalHadir++;
-            }
-            if (h.jamPulang) totalPulang++;
-          });
-
-          html += `
-            <tr>
-              <td>${no++}</td>
-              <td><strong>${nama}</strong></td>
-              <td>${kelas}</td>
-              <td><span class="badge badge-hadir">${totalHadir} Hadir</span></td>
-              <td><span class="badge badge-terlambat">${totalTerlambat} Terlambat</span></td>
-              <td><span class="badge badge-pulang">${totalPulang} Pulang</span></td>
-            </tr>
-          `;
-        }
-        tbody.innerHTML = html;
+        renderTabelHarian();
+        renderTabelBulanan();
 
       } catch (err) {
         console.error(err);
-        tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:red;">Gagal memuat data.</td></tr>`;
+        alert("Gagal memuat data awal.");
       }
+    }
+
+    // ==========================================
+    // TAB 1: ABSEN HARIAN (INPUT MANUAL)
+    // ==========================================
+    window.gantiTanggalHarian = function() {
+      tanggalAktifTab1 = document.getElementById("tanggalHarian").value;
+      renderTabelHarian();
+    }
+
+    function renderTabelHarian() {
+      const container = document.getElementById("tabelHarianBody");
+      const keyword = document.getElementById("inputCariHarian").value.toLowerCase();
+      
+      const siswaTampil = semuaDataSiswa.filter(s => (s.nama || "").toLowerCase().includes(keyword));
+
+      if (siswaTampil.length === 0) {
+        container.innerHTML = `<tr><td colspan="7" class="loading">Tidak ada siswa.</td></tr>`;
+        return;
+      }
+
+      let html = "";
+      let no = 1;
+
+      siswaTampil.forEach(siswa => {
+        const key = `${siswa.id}_${tanggalAktifTab1}`;
+        const absen = semuaDataKehadiran[key] || {};
+        let statusSaatIni = absen.statusMasuk || ""; // H, S, I, A, T
+
+        // Tentukan kelas tombol aktif
+        let classH = statusSaatIni === "Hadir" || statusSaatIni === "H" ? "active-H" : "";
+        let classS = statusSaatIni === "Sakit" || statusSaatIni === "S" ? "active-S" : "";
+        let classI = statusSaatIni === "Izin" || statusSaatIni === "I" ? "active-I" : "";
+        let classA = statusSaatIni === "Alpa" || statusSaatIni === "A" ? "active-A" : "";
+
+        html += `
+          <tr>
+            <td>${no++}</td>
+            <td class="nama-siswa">${siswa.nama || "-"}</td>
+            <td>
+              <button class="status-btn ${classH}" onclick="setStatus('${siswa.id}', 'H')">Hadir</button>
+              <button class="status-btn ${classS}" onclick="setStatus('${siswa.id}', 'S')">Sakit</button>
+              <button class="status-btn ${classI}" onclick="setStatus('${siswa.id}', 'I')">Izin</button>
+              <button class="status-btn ${classA}" onclick="setStatus('${siswa.id}', 'A')">Alpa</button>
+            </td>
+            <td>${absen.jamMasuk || '-'}</td>
+            <td>${absen.jamPulang || '-'}</td>
+            <td>
+              <button class="action-btn btn-edit" onclick="editAbsen('${siswa.id}')">Edit</button>
+              <button class="action-btn btn-hapus" onclick="hapusAbsen('${siswa.id}')">Hapus</button>
+            </td>
+            <td>
+              <button class="action-btn" style="background:#2a9d8f;" onclick="cetakPerSiswa('${siswa.id}', '${siswa.nama}')">🖨️ Cetak</button>
+            </td>
+          </tr>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    window.setStatus = async function(siswaId, statusBaru) {
+      const key = `${siswaId}_${tanggalAktifTab1}`;
+      let absen = semuaDataKehadiran[key] || { userId: siswaId, tanggal: tanggalAktifTab1 };
+      
+      // Mapping status
+      let statusText = "";
+      if (statusBaru === "H") statusText = "Hadir";
+      else if (statusBaru === "S") statusText = "Sakit";
+      else if (statusBaru === "I") statusText = "Izin";
+      else if (statusBaru === "A") statusText = "Alpa";
+
+      absen.statusMasuk = statusText;
+      if (statusText === "Hadir" && !absen.jamMasuk) absen.jamMasuk = "Manual";
+      
+      try {
+        await setDoc(doc(db, "kehadiran_siswa", key), absen, { merge: true });
+        semuaDataKehadiran[key] = absen;
+        renderTabelHarian(); // Render ulang agar tombol berubah warna
+      } catch (err) {
+        alert("Gagal menyimpan status: " + err.message);
+      }
+    }
+
+    window.hapusAbsen = async function(siswaId) {
+      if (!confirm("Yakin ingin menghapus data absensi siswa ini pada tanggal tersebut?")) return;
+      const key = `${siswaId}_${tanggalAktifTab1}`;
+      
+      try {
+        await deleteDoc(doc(db, "kehadiran_siswa", key));
+        delete semuaDataKehadiran[key];
+        renderTabelHarian();
+        alert("Data absensi dihapus.");
+      } catch (err) {
+        alert("Gagal menghapus: " + err.message);
+      }
+    }
+
+    window.editAbsen = function(siswaId) {
+      alert("Fitur edit jam masuk/pulang manual akan segera hadir. Untuk saat ini, Anda bisa mengubah status dengan tombol di tabel.");
+    }
+
+    window.cetakPerSiswa = function(siswaId, nama) {
+      // Logika cetak sederhana (bisa dikembangkan jadi PDF)
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html><head><title>Cetak Absensi - ${nama}</title></head>
+        <body style="font-family: sans-serif; padding: 20px;">
+          <h2>Laporan Absensi Siswa</h2>
+          <p>Nama: <b>${nama}</b></p>
+          <p>Tanggal: <b>${tanggalAktifTab1}</b></p>
+          <hr>
+          <p>Data cetak detail dapat dikembangkan lebih lanjut di sini.</p>
+        </body></html>
+      `);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    }
+
+    // ==========================================
+    // TAB 2: REKAP BULANAN (SIPADAK)
+    // ==========================================
+    window.renderTabelBulanan = function() {
+      const container = document.getElementById("tabelAbsensiBody");
+      const bulan = document.getElementById("filterBulan").value;
+      const tahun = document.getElementById("filterTahun").value;
+      const keyword = document.getElementById("inputCariBulanan").value.toLowerCase();
+
+      const jumlahHari = new Date(tahun, parseInt(bulan), 0).getDate();
+
+      let headerTanggal = "";
+      for (let i = 1; i <= jumlahHari; i++) {
+        headerTanggal += `<th style="width: 30px;">${i}</th>`;
+      }
+      document.getElementById("headerTanggal").innerHTML = headerTanggal;
+
+      const siswaTampil = semuaDataSiswa.filter(s => (s.nama || "").toLowerCase().includes(keyword));
+
+      if (siswaTampil.length === 0) {
+        container.innerHTML = `<tr><td colspan="${jumlahHari + 2}" class="loading">Tidak ada siswa yang cocok.</td></tr>`;
+        return;
+      }
+
+      let html = "";
+      let no = 1;
+
+      siswaTampil.forEach(siswa => {
+        html += `<tr>
+          <td>${no++}</td>
+          <td class="nama-siswa">${siswa.nama || "-"}</td>
+        `;
+
+        for (let h = 1; h <= jumlahHari; h++) {
+          const tglStr = `${tahun}-${bulan}-${String(h).padStart(2, '0')}`;
+          const key = `${siswa.id}_${tglStr}`;
+          
+          let status = "";
+          let statusClass = "status-kosong";
+          let textStatus = "-";
+
+          if (semuaDataKehadiran[key]) {
+            const absen = semuaDataKehadiran[key];
+            let st = absen.statusMasuk || "";
+            
+            if (st === "Terlambat") { status = "T"; statusClass = "status-T"; textStatus = "T"; }
+            else if (st === "Hadir" || st === "H") { status = "H"; statusClass = "status-H"; textStatus = "H"; }
+            else if (st === "Sakit" || st === "S") { status = "S"; statusClass = "status-S"; textStatus = "S"; }
+            else if (st === "Izin" || st === "I") { status = "I"; statusClass = "status-I"; textStatus = "I"; }
+            else if (st === "Alpa" || st === "A") { status = "A"; statusClass = "status-A"; textStatus = "A"; }
+            else if (absen.jamMasuk) { status = "H"; statusClass = "status-H"; textStatus = "H"; } // Fallback
+          }
+
+          html += `<td><div class="status-box ${statusClass}">${textStatus}</div></td>`;
+        }
+        html += `</tr>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    window.cetakRekapBulanan = function() {
+      const win = window.open('', '_blank');
+      const bulan = document.getElementById("filterBulan").options[document.getElementById("filterBulan").selectedIndex].text;
+      const tahun = document.getElementById("filterTahun").value;
+      
+      const tabelHTML = document.querySelector("#tabRekap table").outerHTML;
+
+      win.document.write(`
+        <html><head><title>Rekap Absensi ${bulan} ${tahun}</title>
+        <style>
+          body { font-family: sans-serif; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; font-size: 10px; }
+          th, td { border: 1px solid #000; padding: 4px; text-align: center; }
+          .nama-siswa { text-align: left; }
+          .status-H { background: #27ae60; color: white; }
+          .status-T { background: #e67e22; color: white; }
+          .status-S { background: #3498db; color: white; }
+          .status-I { background: #9b59b6; color: white; }
+          .status-A { background: #e74c3c; color: white; }
+          .status-kosong { background: #f1f1f1; color: #999; }
+        </style>
+        </head>
+        <body>
+          <h2 style="text-align:center;">REKAP ABSENSI BULANAN IRMA</h2>
+          <p style="text-align:center;">Bulan: ${bulan} ${tahun}</p>
+          ${tabelHTML}
+        </body></html>
+      `);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
     }
   </script>
 </head>
@@ -129,11 +380,7 @@
       <p>MAN 3 BOGOR</p>
     </div>
     <ul class="menu-list">
-      <li class="menu-item"><a href="beranda.html">🏠 Home</a></li>
-      <li class="menu-item"><a href="admin-informasi.html">📢 Kelola Informasi</a></li>
-      <li class="menu-item"><a href="kegiatan.html">📅 Kelola Kegiatan</a></li>
-      <li class="menu-item"><a href="admin-nilai.html">📊 Nilai Ekstrakurikuler</a></li>
-      <li class="menu-item active"><a href="admin-kehadiran.html">📋 Rekap Kehadiran</a></li>
+      <li class="menu-item active"><a href="admin-kehadiran.html">📋 Kehadiran</a></li>
     </ul>
   </div>
 
@@ -141,27 +388,90 @@
     <div class="topbar">
       <div class="topbar-left">
         <a href="beranda.html" class="btn-kembali">← Kembali ke Beranda</a>
-        <h2>📋 Rekap Kehadiran Seluruh Anggota</h2>
+        <h2>📋 Kelola Kehadiran (Admin)</h2>
       </div>
       <button onclick="localStorage.clear(); window.location.href='index.html';" class="btn-keluar">Keluar</button>
     </div>
 
     <div class="content-body">
-      <div class="box">
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 40px;">No</th>
-              <th>Nama Siswa</th>
-              <th>Kelas</th>
-              <th>Total Hadir (Tepat Waktu)</th>
-              <th>Total Terlambat</th>
-              <th>Total Absen Pulang</th>
-            </tr>
-          </thead>
-          <tbody id="tabelRekapBody"></tbody>
-        </table>
+      
+      <!-- NAVIGASI TAB -->
+      <div class="nav-tabs">
+        <button class="tab-btn active" onclick="bukaTab('tabHarian', this)">📝 Absensi Harian</button>
+        <button class="tab-btn" onclick="bukaTab('tabRekap', this)">📊 Rekap Bulanan</button>
       </div>
+
+      <!-- TAB 1: ABSENSI HARIAN -->
+      <div id="tabHarian" class="tab-content active">
+        <div class="box">
+          <div class="filter-container">
+            <label>Tanggal:</label>
+            <input type="date" id="tanggalHarian" onchange="gantiTanggalHarian()">
+            
+            <input type="text" id="inputCariHarian" placeholder="Cari nama siswa..." oninput="renderTabelHarian()">
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;">No</th>
+                <th>Nama Siswa</th>
+                <th>Status Kehadiran (Klik untuk ubah)</th>
+                <th>Jam Masuk</th>
+                <th>Jam Pulang</th>
+                <th>Aksi</th>
+                <th>Cetak</th>
+              </tr>
+            </thead>
+            <tbody id="tabelHarianBody">
+              <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: REKAP BULANAN -->
+      <div id="tabRekap" class="tab-content">
+        <div class="box">
+          <div class="filter-container">
+            <label>Bulan:</label>
+            <select id="filterBulan" onchange="renderTabelBulanan()"></select>
+            
+            <label>Tahun:</label>
+            <input type="number" id="filterTahun" value="2026" style="width: 80px;" onchange="renderTabelBulanan()">
+            
+            <input type="text" id="inputCariBulanan" placeholder="Cari nama siswa..." oninput="renderTabelBulanan()">
+            
+            <div style="flex-grow:1;"></div>
+            <button class="btn-cetak" onclick="cetakRekapBulanan()">🖨️ Cetak Rekap</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th rowspan="2" style="width: 40px;">No</th>
+                  <th rowspan="2" style="min-width: 150px;">Nama Siswa</th>
+                  <th colspan="31" id="headerTanggal">Tanggal</th>
+                </tr>
+              </thead>
+              <tbody id="tabelAbsensiBody">
+                <tr><td colspan="35" class="loading">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="margin-top: 15px; font-size: 12px; color: #666;">
+            Keterangan: 
+            <span class="status-box status-H" style="display:inline-flex; vertical-align:middle;">H</span> Hadir | 
+            <span class="status-box status-T" style="display:inline-flex; vertical-align:middle;">T</span> Terlambat | 
+            <span class="status-box status-S" style="display:inline-flex; vertical-align:middle;">S</span> Sakit | 
+            <span class="status-box status-I" style="display:inline-flex; vertical-align:middle;">I</span> Izin | 
+            <span class="status-box status-A" style="display:inline-flex; vertical-align:middle;">A</span> Alpa
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </body>
