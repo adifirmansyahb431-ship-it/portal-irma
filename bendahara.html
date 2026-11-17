@@ -9,9 +9,11 @@
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
     * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
     
+    /* WARNA LATAR BELAKANG CREAM / BEIGE ALA KASIR */
     body { background-color: #fcf8f2; margin: 0; padding: 20px; color: #2c2c2c; }
     .container { max-width: 1200px; margin: 0 auto; }
     
+    /* HEADER */
     .header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border-bottom: 3px solid #d4a373; }
     .header-left { display: flex; align-items: center; gap: 15px; }
     .header-left img { width: 50px; height: 50px; object-fit: contain; }
@@ -21,12 +23,14 @@
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.2s; }
     .btn-logout:hover { background: #c0392b; }
     
+    /* TABS */
     .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; overflow-x: auto; padding-bottom: 5px; }
     .tab-btn { padding: 10px 15px; background: #ffffff; border: 1px solid #e0d5c1; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; color: #555; white-space: nowrap; }
     .tab-btn.active { background: #bc6c25; color: white; border-color: #bc6c25; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     
+    /* CARDS */
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
     .card { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); border-left: 5px solid #bc6c25; border-top: 1px solid #faedcd; }
     .card.in { border-left-color: #2a9d8f; }
@@ -39,6 +43,7 @@
     .card.balance .nominal { color: #bc6c25; }
     .card.asset .nominal { color: #d4a373; }
     
+    /* LAYOUT */
     .main-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
     @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
     
@@ -62,10 +67,12 @@
     .btn-edit-siswa { background: #f39c12; }
     .btn-hapus-siswa { background: #e74c3c; }
 
+    /* MODAL POPUP */
     .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
     .modal-content { background: #ffffff; padding: 25px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); border: 2px solid #d4a373; }
     .modal-content h3 { color: #bc6c25; margin-top: 0; border-bottom: 2px solid #faedcd; padding-bottom: 8px; }
 
+    /* TABEL */
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
     th, td { padding: 10px; text-align: left; border-bottom: 1px solid #faedcd; vertical-align: middle; }
@@ -82,14 +89,17 @@
     .btn-edit { background: #f39c12; }
     .btn-delete { background: #e74c3c; }
     
+    /* CHECKBOX IURAN */
     .checkbox-iuran { width: 18px; height: 18px; cursor: pointer; accent-color: #2a9d8f; }
 
+    /* LAPORAN */
     .report-table { width: 100%; margin-bottom: 15px; }
     .report-table td { padding: 8px 5px; }
     .report-table .header-row { font-weight: 700; background: #fefae0; color: #bc6c25; }
     .report-table .total-row { font-weight: 700; border-top: 2px solid #bc6c25; border-bottom: 2px solid #bc6c25; }
     .indent { padding-left: 20px !important; }
     
+    /* GRAFIK */
     .grafik-container { position: relative; height: 300px; width: 100%; }
 
     @media print {
@@ -103,7 +113,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // PERBAIKAN: Menambahkan 'where' ke dalam import
+    // PERBAIKAN UTAMA: Menambahkan 'where' ke dalam import
     import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, setDoc, getDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     
     const firebaseConfig = {
@@ -117,7 +127,8 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    // PERBAIKAN: Menambahkan 'where' ke dalam fbTools
+    
+    // PERBAIKAN UTAMA: Menambahkan 'where' ke dalam fbTools
     window.fbTools = { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, setDoc, getDoc, getDocs, writeBatch };
     
     muatDataKas();
@@ -696,6 +707,8 @@
     // FUNGSI SIMPAN SEMUA IURAN KELAS KETIKA TOMBOL SIMPAN DIKLIK
     window.simpanSemuaIuran = async function(kelasTarget) {
       const checkboxes = document.querySelectorAll(`.iuran-input-${kelasTarget}`);
+      
+      // Panggil fungsi langsung dari window.fbTools agar dijamin tersedia
       const { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, getDocs, query, where, deleteDoc } = window.fbTools;
       
       if (!confirm(`💾 Simpan perubahan iuran untuk Kelas ${kelasTarget === '10' ? 'X' : 'XI'}?`)) return;
@@ -734,6 +747,7 @@
               const ketUnik = `Iuran Kas ${b.toUpperCase()} - ${namaSiswa} (${sId})`;
 
               if (statusBaru) {
+                // Jika dicentang (Lunas)
                 await addDoc(jurnalRef, {
                   jenisPost: "Pendapatan",
                   kategoriAkun: "411 - Iuran / Kas Bulanan",
@@ -743,11 +757,15 @@
                   tanggal: new Date().toLocaleDateString("id-ID")
                 });
               } else {
+                // Jika dicentang dihilangkan (Batal Lunas)
+                // Cari jurnal dengan keterangan yang sama lalu hapus
                 const qJurnal = query(jurnalRef, where("keterangan", "==", ketUnik));
                 const snapJurnal = await getDocs(qJurnal);
-                snapJurnal.forEach(async (jDoc) => {
+                
+                // Gunakan loop for...of agar proses hapus selesai sebelum lanjut
+                for (const jDoc of snapJurnal.docs) {
                   await deleteDoc(doc(window.db, "jurnal_irma", jDoc.id));
-                });
+                }
               }
             }
           }
@@ -759,6 +777,7 @@
         alert("✅ Data iuran kas berhasil disimpan dan dicatat ke Jurnal Umum!");
         muatDataKas();
       } catch (error) {
+        console.error("Error simpan iuran: ", error);
         alert("❌ Gagal menyimpan iuran: " + error.message);
       }
     }
