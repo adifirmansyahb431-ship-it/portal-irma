@@ -146,6 +146,9 @@
         </div>
       </div>
       <div class="header-right">
+        <!-- TOMBOL KEMBALI CERDAS -->
+        <button onclick="kembaliCerdas()" class="btn-logout" style="background:#6c757d;">⬅️ Kembali ke Beranda</button>
+        
         <button onclick="window.print()" class="tab-btn" style="background:#2a9d8f; color:white; border:none;">🖨️ Cetak LPJ</button>
         <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
       </div>
@@ -435,6 +438,26 @@
         localStorage.removeItem("irmaLogin");
         localStorage.removeItem("userLoginData");
         window.location.href = "index.html";
+      }
+    }
+
+    // TAMBAHKAN FUNGSI INI UNTUK TOMBOL KEMBALI CERDAS
+    function kembaliCerdas() {
+      const userData = localStorage.getItem("userLoginData");
+      
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user.email === "admin@irma.sch.id" || user.email === "bendahara@irma.sch.id") {
+            window.location.href = 'beranda.html'; // Kembali ke beranda admin
+          } else {
+            window.location.href = 'beranda.html'; // Fallback
+          }
+        } catch (e) {
+          window.location.href = 'beranda.html';
+        }
+      } else {
+        window.location.href = 'index.html';
       }
     }
 
