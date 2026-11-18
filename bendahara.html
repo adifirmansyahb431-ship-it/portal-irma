@@ -76,11 +76,17 @@
     .grafik-container { position: relative; height: 300px; width: 100%; }
     @media print {
       body { background: white; padding: 0; }
-      .nav-tabs, .form-box, .btn-submit, .header p, .action-btn, .btn-logout, .btn-tambah, .btn-aksi-kecil, .btn-simpan-iuran { display: none; }
+      .nav-tabs, .form-box, .btn-submit, .header p, .action-btn, .btn-logout, .btn-tambah, .btn-aksi-kecil, .btn-simpan-iuran, .btn-simpan-rab { display: none; }
       .container { max-width: 100%; }
       .tab-content { display: block !important; }
       .box { box-shadow: none; border: 1px solid #ccc; }
     }
+    /* CSS RAB */
+    .rab-sub-header { background: #fdf5e6; font-weight: 700; color: #bc6c25; padding: 10px; border-radius: 6px; margin: 15px 0 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #bc6c25; }
+    .rab-input-select { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+    .rab-input-text { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+    .btn-simpan-rab { background: #f39c12; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .btn-simpan-rab:hover { background: #e67e22; }
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -348,57 +354,37 @@
       </div>
     </div>
 
-    <!-- TAB RAB (SUDAH ADA SUMBER DANA) -->
+    <!-- TAB RAB -->
     <div id="tabRAB" class="tab-content">
       <div class="box">
         <h3><span>📝 Rencana Anggaran Biaya (RAB)</span></h3>
         
-        <div class="main-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div class="main-grid" style="grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 15px;">
           <div class="form-group" style="margin-bottom:0;">
-            <label>Nama Kegiatan</label>
+            <label>Nama Kegiatan Induk</label>
             <input type="text" id="rabNamaKegiatan" placeholder="Contoh: Kegiatan Bulan Ramadhan 1447 H" />
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label>Tanggal Pelaksanaan</label>
             <input type="date" id="rabTanggalKegiatan" />
           </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label>Sumber Dana Utama</label>
-            <select id="rabSumberDana" style="background:#fffdf9; border:1px solid #d4a373; border-radius:8px; padding:10px; font-size:14px;">
-              <option value="Kas IRMA">Kas IRMA</option>
-              <option value="Dana Bantuan Sekolah (BOS)">Dana Bantuan Sekolah (BOS)</option>
-              <option value="Infaq / Donatur">Infaq / Donatur</option>
-              <option value="Iuran Siswa">Iuran Siswa</option>
-              <option value="Kas Kelas">Kas Kelas</option>
-            </select>
-          </div>
         </div>
 
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 40px;">No</th>
-                <th>Uraian / Item</th>
-                <th style="width: 80px;">Qty</th>
-                <th style="width: 150px;">Harga Satuan (Rp)</th>
-                <th style="width: 150px;">Total</th>
-                <th style="width: 80px;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="bodyRAB"></tbody>
-            <tfoot>
-              <tr class="total-row" style="font-weight:700; background:#fefae0;">
-                <td colspan="4" style="text-align:right; color:#bc6c25;">TOTAL ANGGARAN</td>
-                <td style="text-align:right; color:#bc6c25;" id="totalKeseluruhanRAB">Rp 0</td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
+        <div id="rabContainer">
+          <!-- Sub Kegiatan akan di-render oleh JS -->
         </div>
-        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
-          <button class="btn-tambah" onclick="tambahBarisRAB()">➕ Tambah Baris</button>
-          <button class="btn-simpan-iuran" onclick="cetakRAB()">🖨️ Cetak RAB</button>
+
+        <button class="btn-tambah" onclick="tambahSubKegiatan()" style="margin-top: 15px; width: 100%; padding: 10px;">+ Tambah Sub Kegiatan</button>
+        
+        <div class="total-box" style="text-align: right; font-size: 18px; font-weight: 700; color: #0b3c29; margin-top: 25px; padding-top: 15px; border-top: 2px dashed #ddd;">
+          TOTAL KESELURUHAN ANGGARAN: <span id="totalKeseluruhanRAB" style="color: #e74c3c;">Rp 0</span>
+        </div>
+        
+        <!-- TOMBOL AKSI (SIMPAN, PDF, EXCEL) -->
+        <div style="display:flex; gap:10px; margin-top: 20px; flex-wrap:wrap;">
+          <button class="btn-simpan-rab" onclick="simpanDraftRAB()">💾 Simpan Draft RAB</button>
+          <button class="btn-simpan-iuran" onclick="cetakRAB()">📄 Download PDF</button>
+          <button class="btn-submit" style="background:#20c997; width:auto; padding:10px 20px;" onclick="downloadExcelRAB()">📊 Download Excel</button>
         </div>
       </div>
     </div>
@@ -473,8 +459,10 @@
       target.classList.add('active');
       if (event && event.currentTarget) event.currentTarget.classList.add('active');
       if (tabId === 'tabRAB') {
-        const tbody = document.getElementById("bodyRAB");
-        if (tbody && tbody.children.length === 0) tambahBarisRAB();
+        const container = document.getElementById("rabContainer");
+        if (container && container.children.length === 0) {
+          loadDraftRAB();
+        }
       }
     }
 
@@ -898,9 +886,9 @@
     }
 
     // ==========================================
-    // LOGIKA RAB (DENGAN SUMBER DANA)
+    // LOGIKA RAB (SUB KEGIATAN, SUMBER DANA, SAVE, PDF, EXCEL)
     // ==========================================
-    let counterRAB = 1;
+    let subKegiatanCount = 0;
 
     function escapeHtml(str) {
       return String(str).replace(/[&<>"']/g, s => ({
@@ -908,35 +896,120 @@
       }[s]));
     }
 
-    window.tambahBarisRAB = function() {
-      const tbody = document.getElementById("bodyRAB");
-      if (!tbody) return;
-      const tr = document.createElement("tr");
-      tr.id = "rowRAB_" + counterRAB;
-      tr.innerHTML = `
-        <td>${counterRAB}</td>
-        <td><input type="text" class="rab-item" placeholder="Contoh: Cetak Spanduk" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-        <td><input type="number" class="rab-qty" value="1" min="1" oninput="hitungBarisRAB(${counterRAB})" style="width:60px; padding:5px; text-align:center; border:1px solid #ccc; border-radius:4px;"></td>
-        <td><input type="number" class="rab-harga" value="0" min="0" oninput="hitungBarisRAB(${counterRAB})" style="width:120px; padding:5px; text-align:right; border:1px solid #ccc; border-radius:4px;"></td>
-        <td class="rab-total-baris" style="text-align:right;">Rp 0</td>
-        <td><button class="btn-aksi-kecil btn-hapus-siswa" onclick="hapusBarisRAB(${counterRAB})">Hapus</button></td>
+    window.tambahSubKegiatan = function(namaSub = "", items = []) {
+      subKegiatanCount++;
+      const idSub = "sub_" + subKegiatanCount;
+      const container = document.getElementById("rabContainer");
+      const div = document.createElement("div");
+      div.id = idSub;
+      div.className = "rab-sub-wrapper";
+      div.style.marginBottom = "20px";
+      div.innerHTML = `
+        <div class="rab-sub-header">
+          <span>Sub Kegiatan: <input type="text" class="rab-sub-name" value="${escapeHtml(namaSub)}" placeholder="Contoh: Kesekretariatan" style="width: 250px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-weight: normal;"></span>
+          <button class="btn-hapus-siswa" onclick="hapusSubKegiatan('${idSub}')" style="padding: 4px 8px; font-size: 11px;">Hapus Sub</button>
+        </div>
+        <div class="table-responsive">
+          <table style="min-width: 100%;">
+            <thead>
+              <tr>
+                <th style="width: 30px;">No</th>
+                <th>Uraian / Item</th>
+                <th style="width: 70px;">Qty</th>
+                <th style="width: 120px;">Harga Satuan (Rp)</th>
+                <th style="width: 130px;">Total</th>
+                <th style="width: 150px;">Sumber Penerimaan</th>
+                <th style="width: 150px;">Sumber Pengeluaran</th>
+                <th style="width: 60px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="rab-tbody-items">
+              <!-- Item rows will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+        <button class="btn-tambah" onclick="tambahItemRAB('${idSub}')" style="margin-top: 10px; padding: 5px 10px; font-size: 11px;">+ Tambah Item Uraian</button>
       `;
-      tbody.appendChild(tr);
-      counterRAB++;
+      container.appendChild(div);
+
+      if (items.length > 0) {
+        items.forEach(item => {
+          tambahItemRAB(idSub, item.uraian, item.qty, item.harga, item.penerimaan, item.pengeluaran);
+        });
+      } else {
+        tambahItemRAB(idSub);
+      }
     }
 
-    window.hitungBarisRAB = function(id) {
-      const row = document.getElementById("rowRAB_" + id);
-      if (!row) return;
-      const qty = parseFloat(row.querySelector(".rab-qty").value) || 0;
-      const harga = parseFloat(row.querySelector(".rab-harga").value) || 0;
-      row.querySelector(".rab-total-baris").innerText = "Rp " + (qty * harga).toLocaleString("id-ID");
+    window.hapusSubKegiatan = function(idSub) {
+      const el = document.getElementById(idSub);
+      if (el) {
+        el.remove();
+        hitungTotalKeseluruhanRAB();
+      }
+    }
+
+    window.tambahItemRAB = function(idSub, uraian = "", qty = 1, harga = 0, penerimaan = "Kas IRMA", pengeluaran = "Beban ATK") {
+      const wrapper = document.getElementById(idSub);
+      if (!wrapper) return;
+      const tbody = wrapper.querySelector(".rab-tbody-items");
+      const tr = document.createElement("tr");
+      
+      const optPenerimaan = ["Kas IRMA", "Dana BOS", "Infaq / Donatur", "Iuran Siswa", "Kas Kelas"].map(opt => 
+        `<option value="${opt}" ${penerimaan === opt ? 'selected' : ''}>${opt}</option>`
+      ).join("");
+
+      const optPengeluaran = ["Beban ATK", "Beban Konsumsi", "Beban Div. Syiar", "Beban Div. Humas", "Inventaris"].map(opt => 
+        `<option value="${opt}" ${pengeluaran === opt ? 'selected' : ''}>${opt}</option>`
+      ).join("");
+
+      tr.innerHTML = `
+        <td class="text-center" style="font-weight:bold;"></td>
+        <td><input type="text" class="rab-item" value="${escapeHtml(uraian)}" placeholder="Contoh: Cetak Spanduk" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
+        <td><input type="number" class="rab-qty" value="${qty}" min="1" oninput="hitungBarisRAB(this)" style="width:60px; padding:5px; text-align:center; border:1px solid #ccc; border-radius:4px;"></td>
+        <td><input type="number" class="rab-harga" value="${harga}" min="0" oninput="hitungBarisRAB(this)" style="width:100%; padding:5px; text-align:right; border:1px solid #ccc; border-radius:4px;"></td>
+        <td class="rab-total-baris" style="text-align:right;">Rp 0</td>
+        <td><select class="rab-penerimaan rab-input-select">${optPenerimaan}</select></td>
+        <td><select class="rab-pengeluaran rab-input-select">${optPengeluaran}</select></td>
+        <td class="text-center"><button class="btn-aksi-kecil btn-hapus-siswa" onclick="hapusItemRAB(this)">Hapus</button></td>
+      `;
+      tbody.appendChild(tr);
+      
+      // Hitung ulang nomor urut
+      updateNomorUrutRAB(idSub);
+      // Hitung ulang total baris ini
+      hitungBarisRAB(tr.querySelector(".rab-qty"));
+    }
+
+    window.hapusItemRAB = function(btn) {
+      const tr = btn.closest("tr");
+      const wrapper = tr.closest(".rab-sub-wrapper");
+      tr.remove();
+      if (wrapper) updateNomorUrutRAB(wrapper.id);
+      hitungTotalKeseluruhanRAB();
+    }
+
+    window.updateNomorUrutRAB = function(idSub) {
+      const wrapper = document.getElementById(idSub);
+      if (!wrapper) return;
+      let no = 1;
+      wrapper.querySelectorAll(".rab-tbody-items tr").forEach(tr => {
+        tr.cells[0].innerText = no++;
+      });
+    }
+
+    window.hitungBarisRAB = function(inputElement) {
+      const tr = inputElement.closest("tr");
+      if (!tr) return;
+      const qty = parseFloat(tr.querySelector(".rab-qty").value) || 0;
+      const harga = parseFloat(tr.querySelector(".rab-harga").value) || 0;
+      tr.querySelector(".rab-total-baris").innerText = "Rp " + (qty * harga).toLocaleString("id-ID");
       hitungTotalKeseluruhanRAB();
     }
 
     window.hitungTotalKeseluruhanRAB = function() {
       let totalSemua = 0;
-      document.querySelectorAll("#bodyRAB tr").forEach(row => {
+      document.querySelectorAll(".rab-tbody-items tr").forEach(row => {
         const qty = parseFloat(row.querySelector(".rab-qty")?.value) || 0;
         const harga = parseFloat(row.querySelector(".rab-harga")?.value) || 0;
         totalSemua += qty * harga;
@@ -945,47 +1018,107 @@
       if (el) el.innerText = "Rp " + totalSemua.toLocaleString("id-ID");
     }
 
-    window.hapusBarisRAB = function(id) {
-      const row = document.getElementById("rowRAB_" + id);
-      if (!row) return;
-      row.remove();
-      hitungTotalKeseluruhanRAB();
-      let no = 1;
-      document.querySelectorAll("#bodyRAB tr").forEach(tr => { tr.cells[0].innerText = no++; });
-      if (document.querySelectorAll("#bodyRAB tr").length === 0) counterRAB = 1;
+    // FUNGSI SIMPAN DRAFT (LOCAL STORAGE)
+    window.simpanDraftRAB = function() {
+      const nama = document.getElementById("rabNamaKegiatan").value;
+      const tanggal = document.getElementById("rabTanggalKegiatan").value;
+      
+      const dataSub = [];
+      document.querySelectorAll(".rab-sub-wrapper").forEach(sub => {
+        const namaSub = sub.querySelector(".rab-sub-name").value;
+        const items = [];
+        sub.querySelectorAll(".rab-tbody-items tr").forEach(tr => {
+          const uraian = tr.querySelector(".rab-item").value;
+          const qty = parseFloat(tr.querySelector(".rab-qty").value) || 0;
+          const harga = parseFloat(tr.querySelector(".rab-harga").value) || 0;
+          const penerimaan = tr.querySelector(".rab-penerimaan").value;
+          const pengeluaran = tr.querySelector(".rab-pengeluaran").value;
+          if(uraian.trim() !== "") {
+            items.push({ uraian, qty, harga, penerimaan, pengeluaran });
+          }
+        });
+        if (namaSub.trim() !== "" || items.length > 0) {
+          dataSub.push({ namaSub, items });
+        }
+      });
+
+      const draft = { nama, tanggal, subKegiatan: dataSub };
+      localStorage.setItem("draftRAB_IRMA", JSON.stringify(draft));
+      alert("✅ Draft RAB berhasil disimpan di browser!");
     }
 
+    // FUNGSI LOAD DRAFT
+    window.loadDraftRAB = function() {
+      const draftStr = localStorage.getItem("draftRAB_IRMA");
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          document.getElementById("rabNamaKegiatan").value = draft.nama || "";
+          document.getElementById("rabTanggalKegiatan").value = draft.tanggal || "";
+          const container = document.getElementById("rabContainer");
+          container.innerHTML = "";
+          subKegiatanCount = 0;
+          
+          if (draft.subKegiatan && draft.subKegiatan.length > 0) {
+            draft.subKegiatan.forEach(sub => {
+              tambahSubKegiatan(sub.namaSub, sub.items);
+            });
+          } else {
+            tambahSubKegiatan();
+          }
+        } catch(e) {
+          tambahSubKegiatan();
+        }
+      } else {
+        tambahSubKegiatan();
+      }
+    }
+
+    // FUNGSI CETAK PDF
     window.cetakRAB = function() {
       const namaKegiatan = document.getElementById("rabNamaKegiatan").value || "Kegiatan IRMA";
       const tanggal = document.getElementById("rabTanggalKegiatan").value;
-      const sumberDana = document.getElementById("rabSumberDana").value; // Ambil Sumber Dana
       const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
       
-      const rows = document.querySelectorAll("#bodyRAB tr");
-      let htmlTabel = "", grandTotal = 0;
-      
-      rows.forEach(row => {
-        const no = row.cells[0].innerText;
-        const item = row.querySelector(".rab-item").value;
-        const qty = parseFloat(row.querySelector(".rab-qty").value) || 0;
-        const harga = parseFloat(row.querySelector(".rab-harga").value) || 0;
-        const total = qty * harga;
-        grandTotal += total;
+      let htmlTabel = "";
+      let grandTotal = 0;
+
+      document.querySelectorAll(".rab-sub-wrapper").forEach(sub => {
+        const namaSub = sub.querySelector(".rab-sub-name").value || "Tanpa Nama Sub";
+        htmlTabel += `
+          <tr style="background-color: #f8f9fa;">
+            <td colspan="8" style="font-weight:bold; text-align:left;">${escapeHtml(namaSub)}</td>
+          </tr>
+        `;
         
-        if (item.trim() !== "") {
-          htmlTabel += `
-            <tr>
-              <td style="text-align:center;">${no}</td>
-              <td>${escapeHtml(item)}</td>
-              <td style="text-align:center;">${qty}</td>
-              <td style="text-align:right;">Rp ${harga.toLocaleString("id-ID")}</td>
-              <td style="text-align:right;">Rp ${total.toLocaleString("id-ID")}</td>
-            </tr>`;
-        }
+        let no = 1;
+        sub.querySelectorAll(".rab-tbody-items tr").forEach(tr => {
+          const uraian = tr.querySelector(".rab-item").value;
+          const qty = parseFloat(tr.querySelector(".rab-qty").value) || 0;
+          const harga = parseFloat(tr.querySelector(".rab-harga").value) || 0;
+          const total = qty * harga;
+          const penerimaan = tr.querySelector(".rab-penerimaan").value;
+          const pengeluaran = tr.querySelector(".rab-pengeluaran").value;
+          grandTotal += total;
+
+          if (uraian.trim() !== "") {
+            htmlTabel += `
+              <tr>
+                <td style="text-align:center;">${no++}</td>
+                <td>${escapeHtml(uraian)}</td>
+                <td style="text-align:center;">${qty}</td>
+                <td style="text-align:right;">Rp ${harga.toLocaleString("id-ID")}</td>
+                <td style="text-align:right;">Rp ${total.toLocaleString("id-ID")}</td>
+                <td style="text-align:center;">${penerimaan}</td>
+                <td style="text-align:center;">${pengeluaran}</td>
+              </tr>
+            `;
+          }
+        });
       });
-      
+
       if (htmlTabel === "") { alert("Belum ada item yang diinput."); return; }
-      
+
       const win = window.open('', '_blank');
       win.document.write(`
         <html><head><title>RAB - ${escapeHtml(namaKegiatan)}</title>
@@ -996,8 +1129,8 @@
           .kop-surat h3 { margin: 0; font-size: 16px; }
           .kop-surat p { margin: 5px 0 0; font-size: 12px; }
           .judul { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
-          table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px; }
-          th, td { border: 1px solid #000; padding: 10px; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+          th, td { border: 1px solid #000; padding: 8px; }
           th { background-color: #e0e0e0; text-align: center; }
           .total-row { font-weight: bold; background: #f0f0f0; }
           .ttd-container { width: 100%; margin-top: 40px; font-size: 14px; }
@@ -1015,21 +1148,23 @@
           </div>
           <div class="judul">RENCANA ANGGARAN BIAYA (RAB)<br>${escapeHtml(namaKegiatan)}</div>
           <p style="text-align:center; margin-bottom:20px;">
-            Tanggal Pelaksanaan: ${tanggal || '-'} <br>
-            <strong>Sumber Dana: ${escapeHtml(sumberDana)}</strong>
+            Tanggal Pelaksanaan: ${tanggal || '-'}
           </p>
           <table>
             <thead><tr>
-              <th style="width:50px;">No</th><th>Uraian / Item</th>
-              <th style="width:80px;">Qty</th>
-              <th style="width:150px;">Harga Satuan</th>
-              <th style="width:150px;">Total</th>
+              <th style="width:40px;">No</th><th>Uraian / Item</th>
+              <th style="width:50px;">Qty</th>
+              <th style="width:100px;">Harga Satuan</th>
+              <th style="width:100px;">Total</th>
+              <th style="width:100px;">Penerimaan</th>
+              <th style="width:100px;">Pengeluaran</th>
             </tr></thead>
             <tbody>
               ${htmlTabel}
               <tr class="total-row">
                 <td colspan="4" style="text-align:right;">TOTAL ANGGARAN</td>
                 <td style="text-align:right;">Rp ${grandTotal.toLocaleString("id-ID")}</td>
+                <td colspan="2"></td>
               </tr>
             </tbody>
           </table>
@@ -1043,9 +1178,102 @@
           </div>
         </body></html>
       `);
-      
       win.document.close();
       setTimeout(() => { win.print(); }, 500);
+    }
+
+    // FUNGSI DOWNLOAD EXCEL (XLS)
+    window.downloadExcelRAB = function() {
+      const namaKegiatan = document.getElementById("rabNamaKegiatan").value || "Kegiatan IRMA";
+      const tanggal = document.getElementById("rabTanggalKegiatan").value || "-";
+      const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      let htmlTabel = "";
+      let grandTotal = 0;
+
+      document.querySelectorAll(".rab-sub-wrapper").forEach(sub => {
+        const namaSub = sub.querySelector(".rab-sub-name").value || "Tanpa Nama Sub";
+        htmlTabel += `
+          <tr style="background-color: #f2f2f2;">
+            <td colspan="7" style="font-weight:bold; text-align:left;">${namaSub}</td>
+          </tr>
+        `;
+        
+        let no = 1;
+        sub.querySelectorAll(".rab-tbody-items tr").forEach(tr => {
+          const uraian = tr.querySelector(".rab-item").value;
+          const qty = parseFloat(tr.querySelector(".rab-qty").value) || 0;
+          const harga = parseFloat(tr.querySelector(".rab-harga").value) || 0;
+          const total = qty * harga;
+          const penerimaan = tr.querySelector(".rab-penerimaan").value;
+          const pengeluaran = tr.querySelector(".rab-pengeluaran").value;
+          grandTotal += total;
+
+          if (uraian.trim() !== "") {
+            htmlTabel += `
+              <tr>
+                <td style="text-align:center;">${no++}</td>
+                <td>${uraian}</td>
+                <td style="text-align:center;">${qty}</td>
+                <td style="text-align:right;">${harga}</td>
+                <td style="text-align:right;">${total}</td>
+                <td style="text-align:center;">${penerimaan}</td>
+                <td style="text-align:center;">${pengeluaran}</td>
+              </tr>
+            `;
+          }
+        });
+      });
+
+      if (htmlTabel === "") { alert("Belum ada item yang diinput."); return; }
+
+      const template = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>RAB</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #000; padding: 5px; }
+            th { background-color: #d9d9d9; font-weight: bold; text-align: center; }
+            .header { text-align: center; font-weight: bold; font-size: 16px; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <tr><td colspan="7" class="header">RENCANA ANGGARAN BIAYA (RAB)</td></tr>
+            <tr><td colspan="7" class="header">${namaKegiatan}</td></tr>
+            <tr><td colspan="7" style="text-align:center;">Tanggal Pelaksanaan: ${tanggal} | Dicetak: ${tanggalCetak}</td></tr>
+            <tr><td colspan="7"></td></tr>
+            <tr>
+              <th style="width: 30px;">No</th>
+              <th>Uraian / Item</th>
+              <th style="width: 50px;">Qty</th>
+              <th style="width: 100px;">Harga Satuan (Rp)</th>
+              <th style="width: 100px;">Total (Rp)</th>
+              <th style="width: 120px;">Sumber Penerimaan</th>
+              <th style="width: 120px;">Sumber Pengeluaran</th>
+            </tr>
+            ${htmlTabel}
+            <tr style="background-color: #e6e6e6; font-weight: bold;">
+              <td colspan="4" style="text-align: right;">TOTAL ANGGARAN</td>
+              <td style="text-align: right;">${grandTotal}</td>
+              <td colspan="2"></td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "RAB_" + namaKegiatan.replace(/[^a-zA-Z0-9]/g, "_") + ".xls";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
