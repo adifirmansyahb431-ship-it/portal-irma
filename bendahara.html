@@ -83,7 +83,6 @@
     }
     /* CSS RAB */
     .rab-sub-header { background: #fdf5e6; font-weight: 700; color: #bc6c25; padding: 10px; border-radius: 6px; margin: 15px 0 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #bc6c25; }
-    .rab-input-select { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
     .rab-input-text { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
     .btn-simpan-rab { background: #f39c12; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .btn-simpan-rab:hover { background: #e67e22; }
@@ -371,7 +370,7 @@
         </div>
 
         <div id="rabContainer">
-          <!-- Sub Kegiatan akan di-render oleh JS -->
+          <!-- Sub Kegiatan akan di-render oleh JS di sini -->
         </div>
 
         <button class="btn-tambah" onclick="tambahSubKegiatan()" style="margin-top: 15px; width: 100%; padding: 10px;">+ Tambah Sub Kegiatan</button>
@@ -886,7 +885,7 @@
     }
 
     // ==========================================
-    // LOGIKA RAB (SUB KEGIATAN, SUMBER DANA, SAVE, PDF, EXCEL)
+    // LOGIKA RAB (SUB KEGIATAN, KETERANGAN, SAVE, PDF, EXCEL)
     // ==========================================
     let subKegiatanCount = 0;
 
@@ -918,8 +917,7 @@
                 <th style="width: 70px;">Qty</th>
                 <th style="width: 120px;">Harga Satuan (Rp)</th>
                 <th style="width: 130px;">Total</th>
-                <th style="width: 150px;">Sumber Penerimaan</th>
-                <th style="width: 150px;">Sumber Pengeluaran</th>
+                <th>Keterangan</th>
                 <th style="width: 60px;">Aksi</th>
               </tr>
             </thead>
@@ -934,7 +932,7 @@
 
       if (items.length > 0) {
         items.forEach(item => {
-          tambahItemRAB(idSub, item.uraian, item.qty, item.harga, item.penerimaan, item.pengeluaran);
+          tambahItemRAB(idSub, item.uraian, item.qty, item.harga, item.keterangan);
         });
       } else {
         tambahItemRAB(idSub);
@@ -949,28 +947,19 @@
       }
     }
 
-    window.tambahItemRAB = function(idSub, uraian = "", qty = 1, harga = 0, penerimaan = "Kas IRMA", pengeluaran = "Beban ATK") {
+    window.tambahItemRAB = function(idSub, uraian = "", qty = 1, harga = 0, keterangan = "") {
       const wrapper = document.getElementById(idSub);
       if (!wrapper) return;
       const tbody = wrapper.querySelector(".rab-tbody-items");
       const tr = document.createElement("tr");
       
-      const optPenerimaan = ["Kas IRMA", "Dana BOS", "Infaq / Donatur", "Iuran Siswa", "Kas Kelas"].map(opt => 
-        `<option value="${opt}" ${penerimaan === opt ? 'selected' : ''}>${opt}</option>`
-      ).join("");
-
-      const optPengeluaran = ["Beban ATK", "Beban Konsumsi", "Beban Div. Syiar", "Beban Div. Humas", "Inventaris"].map(opt => 
-        `<option value="${opt}" ${pengeluaran === opt ? 'selected' : ''}>${opt}</option>`
-      ).join("");
-
       tr.innerHTML = `
         <td class="text-center" style="font-weight:bold;"></td>
         <td><input type="text" class="rab-item" value="${escapeHtml(uraian)}" placeholder="Contoh: Cetak Spanduk" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
         <td><input type="number" class="rab-qty" value="${qty}" min="1" oninput="hitungBarisRAB(this)" style="width:60px; padding:5px; text-align:center; border:1px solid #ccc; border-radius:4px;"></td>
         <td><input type="number" class="rab-harga" value="${harga}" min="0" oninput="hitungBarisRAB(this)" style="width:100%; padding:5px; text-align:right; border:1px solid #ccc; border-radius:4px;"></td>
         <td class="rab-total-baris" style="text-align:right;">Rp 0</td>
-        <td><select class="rab-penerimaan rab-input-select">${optPenerimaan}</select></td>
-        <td><select class="rab-pengeluaran rab-input-select">${optPengeluaran}</select></td>
+        <td><input type="text" class="rab-keterangan" value="${escapeHtml(keterangan)}" placeholder="Keterangan..." style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px; font-size: 11px;"></td>
         <td class="text-center"><button class="btn-aksi-kecil btn-hapus-siswa" onclick="hapusItemRAB(this)">Hapus</button></td>
       `;
       tbody.appendChild(tr);
@@ -1031,10 +1020,9 @@
           const uraian = tr.querySelector(".rab-item").value;
           const qty = parseFloat(tr.querySelector(".rab-qty").value) || 0;
           const harga = parseFloat(tr.querySelector(".rab-harga").value) || 0;
-          const penerimaan = tr.querySelector(".rab-penerimaan").value;
-          const pengeluaran = tr.querySelector(".rab-pengeluaran").value;
+          const keterangan = tr.querySelector(".rab-keterangan").value;
           if(uraian.trim() !== "") {
-            items.push({ uraian, qty, harga, penerimaan, pengeluaran });
+            items.push({ uraian, qty, harga, keterangan });
           }
         });
         if (namaSub.trim() !== "" || items.length > 0) {
@@ -1087,7 +1075,7 @@
         const namaSub = sub.querySelector(".rab-sub-name").value || "Tanpa Nama Sub";
         htmlTabel += `
           <tr style="background-color: #f8f9fa;">
-            <td colspan="8" style="font-weight:bold; text-align:left;">${escapeHtml(namaSub)}</td>
+            <td colspan="6" style="font-weight:bold; text-align:left;">${escapeHtml(namaSub)}</td>
           </tr>
         `;
         
@@ -1097,8 +1085,7 @@
           const qty = parseFloat(tr.querySelector(".rab-qty").value) || 0;
           const harga = parseFloat(tr.querySelector(".rab-harga").value) || 0;
           const total = qty * harga;
-          const penerimaan = tr.querySelector(".rab-penerimaan").value;
-          const pengeluaran = tr.querySelector(".rab-pengeluaran").value;
+          const keterangan = tr.querySelector(".rab-keterangan").value;
           grandTotal += total;
 
           if (uraian.trim() !== "") {
@@ -1109,8 +1096,7 @@
                 <td style="text-align:center;">${qty}</td>
                 <td style="text-align:right;">Rp ${harga.toLocaleString("id-ID")}</td>
                 <td style="text-align:right;">Rp ${total.toLocaleString("id-ID")}</td>
-                <td style="text-align:center;">${penerimaan}</td>
-                <td style="text-align:center;">${pengeluaran}</td>
+                <td>${escapeHtml(keterangan)}</td>
               </tr>
             `;
           }
@@ -1124,7 +1110,9 @@
         <html><head><title>RAB - ${escapeHtml(namaKegiatan)}</title>
         <style>
           body { font-family: 'Times New Roman', Times, serif; padding: 30px; color: #000; }
-          .kop-surat { text-align: center; border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+          .kop-surat { border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; position: relative; text-align: center; }
+          .kop-surat .logo-kiri { position: absolute; left: 0; top: 0; width: 75px; }
+          .kop-surat .logo-kanan { position: absolute; right: 0; top: 0; width: 75px; }
           .kop-surat h2 { margin: 0; font-size: 18px; }
           .kop-surat h3 { margin: 0; font-size: 16px; }
           .kop-surat p { margin: 5px 0 0; font-size: 12px; }
@@ -1138,7 +1126,11 @@
           .ttd-space { height: 70px; }
         </style></head><body>
           <div class="kop-surat">
-            <img src="https://irmaman3bogor.github.io/portal-irma/logo.png" style="width:70px;">
+            <!-- Logo IRMA di Kiri -->
+            <img src="https://irmaman3bogor.github.io/portal-irma/logo.png" class="logo-kiri" style="border-radius: 50%;">
+            <!-- Logo Kemenag di Kanan -->
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Logo_Kementerian_Agama_Republik_Indonesia.svg/1200px-Logo_Kementerian_Agama_Republik_Indonesia.svg.png" class="logo-kanan">
+            
             <div style="text-align:center;">
               <h2>KEMENTERIAN AGAMA REPUBLIK INDONESIA</h2>
               <h3>MADRASAH ALIYAH NEGERI 3 BOGOR</h3>
@@ -1156,15 +1148,14 @@
               <th style="width:50px;">Qty</th>
               <th style="width:100px;">Harga Satuan</th>
               <th style="width:100px;">Total</th>
-              <th style="width:100px;">Penerimaan</th>
-              <th style="width:100px;">Pengeluaran</th>
+              <th>Keterangan</th>
             </tr></thead>
             <tbody>
               ${htmlTabel}
               <tr class="total-row">
                 <td colspan="4" style="text-align:right;">TOTAL ANGGARAN</td>
                 <td style="text-align:right;">Rp ${grandTotal.toLocaleString("id-ID")}</td>
-                <td colspan="2"></td>
+                <td></td>
               </tr>
             </tbody>
           </table>
@@ -1195,7 +1186,7 @@
         const namaSub = sub.querySelector(".rab-sub-name").value || "Tanpa Nama Sub";
         htmlTabel += `
           <tr style="background-color: #f2f2f2;">
-            <td colspan="7" style="font-weight:bold; text-align:left;">${namaSub}</td>
+            <td colspan="6" style="font-weight:bold; text-align:left;">${namaSub}</td>
           </tr>
         `;
         
@@ -1205,8 +1196,7 @@
           const qty = parseFloat(tr.querySelector(".rab-qty").value) || 0;
           const harga = parseFloat(tr.querySelector(".rab-harga").value) || 0;
           const total = qty * harga;
-          const penerimaan = tr.querySelector(".rab-penerimaan").value;
-          const pengeluaran = tr.querySelector(".rab-pengeluaran").value;
+          const keterangan = tr.querySelector(".rab-keterangan").value;
           grandTotal += total;
 
           if (uraian.trim() !== "") {
@@ -1217,8 +1207,7 @@
                 <td style="text-align:center;">${qty}</td>
                 <td style="text-align:right;">${harga}</td>
                 <td style="text-align:right;">${total}</td>
-                <td style="text-align:center;">${penerimaan}</td>
-                <td style="text-align:center;">${pengeluaran}</td>
+                <td>${keterangan}</td>
               </tr>
             `;
           }
@@ -1241,24 +1230,23 @@
         </head>
         <body>
           <table>
-            <tr><td colspan="7" class="header">RENCANA ANGGARAN BIAYA (RAB)</td></tr>
-            <tr><td colspan="7" class="header">${namaKegiatan}</td></tr>
-            <tr><td colspan="7" style="text-align:center;">Tanggal Pelaksanaan: ${tanggal} | Dicetak: ${tanggalCetak}</td></tr>
-            <tr><td colspan="7"></td></tr>
+            <tr><td colspan="6" class="header">RENCANA ANGGARAN BIAYA (RAB)</td></tr>
+            <tr><td colspan="6" class="header">${namaKegiatan}</td></tr>
+            <tr><td colspan="6" style="text-align:center;">Tanggal Pelaksanaan: ${tanggal} | Dicetak: ${tanggalCetak}</td></tr>
+            <tr><td colspan="6"></td></tr>
             <tr>
               <th style="width: 30px;">No</th>
               <th>Uraian / Item</th>
               <th style="width: 50px;">Qty</th>
               <th style="width: 100px;">Harga Satuan (Rp)</th>
               <th style="width: 100px;">Total (Rp)</th>
-              <th style="width: 120px;">Sumber Penerimaan</th>
-              <th style="width: 120px;">Sumber Pengeluaran</th>
+              <th>Keterangan</th>
             </tr>
             ${htmlTabel}
             <tr style="background-color: #e6e6e6; font-weight: bold;">
               <td colspan="4" style="text-align: right;">TOTAL ANGGARAN</td>
               <td style="text-align: right;">${grandTotal}</td>
-              <td colspan="2"></td>
+              <td></td>
             </tr>
           </table>
         </body>
