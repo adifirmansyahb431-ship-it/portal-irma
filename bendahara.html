@@ -146,8 +146,8 @@
         </div>
       </div>
       <div class="header-right">
-        <!-- TOMBOL KEMBALI CERDAS -->
-        <button onclick="kembaliCerdas()" class="btn-logout" style="background:#6c757d;">⬅️ Kembali ke Beranda</button>
+        <!-- TOMBOL KEMBALI DIBERI ID -->
+        <button onclick="kembaliCerdas()" class="btn-logout" style="background:#6c757d;" id="btnKembaliAdmin">⬅️ Kembali ke Beranda</button>
         
         <button onclick="window.print()" class="tab-btn" style="background:#2a9d8f; color:white; border:none;">🖨️ Cetak LPJ</button>
         <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
@@ -460,6 +460,21 @@
         window.location.href = 'index.html';
       }
     }
+
+    // LOGIKA MENYEMBUNYIKAN TOMBOL KEMBALI UNTUK BENDAHARA
+    document.addEventListener("DOMContentLoaded", () => {
+      const userData = localStorage.getItem("userLoginData");
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          // Jika email BUKAN admin, sembunyikan tombol kembali
+          if (user.email !== "admin@irma.sch.id") {
+            const btnKembali = document.getElementById("btnKembaliAdmin");
+            if (btnKembali) btnKembali.style.display = "none";
+          }
+        } catch (e) {}
+      }
+    });
 
     function bukaTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
