@@ -8,12 +8,8 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
     * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-    
-    /* WARNA LATAR BELAKANG CREAM / BEIGE ALA KASIR */
     body { background-color: #fcf8f2; margin: 0; padding: 20px; color: #2c2c2c; }
     .container { max-width: 1200px; margin: 0 auto; }
-    
-    /* HEADER */
     .header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border-bottom: 3px solid #d4a373; }
     .header-left { display: flex; align-items: center; gap: 15px; }
     .header-left img { width: 50px; height: 50px; object-fit: contain; }
@@ -22,15 +18,11 @@
     .header-right { display: flex; gap: 10px; flex-wrap: wrap; }
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.2s; }
     .btn-logout:hover { background: #c0392b; }
-    
-    /* TABS */
     .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; overflow-x: auto; padding-bottom: 5px; }
     .tab-btn { padding: 10px 15px; background: #ffffff; border: 1px solid #e0d5c1; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; color: #555; white-space: nowrap; }
     .tab-btn.active { background: #bc6c25; color: white; border-color: #bc6c25; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    
-    /* CARDS */
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
     .card { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); border-left: 5px solid #bc6c25; border-top: 1px solid #faedcd; }
     .card.in { border-left-color: #2a9d8f; }
@@ -42,66 +34,46 @@
     .card.out .nominal { color: #e76f51; }
     .card.balance .nominal { color: #bc6c25; }
     .card.asset .nominal { color: #d4a373; }
-    
-    /* LAYOUT */
     .main-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
     @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
-    
     .box { background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); margin-bottom: 20px; overflow-x: auto; border: 1px solid #faedcd; }
     .box h3 { margin-top: 0; font-size: 16px; color: #bc6c25; border-bottom: 2px solid #fefae0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #555; }
     .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #d4a373; border-radius: 8px; font-size: 14px; background: #fffdf9; }
     .btn-submit { width: 100%; padding: 12px; background: #bc6c25; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; }
     .btn-submit:hover { background: #a25c1f; }
     .btn-cancel { background: #e76f51; margin-top: 5px; display: none; }
-    
     .btn-tambah { background: #2a9d8f; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
     .btn-tambah:hover { background: #21867a; }
-
     .btn-simpan-iuran { background: #2a9d8f; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .btn-simpan-iuran:hover { background: #21867a; }
-
     .btn-aksi-kecil { padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; color: white; margin-right: 2px; }
     .btn-edit-siswa { background: #f39c12; }
     .btn-hapus-siswa { background: #e74c3c; }
-
-    /* MODAL POPUP */
     .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
     .modal-content { background: #ffffff; padding: 25px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); border: 2px solid #d4a373; }
     .modal-content h3 { color: #bc6c25; margin-top: 0; border-bottom: 2px solid #faedcd; padding-bottom: 8px; }
-
-    /* TABEL */
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
     th, td { padding: 10px; text-align: left; border-bottom: 1px solid #faedcd; vertical-align: middle; }
     th { background: #fefae0; color: #bc6c25; font-weight: 700; text-align: center; }
     td { text-align: left; }
     td.text-center, th.text-center { text-align: center; }
-    
     .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; display: inline-block; }
     .badge-in { background: #e8f5e9; color: #2a9d8f; }
     .badge-out { background: #ffebee; color: #e76f51; }
     .badge-hybrid { background: #fff3cd; color: #856404; }
-    
     .action-btn { padding: 5px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; color: white; margin-right: 3px; }
     .btn-edit { background: #f39c12; }
     .btn-delete { background: #e74c3c; }
-    
-    /* CHECKBOX IURAN */
     .checkbox-iuran { width: 18px; height: 18px; cursor: pointer; accent-color: #2a9d8f; }
-
-    /* LAPORAN */
     .report-table { width: 100%; margin-bottom: 15px; }
     .report-table td { padding: 8px 5px; }
     .report-table .header-row { font-weight: 700; background: #fefae0; color: #bc6c25; }
     .report-table .total-row { font-weight: 700; border-top: 2px solid #bc6c25; border-bottom: 2px solid #bc6c25; }
     .indent { padding-left: 20px !important; }
-    
-    /* GRAFIK */
     .grafik-container { position: relative; height: 300px; width: 100%; }
-
     @media print {
       body { background: white; padding: 0; }
       .nav-tabs, .form-box, .btn-submit, .header p, .action-btn, .btn-logout, .btn-tambah, .btn-aksi-kecil, .btn-simpan-iuran { display: none; }
@@ -110,12 +82,9 @@
       .box { box-shadow: none; border: 1px solid #ccc; }
     }
   </style>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // PERBAIKAN UTAMA: Menambahkan 'where' ke dalam import
     import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, setDoc, getDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    
     const firebaseConfig = {
       apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
       authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
@@ -124,18 +93,13 @@
       messagingSenderId: "582215464487",
       appId: "1:582215464487:web:4d0583016ebec700dec002"
     };
-
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    
-    // PERBAIKAN UTAMA: Menambahkan 'where' ke dalam fbTools
     window.fbTools = { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, setDoc, getDoc, getDocs, writeBatch };
-    
     muatDataKas();
   </script>
 </head>
 <body>
-
   <div class="container">
     <div class="header">
       <div class="header-left">
@@ -146,9 +110,7 @@
         </div>
       </div>
       <div class="header-right">
-        <!-- TOMBOL KEMBALI DIBERI ID -->
         <button onclick="kembaliCerdas()" class="btn-logout" style="background:#6c757d;" id="btnKembaliAdmin">⬅️ Kembali ke Beranda</button>
-        
         <button onclick="window.print()" class="tab-btn" style="background:#2a9d8f; color:white; border:none;">🖨️ Cetak LPJ</button>
         <button onclick="logout()" class="btn-logout">🚪 Keluar</button>
       </div>
@@ -162,15 +124,15 @@
     </div>
 
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="bukaTab('tabInput')">📝 Jurnal</button>
-      <button class="tab-btn" onclick="bukaTab('tabKelas10')">🟢 Kas Kelas X</button>
-      <button class="tab-btn" onclick="bukaTab('tabKelas11')">🟠 Kas Kelas XI</button>
-      <button class="tab-btn" onclick="bukaTab('tabLabaRugi')">📊 Laba/Rugi</button>
-      <button class="tab-btn" onclick="bukaTab('tabNeraca')">⚖️ Neraca</button>
-      <button class="tab-btn" onclick="bukaTab('tabModal')">📈 Perubahan Modal</button>
-      <button class="tab-btn" onclick="bukaTab('tabCashFlow')">💵 Arus Kas</button>
-      <button class="tab-btn" onclick="bukaTab('tabGrafik')">📉 Grafik</button>
-      <button class="tab-btn" onclick="bukaTab('tabRAB')">📝 RAB</button>
+      <button class="tab-btn active" onclick="bukaTab('tabInput', event)">📝 Jurnal</button>
+      <button class="tab-btn" onclick="bukaTab('tabKelas10', event)">🟢 Kas Kelas X</button>
+      <button class="tab-btn" onclick="bukaTab('tabKelas11', event)">🟠 Kas Kelas XI</button>
+      <button class="tab-btn" onclick="bukaTab('tabLabaRugi', event)">📊 Laba/Rugi</button>
+      <button class="tab-btn" onclick="bukaTab('tabNeraca', event)">⚖️ Neraca</button>
+      <button class="tab-btn" onclick="bukaTab('tabModal', event)">📈 Perubahan Modal</button>
+      <button class="tab-btn" onclick="bukaTab('tabCashFlow', event)">💵 Arus Kas</button>
+      <button class="tab-btn" onclick="bukaTab('tabGrafik', event)">📉 Grafik</button>
+      <button class="tab-btn" onclick="bukaTab('tabRAB', event)">📝 RAB</button>
     </div>
 
     <!-- TAB INPUT JURNAL -->
@@ -199,7 +161,6 @@
               <label>Nominal Total / Tunai (Rp)</label>
               <input type="number" id="nominal" placeholder="Contoh: 60000" min="1" required />
             </div>
-            
             <div id="extraUtangFields" style="display:none; background:#fefae0; padding:10px; border-radius:8px; margin-bottom:12px; border:1px dashed #bc6c25;">
               <div class="form-group">
                 <label style="color:#e76f51;">Dibayar Tunai dari Kas (Rp)</label>
@@ -210,7 +171,6 @@
                 <input type="number" id="nominalUtang" placeholder="Contoh: 40000" min="0" />
               </div>
             </div>
-
             <div class="form-group">
               <label>Keterangan / Uraian</label>
               <textarea id="keterangan" rows="3" placeholder="Contoh: Beli perlengkapan ATK" required></textarea>
@@ -219,17 +179,14 @@
             <button type="button" class="btn-submit btn-cancel" id="btnBatal" onclick="batalEdit()">Batal Edit</button>
           </form>
         </div>
-
         <div class="box">
           <h3>Jurnal Umum Organisasi</h3>
           <div class="table-responsive">
             <table>
               <thead>
                 <tr>
-                  <th>Tanggal</th>
-                  <th>Uraian Transaksi</th>
-                  <th class="text-center">Debet (D)</th>
-                  <th class="text-center">Kredit (K)</th>
+                  <th>Tanggal</th><th>Uraian Transaksi</th>
+                  <th class="text-center">Debet (D)</th><th class="text-center">Kredit (K)</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -255,18 +212,13 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 40px;">No</th>
-                <th>NISN / NIS</th>
-                <th>Nama Lengkap Siswa</th>
-                <th style="width: 70px;">Kelas</th>
+                <th style="width: 40px;">No</th><th>NISN / NIS</th><th>Nama Lengkap Siswa</th><th style="width: 70px;">Kelas</th>
                 <th>Juli</th><th>Agustus</th><th>September</th><th>Oktober</th><th>November</th><th>Desember</th>
                 <th>Januari</th><th>Februari</th><th>Maret</th><th>April</th><th>Mei</th><th>Juni</th>
                 <th style="width: 100px;">Aksi</th>
               </tr>
             </thead>
-            <tbody id="tabelKelas10Body">
-              <tr><td colspan="17" class="text-center">Memuat data siswa kelas X...</td></tr>
-            </tbody>
+            <tbody id="tabelKelas10Body"><tr><td colspan="17" class="text-center">Memuat data siswa kelas X...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -287,18 +239,13 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 40px;">No</th>
-                <th>NISN / NIS</th>
-                <th>Nama Lengkap Siswa</th>
-                <th style="width: 70px;">Kelas</th>
+                <th style="width: 40px;">No</th><th>NISN / NIS</th><th>Nama Lengkap Siswa</th><th style="width: 70px;">Kelas</th>
                 <th>Juli</th><th>Agustus</th><th>September</th><th>Oktober</th><th>November</th><th>Desember</th>
                 <th>Januari</th><th>Februari</th><th>Maret</th><th>April</th><th>Mei</th><th>Juni</th>
                 <th style="width: 100px;">Aksi</th>
               </tr>
             </thead>
-            <tbody id="tabelKelas11Body">
-              <tr><td colspan="17" class="text-center">Memuat data siswa kelas XI...</td></tr>
-            </tbody>
+            <tbody id="tabelKelas11Body"><tr><td colspan="17" class="text-center">Memuat data siswa kelas XI...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -397,8 +344,49 @@
     <div id="tabGrafik" class="tab-content">
       <div class="box">
         <h3 style="text-align: center;">GRAFIK KEUANGAN</h3>
-        <div class="grafik-container">
-          <canvas id="grafikKeuangan"></canvas>
+        <div class="grafik-container"><canvas id="grafikKeuangan"></canvas></div>
+      </div>
+    </div>
+
+    <!-- TAB RAB (SUDAH DIPERBAIKI) -->
+    <div id="tabRAB" class="tab-content">
+      <div class="box">
+        <h3><span>📝 Rencana Anggaran Biaya (RAB)</span></h3>
+        <div class="main-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Nama Kegiatan</label>
+            <input type="text" id="rabNamaKegiatan" placeholder="Contoh: Kegiatan Bulan Ramadhan 1447 H" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Tanggal Pelaksanaan</label>
+            <input type="date" id="rabTanggalKegiatan" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;">No</th>
+                <th>Uraian / Item</th>
+                <th style="width: 80px;">Qty</th>
+                <th style="width: 150px;">Harga Satuan (Rp)</th>
+                <th style="width: 150px;">Total</th>
+                <th style="width: 80px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="bodyRAB"></tbody>
+            <tfoot>
+              <tr class="total-row" style="font-weight:700; background:#fefae0;">
+                <td colspan="4" style="text-align:right; color:#bc6c25;">TOTAL ANGGARAN</td>
+                <td style="text-align:right; color:#bc6c25;" id="totalKeseluruhanRAB">Rp 0</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+          <button class="btn-tambah" onclick="tambahBarisRAB()">➕ Tambah Baris</button>
+          <button class="btn-simpan-iuran" onclick="cetakRAB()">🖨️ Cetak RAB</button>
         </div>
       </div>
     </div>
@@ -441,34 +429,22 @@
         window.location.href = "index.html";
       }
     }
-
-    // TAMBAHKAN FUNGSI INI UNTUK TOMBOL KEMBALI CERDAS
     function kembaliCerdas() {
       const userData = localStorage.getItem("userLoginData");
-      
       if (userData) {
         try {
           const user = JSON.parse(userData);
           if (user.email === "admin@irma.sch.id" || user.email === "bendahara@irma.sch.id") {
-            window.location.href = 'beranda.html'; // Kembali ke beranda admin
-          } else {
-            window.location.href = 'beranda.html'; // Fallback
-          }
-        } catch (e) {
-          window.location.href = 'beranda.html';
-        }
-      } else {
-        window.location.href = 'index.html';
-      }
+            window.location.href = 'beranda.html';
+          } else { window.location.href = 'beranda.html'; }
+        } catch (e) { window.location.href = 'beranda.html'; }
+      } else { window.location.href = 'index.html'; }
     }
-
-    // LOGIKA MENYEMBUNYIKAN TOMBOL KEMBALI UNTUK BENDAHARA
     document.addEventListener("DOMContentLoaded", () => {
       const userData = localStorage.getItem("userLoginData");
       if (userData) {
         try {
           const user = JSON.parse(userData);
-          // Jika email BUKAN admin, sembunyikan tombol kembali
           if (user.email !== "admin@irma.sch.id") {
             const btnKembali = document.getElementById("btnKembaliAdmin");
             if (btnKembali) btnKembali.style.display = "none";
@@ -477,18 +453,16 @@
       }
     });
 
-        function bukaTab(tabId) {
+    function bukaTab(tabId, event) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
-
-      // Jika yang dibuka adalah tab RAB dan tabel masih kosong, tambah 1 baris
+      const target = document.getElementById(tabId);
+      if (!target) { console.warn("Tab tidak ditemukan:", tabId); return; }
+      target.classList.add('active');
+      if (event && event.currentTarget) event.currentTarget.classList.add('active');
       if (tabId === 'tabRAB') {
         const tbody = document.getElementById("bodyRAB");
-        if (tbody.children.length === 0) {
-          tambahBarisRAB();
-        }
+        if (tbody && tbody.children.length === 0) tambahBarisRAB();
       }
     }
 
@@ -501,10 +475,7 @@
       document.getElementById("inputKelas").value = "";
       document.getElementById("modalTambahSiswa").style.display = "flex";
     }
-
-    function tutupModalSiswa() {
-      document.getElementById("modalTambahSiswa").style.display = "none";
-    }
+    function tutupModalSiswa() { document.getElementById("modalTambahSiswa").style.display = "none"; }
 
     window.editSiswa = function(id, nisn, nama, kelas) {
       document.getElementById("editSiswaId").value = id;
@@ -522,7 +493,6 @@
       const nisn = document.getElementById("inputNisn").value.trim();
       const nama = document.getElementById("inputNama").value.trim();
       const kelas = document.getElementById("inputKelas").value.trim();
-
       try {
         const { collection, addDoc, doc, updateDoc } = window.fbTools;
         if (editId) {
@@ -530,17 +500,13 @@
           alert("✅ Data siswa berhasil diperbarui!");
         } else {
           await addDoc(collection(window.db, "biodata_siswa"), {
-            nisn, nama, kelas,
-            jabatan: "Anggota IRMA",
-            waktu: new Date().toISOString()
+            nisn, nama, kelas, jabatan: "Anggota IRMA", waktu: new Date().toISOString()
           });
           alert("✅ Siswa baru berhasil ditambahkan!");
         }
         tutupModalSiswa();
         muatDataKas();
-      } catch (err) {
-        alert("❌ Gagal menyimpan siswa: " + err.message);
-      }
+      } catch (err) { alert("❌ Gagal menyimpan siswa: " + err.message); }
     }
 
     window.hapusSiswa = async function(siswaId, namaSiswa) {
@@ -551,9 +517,7 @@
         try { await deleteDoc(doc(window.db, "AnggotaIRMA", siswaId)); } catch(e){}
         alert("✅ Data siswa berhasil dihapus!");
         muatDataKas();
-      } catch (error) {
-        alert("❌ Gagal menghapus siswa: " + error.message);
-      }
+      } catch (error) { alert("❌ Gagal menghapus siswa: " + error.message); }
     }
 
     function updateKategoriOptions() {
@@ -561,10 +525,8 @@
       const selectKategori = document.getElementById("kategoriAkun");
       const extraFields = document.getElementById("extraUtangFields");
       const labelNominal = document.getElementById("groupNominalUtama").querySelector("label");
-      
       selectKategori.innerHTML = "";
       let options = [];
-
       if (jenis === "BebanSebagianUtang") {
         extraFields.style.display = "block";
         labelNominal.innerText = "Total Harga Pembelian (Rp)";
@@ -578,7 +540,6 @@
         else if (jenis === "Utang") options = ["211 - Utang Cetak Spanduk", "212 - Utang Perlengkapan", "213 - Kewajiban Lainnya"];
         else if (jenis === "Modal") options = ["311 - Modal Awal Organisasi", "312 - Setoran Dana Khusus"];
       }
-
       options.forEach(opt => {
         const el = document.createElement("option");
         el.value = opt; el.textContent = opt;
@@ -594,19 +555,15 @@
       const kategoriAkun = document.getElementById("kategoriAkun").value;
       const nominal = parseFloat(document.getElementById("nominal").value);
       const keterangan = document.getElementById("keterangan").value;
-
-      let nominalTunai = 0;
-      let nominalUtang = 0;
-
+      let nominalTunai = 0, nominalUtang = 0;
       if (jenisPost === "BebanSebagianUtang") {
         nominalTunai = parseFloat(document.getElementById("nominalTunai").value) || 0;
         nominalUtang = parseFloat(document.getElementById("nominalUtang").value) || 0;
         if ((nominalTunai + nominalUtang) !== nominal) {
-          alert("⚠️ Perhatian: Pembayaran Tunai (" + nominalTunai + ") + Sisa Utang (" + nominalUtang + ") harus sama dengan Total Harga Pembelian (" + nominal + ")!");
+          alert("⚠️ Pembayaran Tunai + Sisa Utang harus sama dengan Total Harga!");
           return;
         }
       }
-
       try {
         const { collection, addDoc, doc, updateDoc, serverTimestamp } = window.fbTools;
         if (editId) {
@@ -615,8 +572,7 @@
         } else {
           await addDoc(collection(window.db, "jurnal_irma"), {
             jenisPost, kategoriAkun, nominal, nominalTunai, nominalUtang, keterangan,
-            waktu: serverTimestamp(),
-            tanggal: new Date().toLocaleDateString("id-ID")
+            waktu: serverTimestamp(), tanggal: new Date().toLocaleDateString("id-ID")
           });
           alert("Transaksi Jurnal Majemuk Berhasil Disimpan!");
         }
@@ -661,10 +617,7 @@
         const { doc, deleteDoc } = window.fbTools;
         await deleteDoc(doc(window.db, "jurnal_irma", id));
         alert("Transaksi dihapus!");
-      } catch (error) {
-        console.error("Error hapus: ", error);
-        alert("Gagal menghapus: " + error.message);
-      }
+      } catch (error) { alert("Gagal menghapus: " + error.message); }
     }
 
     async function muatDataSiswaIuran(totalIuranCallback) {
@@ -672,7 +625,6 @@
         if (window.db && window.fbTools) {
           clearInterval(checkReady);
           const { collection, getDocs, getDoc, doc } = window.fbTools;
-          
           try {
             let siswaSnap = await getDocs(collection(window.db, "biodata_siswa"));
             let allDocs = siswaSnap.docs;
@@ -680,22 +632,16 @@
               const altSnap = await getDocs(collection(window.db, "AnggotaIRMA"));
               allDocs = altSnap.docs;
             }
-
             const tbody10 = document.getElementById("tabelKelas10Body");
             const tbody11 = document.getElementById("tabelKelas11Body");
-            tbody10.innerHTML = "";
-            tbody11.innerHTML = "";
-            
-            let no10 = 1, no11 = 1;
-            let totalNominalIuranSiswa = 0;
-
+            tbody10.innerHTML = ""; tbody11.innerHTML = "";
+            let no10 = 1, no11 = 1, totalNominalIuranSiswa = 0;
             if (allDocs.length === 0) {
               tbody10.innerHTML = `<tr><td colspan="17" class="text-center">Belum ada data siswa di database.</td></tr>`;
               tbody11.innerHTML = `<tr><td colspan="17" class="text-center">Belum ada data siswa di database.</td></tr>`;
               if (typeof totalIuranCallback === 'function') totalIuranCallback(0);
               return;
             }
-
             for (const docSiswa of allDocs) {
               const siswa = docSiswa.data();
               const siswaId = docSiswa.id;
@@ -704,33 +650,26 @@
               const nisnSiswa = siswa.nisn || siswa.NISN || siswa.nis || siswa.noId || "-";
               const kelasStr = String(kelasSiswa).trim().toUpperCase();
               const isKelas11 = kelasStr.includes("XI") || kelasStr.startsWith("11");
-
               const iuranSnap = await getDoc(doc(window.db, "iuran_bulanan", siswaId));
               const iuranData = iuranSnap.exists() ? iuranSnap.data() : { bulan: {} };
               const statusBulan = iuranData.bulan || {};
-
               let tr = document.createElement("tr");
               let htmlTD = `
                 <td class="text-center">__NO__</td>
                 <td class="text-center"><strong>${nisnSiswa}</strong></td>
                 <td>${namaSiswa}</td>
-                <td class="text-center">${kelasSiswa}</td>
-              `;
-
+                <td class="text-center">${kelasSiswa}</td>`;
               daftarBulan.forEach(bulan => {
                 const isChecked = statusBulan[bulan] ? "checked" : "";
                 if (isChecked) totalNominalIuranSiswa += NOMINAL_IURAN;
                 htmlTD += `<td class="text-center"><input type="checkbox" class="checkbox-iuran iuran-input-${isKelas11 ? '11' : '10'}" data-siswa="${siswaId}" data-nama="${namaSiswa.replace(/'/g, "")}" data-bulan="${bulan}" ${isChecked}></td>`;
               });
-
               htmlTD += `
                 <td class="text-center">
                   <button class="btn-aksi-kecil btn-edit-siswa" onclick="editSiswa('${siswaId}', '${nisnSiswa}', '${namaSiswa.replace(/'/g, "")}', '${kelasSiswa}')">Edit</button>
                   <button class="btn-aksi-kecil btn-hapus-siswa" onclick="hapusSiswa('${siswaId}', '${namaSiswa.replace(/'/g, "")}')">Hapus</button>
-                </td>
-              `;
+                </td>`;
               tr.innerHTML = htmlTD;
-
               if (!isKelas11) {
                 tr.innerHTML = tr.innerHTML.replace("__NO__", no10++);
                 tbody10.appendChild(tr);
@@ -739,81 +678,50 @@
                 tbody11.appendChild(tr);
               }
             }
-
             if (tbody10.innerHTML === "") tbody10.innerHTML = `<tr><td colspan="17" class="text-center">Tidak ada siswa Kelas X.</td></tr>`;
             if (tbody11.innerHTML === "") tbody11.innerHTML = `<tr><td colspan="17" class="text-center">Tidak ada siswa Kelas XI.</td></tr>`;
-
             if (typeof totalIuranCallback === 'function') totalIuranCallback(totalNominalIuranSiswa);
-          } catch (e) {
-            console.error("Gagal memuat iuran siswa:", e);
-          }
+          } catch (e) { console.error("Gagal memuat iuran siswa:", e); }
         }
       }, 300);
     }
 
-    // ==========================================
-    // FUNGSI SIMPAN SEMUA IURAN (DIPERBAIKI)
-    // ==========================================
     window.simpanSemuaIuran = async function(kelasTarget) {
       const checkboxes = document.querySelectorAll(`.iuran-input-${kelasTarget}`);
-      
       const { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, getDocs, query, where, deleteDoc } = window.fbTools;
-      
       if (!confirm(`💾 Simpan perubahan iuran untuk Kelas ${kelasTarget === '10' ? 'X' : 'XI'}?`)) return;
-
       try {
         let perubahanSiswa = {};
-
-        // 1. Kumpulkan data dari checkbox
         checkboxes.forEach(cb => {
           const sId = cb.getAttribute("data-siswa");
           const nama = cb.getAttribute("data-nama");
           const bulan = cb.getAttribute("data-bulan");
-          const isChecked = cb.checked;
-
-          if (!perubahanSiswa[sId]) {
-            perubahanSiswa[sId] = { nama: nama, bulan: {} };
-          }
-          perubahanSiswa[sId].bulan[bulan] = isChecked;
+          if (!perubahanSiswa[sId]) perubahanSiswa[sId] = { nama: nama, bulan: {} };
+          perubahanSiswa[sId].bulan[bulan] = cb.checked;
         });
-
-        let jumlahTambah = 0;
-        let jumlahHapus = 0;
-
-        // 2. Loop setiap siswa
+        let jumlahTambah = 0, jumlahHapus = 0;
         for (const sId in perubahanSiswa) {
           const iuranRef = doc(window.db, "iuran_bulanan", sId);
           const iuranSnap = await getDoc(iuranRef);
           let dataLama = iuranSnap.exists() ? iuranSnap.data() : { bulan: {} };
           if (!dataLama.bulan) dataLama.bulan = {};
-
           const bulanBaru = perubahanSiswa[sId].bulan;
           const namaSiswa = perubahanSiswa[sId].nama;
           const jurnalRef = collection(window.db, "jurnal_irma");
-
-          // 3. Loop setiap bulan
           for (const b in bulanBaru) {
             const statusBaru = bulanBaru[b];
             const statusLama = !!dataLama.bulan[b];
-
-            // Jika ada perubahan status
             if (statusBaru !== statusLama) {
               dataLama.bulan[b] = statusBaru;
               const ketUnik = `Iuran Kas ${b.toUpperCase()} - ${namaSiswa} (${sId})`;
-
               if (statusBaru === true) {
-                // TAMBAH JURNAL
                 await addDoc(jurnalRef, {
-                  jenisPost: "Pendapatan",
-                  kategoriAkun: "411 - Iuran / Kas Bulanan",
-                  nominal: NOMINAL_IURAN,
-                  keterangan: ketUnik,
-                  waktu: serverTimestamp(),
-                  tanggal: new Date().toLocaleDateString("id-ID")
+                  jenisPost: "Pendapatan", kategoriAkun: "411 - Iuran / Kas Bulanan",
+                  nominal: NOMINAL_IURAN, keterangan: ketUnik,
+                  waktu: serverTimestamp(), tanggal: new Date().toLocaleDateString("id-ID")
                 });
                 jumlahTambah++;
               } else {
-                // HAPUS JURNAL
                 const qJurnal = query(jurnalRef, where("keterangan", "==", ketUnik));
                 const snapJurnal = await getDocs(qJurnal);
                 for (const jDoc of snapJurnal.docs) {
@@ -823,19 +731,11 @@
               }
             }
           }
-
-          // 4. Simpan status centang
           dataLama.updatedAt = new Date().toISOString();
           await setDoc(iuranRef, dataLama, { merge: true });
         }
-
-        // 5. Notifikasi Hasil
-        if (jumlahTambah === 0 && jumlahHapus === 0) {
-          alert("ℹ️ Tidak ada perubahan status iuran yang perlu disimpan.");
-        } else {
-          alert(`✅ Berhasil disimpan!\n- ${jumlahTambah} Jurnal Pendapatan ditambahkan.\n- ${jumlahHapus} Jurnal Pendapatan dibatalkan.`);
-        }
-        
+        if (jumlahTambah === 0 && jumlahHapus === 0) alert("ℹ️ Tidak ada perubahan status iuran yang perlu disimpan.");
+        else alert(`✅ Berhasil disimpan!\n- ${jumlahTambah} Jurnal Pendapatan ditambahkan.\n- ${jumlahHapus} Jurnal Pendapatan dibatalkan.`);
         muatDataKas();
       } catch (error) {
         console.error("Error simpan iuran: ", error);
@@ -849,19 +749,14 @@
           clearInterval(checkReady);
           const { collection, onSnapshot, query, orderBy } = window.fbTools;
           const q = query(collection(window.db, "jurnal_irma"), orderBy("waktu", "asc"));
-
           onSnapshot(q, (snapshot) => {
             let totalPendapatanJurnal = 0, totalBeban = 0, totalAset = 0, totalUtang = 0, totalModal = 0;
             let recapPendapatan = {}, recapBeban = {}, recapAset = {}, recapUtang = {};
             let htmlJurnal = "";
             let dataGrafik = { labels: [], pemasukan: [], pengeluaran: [] };
-
             muatDataSiswaIuran((totalIuranSiswa) => {
               totalPendapatanJurnal += totalIuranSiswa;
-              if (totalIuranSiswa > 0) {
-                recapPendapatan["411 - Iuran / Kas Bulanan Siswa"] = totalIuranSiswa;
-              }
-
+              if (totalIuranSiswa > 0) recapPendapatan["411 - Iuran / Kas Bulanan Siswa"] = totalIuranSiswa;
               if (snapshot.empty) {
                 htmlJurnal = `<tr><td colspan="5" style="text-align:center;">Belum ada jurnal.</td></tr>`;
               } else {
@@ -872,41 +767,17 @@
                   const kat = data.kategoriAkun;
                   const tunai = data.nominalTunai || 0;
                   const utang = data.nominalUtang || 0;
-
-                  if (post === "Pendapatan" || post === "Modal") {
-                     dataGrafik.pemasukan.push(nom); dataGrafik.pengeluaran.push(0);
-                  } else if (post === "BebanSebagianUtang") {
-                     dataGrafik.pemasukan.push(0); dataGrafik.pengeluaran.push(tunai);
-                  } else {
-                     dataGrafik.pemasukan.push(0); dataGrafik.pengeluaran.push(nom);
-                  }
+                  if (post === "Pendapatan" || post === "Modal") { dataGrafik.pemasukan.push(nom); dataGrafik.pengeluaran.push(0); }
+                  else if (post === "BebanSebagianUtang") { dataGrafik.pemasukan.push(0); dataGrafik.pengeluaran.push(tunai); }
+                  else { dataGrafik.pemasukan.push(0); dataGrafik.pengeluaran.push(nom); }
                   dataGrafik.labels.push(data.tanggal || '-');
-
-                  if (post === "Pendapatan") { 
-                    totalPendapatanJurnal += nom; 
-                    recapPendapatan[kat] = (recapPendapatan[kat] || 0) + nom; 
-                  } else if (post === "Beban") { 
-                    totalBeban += nom; 
-                    recapBeban[kat] = (recapBeban[kat] || 0) + nom; 
-                  } else if (post === "BebanSebagianUtang") { 
-                    totalBeban += nom; 
-                    recapBeban[kat] = (recapBeban[kat] || 0) + nom;
-                    totalUtang += utang;
-                    recapUtang["212 - Utang Perlengkapan"] = (recapUtang["212 - Utang Perlengkapan"] || 0) + utang;
-                  } else if (post === "Aset") { 
-                    totalAset += nom; 
-                    recapAset[kat] = (recapAset[kat] || 0) + nom; 
-                  } else if (post === "Utang") { 
-                    totalUtang += nom; 
-                    recapUtang[kat] = (recapUtang[kat] || 0) + nom; 
-                  } else if (post === "Modal") { 
-                    totalModal += nom; 
-                  }
-
-                  let debetStr = "";
-                  let kreditStr = "";
-                  let badgeClass = "badge-in";
-
+                  if (post === "Pendapatan") { totalPendapatanJurnal += nom; recapPendapatan[kat] = (recapPendapatan[kat] || 0) + nom; }
+                  else if (post === "Beban") { totalBeban += nom; recapBeban[kat] = (recapBeban[kat] || 0) + nom; }
+                  else if (post === "BebanSebagianUtang") { totalBeban += nom; recapBeban[kat] = (recapBeban[kat] || 0) + nom; totalUtang += utang; recapUtang["212 - Utang Perlengkapan"] = (recapUtang["212 - Utang Perlengkapan"] || 0) + utang; }
+                  else if (post === "Aset") { totalAset += nom; recapAset[kat] = (recapAset[kat] || 0) + nom; }
+                  else if (post === "Utang") { totalUtang += nom; recapUtang[kat] = (recapUtang[kat] || 0) + nom; }
+                  else if (post === "Modal") { totalModal += nom; }
+                  let debetStr = "", kreditStr = "", badgeClass = "badge-in";
                   if (post === "Pendapatan" || post === "Modal") {
                     debetStr = `<strong style="color:#bc6c25;">Kas (111)</strong><br><span style="color:#2a9d8f;">Rp ${nom.toLocaleString("id-ID")} (D)</span>`;
                     kreditStr = `<strong style="color:#555;">${kat}</strong><br><span style="color:#e76f51;">Rp ${nom.toLocaleString("id-ID")} (K)</span>`;
@@ -924,7 +795,6 @@
                     kreditStr = `<strong style="color:#555;">Utang Usaha (211)</strong><br><span style="color:#e76f51;">Rp ${nom.toLocaleString("id-ID")} (K)</span>`;
                     badgeClass = "badge-in";
                   }
-
                   htmlJurnal = `
                     <tr>
                       <td>${data.tanggal || '-'}</td>
@@ -938,58 +808,48 @@
                         <button class="action-btn btn-edit" onclick="editData('${doc.id}', '${post}', '${kat}', ${nom}, '${data.keterangan}', ${tunai}, ${utang})">Edit</button>
                         <button class="action-btn btn-delete" onclick="hapusData('${doc.id}')">Hapus</button>
                       </td>
-                    </tr>
-                  ` + htmlJurnal;
+                    </tr>` + htmlJurnal;
                 });
               }
-
               const totalKasKeluarNonTunai = (snapshot.docs || []).reduce((acc, d) => {
                 let dat = d.data();
                 if (dat.jenisPost === "BebanSebagianUtang") return acc + (dat.nominalTunai || 0);
                 if (dat.jenisPost === "Beban" || dat.jenisPost === "Aset") return acc + (dat.nominal || 0);
                 return acc;
               }, 0);
-
               const kasBersih = totalPendapatanJurnal + totalModal - totalKasKeluarNonTunai;
               const surplusDefisit = totalPendapatanJurnal - totalBeban;
               const totalAktiva = kasBersih + totalAset;
               const totalPasiva = totalUtang + totalModal + surplusDefisit;
               const modalAkhir = totalModal + surplusDefisit;
-
               document.getElementById("cardSaldo").innerText = "Rp " + kasBersih.toLocaleString("id-ID");
               document.getElementById("cardPendapatan").innerText = "Rp " + totalPendapatanJurnal.toLocaleString("id-ID");
               document.getElementById("cardBeban").innerText = "Rp " + totalBeban.toLocaleString("id-ID");
               document.getElementById("cardAset").innerText = "Rp " + totalAset.toLocaleString("id-ID");
               document.getElementById("tabelJurnalBody").innerHTML = htmlJurnal;
-
               let rptPendapatanHTML = "";
               for (let k in recapPendapatan) { rptPendapatanHTML += `<tr><td class="indent">${k}</td><td style="text-align:right;">Rp ${recapPendapatan[k].toLocaleString("id-ID")}</td></tr>`; }
               document.getElementById("laporanPendapatan").innerHTML = rptPendapatanHTML || `<tr><td colspan="2" class="indent">-</td></tr>`;
               document.getElementById("rptTotalPendapatan").innerText = "Rp " + totalPendapatanJurnal.toLocaleString("id-ID");
-
               let rptBebanHTML = "";
               for (let k in recapBeban) { rptBebanHTML += `<tr><td class="indent">${k}</td><td style="text-align:right;">Rp ${recapBeban[k].toLocaleString("id-ID")}</td></tr>`; }
               document.getElementById("laporanBeban").innerHTML = rptBebanHTML || `<tr><td colspan="2" class="indent">-</td></tr>`;
               document.getElementById("rptTotalBeban").innerText = "Rp " + totalBeban.toLocaleString("id-ID");
               document.getElementById("rptSurplusDefisit").innerText = "Rp " + surplusDefisit.toLocaleString("id-ID");
-
               document.getElementById("nrcKas").innerText = "Rp " + kasBersih.toLocaleString("id-ID");
               let nrcAsetHTML = "";
               for (let k in recapAset) { nrcAsetHTML += `<tr><td class="indent">${k}</td><td style="text-align:right;">Rp ${recapAset[k].toLocaleString("id-ID")}</td></tr>`; }
               document.getElementById("nrcTabelAset").innerHTML = nrcAsetHTML || `<tr><td colspan="2" class="indent">Tidak ada inventaris</td></tr>`;
               document.getElementById("nrcTotalAset").innerText = "Rp " + totalAktiva.toLocaleString("id-ID");
-
               let nrcUtangHTML = "";
               for (let k in recapUtang) { nrcUtangHTML += `<tr><td class="indent">${k}</td><td style="text-align:right;">Rp ${recapUtang[k].toLocaleString("id-ID")}</td></tr>`; }
               document.getElementById("nrcTabelUtang").innerHTML = nrcUtangHTML || `<tr><td colspan="2" class="indent">Tidak Ada Utang</td></tr>`;
               document.getElementById("nrcTotalUtang").innerText = "Rp " + totalUtang.toLocaleString("id-ID");
               document.getElementById("nrcSaldoDana").innerText = "Rp " + surplusDefisit.toLocaleString("id-ID");
               document.getElementById("nrcTotalPasiva").innerText = "Rp " + totalPasiva.toLocaleString("id-ID");
-
               document.getElementById("mdlAwal").innerText = "Rp " + totalModal.toLocaleString("id-ID");
               document.getElementById("mdlSurplus").innerText = "Rp " + surplusDefisit.toLocaleString("id-ID");
               document.getElementById("mdlAkhir").innerText = "Rp " + modalAkhir.toLocaleString("id-ID");
-
               document.getElementById("cfPendapatan").innerText = "Rp " + totalPendapatanJurnal.toLocaleString("id-ID");
               document.getElementById("cfBeban").innerText = "Rp " + totalBeban.toLocaleString("id-ID");
               const arusOperasi = totalPendapatanJurnal - totalBeban;
@@ -1002,7 +862,6 @@
               document.getElementById("cfPendanaan").innerText = "Rp " + arusPendanaan.toLocaleString("id-ID");
               const totalArusKas = arusOperasi - totalAset + arusPendanaan;
               document.getElementById("cfTotal").innerText = "Rp " + totalArusKas.toLocaleString("id-ID");
-
               gambarGrafik(dataGrafik.labels, dataGrafik.pemasukan, dataGrafik.pengeluaran);
             });
           });
@@ -1022,24 +881,26 @@
             { label: 'Pengeluaran (Rp)', data: pengeluaran, borderColor: '#e76f51', backgroundColor: 'rgba(231, 111, 81, 0.1)', tension: 0.3, fill: true }
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { y: { beginAtZero: true, title: { display: true, text: 'Nominal (Rp)' } } }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Nominal (Rp)' } } } }
       });
     }
-        // ==========================================
-    // LOGIKA PENYUSUNAN RAB
+
+    // ==========================================
+    // LOGIKA RAB (DIPERBAIKI & TERINTEGRASI)
     // ==========================================
     let counterRAB = 1;
 
-    // Fungsi Tambah Baris Tabel RAB
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[s]));
+    }
+
     window.tambahBarisRAB = function() {
       const tbody = document.getElementById("bodyRAB");
+      if (!tbody) return;
       const tr = document.createElement("tr");
       tr.id = "rowRAB_" + counterRAB;
-      
       tr.innerHTML = `
         <td>${counterRAB}</td>
         <td><input type="text" class="rab-item" placeholder="Contoh: Cetak Spanduk" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
@@ -1052,53 +913,42 @@
       counterRAB++;
     }
 
-    // Fungsi Hitung Total per Baris RAB
     window.hitungBarisRAB = function(id) {
       const row = document.getElementById("rowRAB_" + id);
+      if (!row) return;
       const qty = parseFloat(row.querySelector(".rab-qty").value) || 0;
       const harga = parseFloat(row.querySelector(".rab-harga").value) || 0;
-      const total = qty * harga;
-      
-      row.querySelector(".rab-total-baris").innerText = "Rp " + total.toLocaleString("id-ID");
+      row.querySelector(".rab-total-baris").innerText = "Rp " + (qty * harga).toLocaleString("id-ID");
       hitungTotalKeseluruhanRAB();
     }
 
-    // Fungsi Hitung Total Keseluruhan RAB
     window.hitungTotalKeseluruhanRAB = function() {
       let totalSemua = 0;
-      const rows = document.querySelectorAll("#bodyRAB tr");
-      rows.forEach(row => {
-        const qty = parseFloat(row.querySelector(".rab-qty").value) || 0;
-        const harga = parseFloat(row.querySelector(".rab-harga").value) || 0;
-        totalSemua += (qty * harga);
+      document.querySelectorAll("#bodyRAB tr").forEach(row => {
+        const qty = parseFloat(row.querySelector(".rab-qty")?.value) || 0;
+        const harga = parseFloat(row.querySelector(".rab-harga")?.value) || 0;
+        totalSemua += qty * harga;
       });
-      document.getElementById("totalKeseluruhanRAB").innerText = "Rp " + totalSemua.toLocaleString("id-ID");
+      const el = document.getElementById("totalKeseluruhanRAB");
+      if (el) el.innerText = "Rp " + totalSemua.toLocaleString("id-ID");
     }
 
-    // Fungsi Hapus Baris RAB
     window.hapusBarisRAB = function(id) {
       const row = document.getElementById("rowRAB_" + id);
-      if (row) {
-        row.remove();
-        hitungTotalKeseluruhanRAB();
-        // Renumbering
-        let no = 1;
-        document.querySelectorAll("#bodyRAB tr").forEach(tr => {
-          tr.cells[0].innerText = no++;
-        });
-      }
+      if (!row) return;
+      row.remove();
+      hitungTotalKeseluruhanRAB();
+      let no = 1;
+      document.querySelectorAll("#bodyRAB tr").forEach(tr => { tr.cells[0].innerText = no++; });
+      if (document.querySelectorAll("#bodyRAB tr").length === 0) counterRAB = 1;
     }
 
-    // Fungsi Cetak RAB
     window.cetakRAB = function() {
       const namaKegiatan = document.getElementById("rabNamaKegiatan").value || "Kegiatan IRMA";
       const tanggal = document.getElementById("rabTanggalKegiatan").value;
       const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-      
       const rows = document.querySelectorAll("#bodyRAB tr");
-      let htmlTabel = "";
-      let grandTotal = 0;
-
+      let htmlTabel = "", grandTotal = 0;
       rows.forEach(row => {
         const no = row.cells[0].innerText;
         const item = row.querySelector(".rab-item").value;
@@ -1106,73 +956,54 @@
         const harga = parseFloat(row.querySelector(".rab-harga").value) || 0;
         const total = qty * harga;
         grandTotal += total;
-
         if (item.trim() !== "") {
           htmlTabel += `
             <tr>
               <td style="text-align:center;">${no}</td>
-              <td>${item}</td>
+              <td>${escapeHtml(item)}</td>
               <td style="text-align:center;">${qty}</td>
               <td style="text-align:right;">Rp ${harga.toLocaleString("id-ID")}</td>
               <td style="text-align:right;">Rp ${total.toLocaleString("id-ID")}</td>
-            </tr>
-          `;
+            </tr>`;
         }
       });
-
-      if (htmlTabel === "") {
-        alert("Belum ada item yang diinput.");
-        return;
-      }
-
+      if (htmlTabel === "") { alert("Belum ada item yang diinput."); return; }
       const win = window.open('', '_blank');
       win.document.write(`
-        <html>
-        <head>
-          <title>RAB - ${namaKegiatan}</title>
-          <style>
-            body { font-family: 'Times New Roman', Times, serif; padding: 30px; color: #000; }
-            .kop-surat { text-align: center; border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; }
-            .kop-surat h2 { margin: 0; font-size: 18px; }
-            .kop-surat h3 { margin: 0; font-size: 16px; }
-            .kop-surat p { margin: 5px 0 0; font-size: 12px; }
-            .judul { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
-            
-            table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px; }
-            th, td { border: 1px solid #000; padding: 10px; }
-            th { background-color: #e0e0e0; text-align: center; }
-            
-            .total-row { font-weight: bold; background: #f0f0f0; }
-            .ttd-container { width: 100%; margin-top: 40px; font-size: 14px; }
-            .ttd-kanan { float: right; width: 40%; text-align: center; }
-            .ttd-space { height: 70px; }
-          </style>
-        </head>
-        <body>
-          
+        <html><head><title>RAB - ${escapeHtml(namaKegiatan)}</title>
+        <style>
+          body { font-family: 'Times New Roman', Times, serif; padding: 30px; color: #000; }
+          .kop-surat { text-align: center; border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+          .kop-surat h2 { margin: 0; font-size: 18px; }
+          .kop-surat h3 { margin: 0; font-size: 16px; }
+          .kop-surat p { margin: 5px 0 0; font-size: 12px; }
+          .judul { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px; }
+          th, td { border: 1px solid #000; padding: 10px; }
+          th { background-color: #e0e0e0; text-align: center; }
+          .total-row { font-weight: bold; background: #f0f0f0; }
+          .ttd-container { width: 100%; margin-top: 40px; font-size: 14px; }
+          .ttd-kanan { float: right; width: 40%; text-align: center; }
+          .ttd-space { height: 70px; }
+        </style></head><body>
           <div class="kop-surat">
-            <img src="https://irmaman3bogor.github.io/portal-irma/logo.png" alt="Logo" style="width: 70px; height: auto;">
-            <div style="text-align: center;">
+            <img src="https://irmaman3bogor.github.io/portal-irma/logo.png" style="width:70px;">
+            <div style="text-align:center;">
               <h2>KEMENTERIAN AGAMA REPUBLIK INDONESIA</h2>
               <h3>MADRASAH ALIYAH NEGERI 3 BOGOR</h3>
               <h3>ORGANISASI IKATAN REMAJA MASJID (IRMA)</h3>
               <p>Jl. Rawagumbira No.39 Desa Sukamaju, Kec. Jonggol, Kab. Bogor</p>
             </div>
           </div>
-
-          <div class="judul">RENCANA ANGGARAN BIAYA (RAB)<br>${namaKegiatan}</div>
-          <p style="text-align:center; margin-bottom: 20px;">Tanggal Pelaksanaan: ${tanggal || '-'}</p>
-
+          <div class="judul">RENCANA ANGGARAN BIAYA (RAB)<br>${escapeHtml(namaKegiatan)}</div>
+          <p style="text-align:center; margin-bottom:20px;">Tanggal Pelaksanaan: ${tanggal || '-'}</p>
           <table>
-            <thead>
-              <tr>
-                <th style="width: 50px;">No</th>
-                <th>Uraian / Item</th>
-                <th style="width: 80px;">Qty</th>
-                <th style="width: 150px;">Harga Satuan</th>
-                <th style="width: 150px;">Total</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th style="width:50px;">No</th><th>Uraian / Item</th>
+              <th style="width:80px;">Qty</th>
+              <th style="width:150px;">Harga Satuan</th>
+              <th style="width:150px;">Total</th>
+            </tr></thead>
             <tbody>
               ${htmlTabel}
               <tr class="total-row">
@@ -1181,31 +1012,19 @@
               </tr>
             </tbody>
           </table>
-
           <div class="ttd-container">
             <div class="ttd-kanan">
-              Bogor, ${tanggalCetak}<br>
-              Ketua Pelaksana / Bendahara<br>
+              Bogor, ${tanggalCetak}<br>Ketua Pelaksana / Bendahara<br>
               <div class="ttd-space"></div>
               <strong><u>...............................</u></strong><br>
               NIP/NIS. .............................
             </div>
           </div>
-
-        </body>
-        </html>
+        </body></html>
       `);
-      
       win.document.close();
       setTimeout(() => { win.print(); }, 500);
     }
-
-    // Tambahkan 1 baris kosong saat tab RAB pertama kali dibuka
-    document.addEventListener("DOMContentLoaded", () => {
-       // Kita bisa memanggil tambahBarisRAB() saat tab RAB diklik, 
-       // atau saat halaman dimuat.
-    });
-    
   </script>
 </body>
 </html>
