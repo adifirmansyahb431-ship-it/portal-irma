@@ -28,26 +28,28 @@
     .menu-toggle { display: none; font-size: 24px; background: none; border: none; color: #0a3622; cursor: pointer; margin-right: 15px; }
     .btn-kembali { background: #6c757d; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; border: none; cursor: pointer; }
     .btn-kembali:hover { background: #5a6268; }
+    .btn-cetak { background: #bc6c25; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 5px;}
     .btn-keluar { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
 
     /* KONTEN */
     .content-body { padding: 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
     .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .box h2 { color: #0a3622; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 20px; font-size: 18px; }
+    .box h2 { color: #0a3622; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 20px; font-size: 18px; display: flex; justify-content: space-between; align-items: center;}
 
     /* FORM & TABEL */
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #555; }
-    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fff; }
     
     .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     @media (max-width: 768px) { .swot-grid { grid-template-columns: 1fr; } }
 
     .btn-submit { background: #2a9d8f; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 10px; }
     .btn-submit:hover { background: #21867a; }
+    .btn-excel { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; margin-left: 10px; }
 
     table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
-    th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: left; vertical-align: middle; }
     th { background: #f8f9fa; color: #0a3622; text-align: center; }
     td.text-center { text-align: center; }
     
@@ -73,8 +75,7 @@
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // PERBAIKAN: Menambahkan limit di sini
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
@@ -86,7 +87,7 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbTools = { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, getDocs, limit };
+    window.fbTools = { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDocs };
     
     muatDataSWOT();
     muatDataKPI();
@@ -125,6 +126,7 @@
         <h1>Kinerja & Evaluasi</h1>
       </div>
       <div style="display: flex; gap: 10px;">
+        <button onclick="cetakLaporanKinerja()" class="btn-cetak">🖨️ Cetak Laporan (PDF)</button>
         <a href="beranda.html" class="btn-kembali">⬅️ Kembali</a>
         <button onclick="logout()" class="btn-keluar">Keluar</button>
       </div>
@@ -163,8 +165,11 @@
 
       <!-- BAGIAN KPI -->
       <div class="box">
-        <h2>🎯 Key Performance Indicator (KPI)</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Ukur pencapaian target kinerja anggota/pengurus.</p>
+        <h2>
+          🎯 Key Performance Indicator (KPI)
+          <button class="btn-excel" onclick="downloadExcelKPI()">📊 Download Excel</button>
+        </h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Ukur pencapaian target kinerja berdasarkan Formulasi Strategi SWOT.</p>
         
         <button class="btn-submit" style="margin-bottom: 15px; background: #3498db;" onclick="bukaModalKPI()">+ Tambah Indikator KPI Baru</button>
         
@@ -174,6 +179,7 @@
               <tr>
                 <th style="width: 40px;">No</th>
                 <th>Indikator Kinerja</th>
+                <th>Tujuan Strategis (SWOT)</th>
                 <th>Target</th>
                 <th>Realisasi</th>
                 <th>Skor (%)</th>
@@ -182,7 +188,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td colspan="7" class="text-center">Memuat data KPI...</td></tr>
+              <tr><td colspan="8" class="text-center">Memuat data KPI...</td></tr>
             </tbody>
           </table>
         </div>
@@ -198,10 +204,23 @@
       <h3 id="modalKPITitle">➕ Tambah Indikator KPI</h3>
       <form onsubmit="simpanKPI(event)">
         <input type="hidden" id="editKPIId" value="">
+        
         <div class="form-group">
           <label>Nama Indikator</label>
           <input type="text" id="inputIndikator" placeholder="Contoh: Kehadiran Rapat Bulanan" required />
         </div>
+        
+        <div class="form-group">
+          <label>Tujuan Strategis (Berdasarkan SWOT)</label>
+          <select id="inputStrategi" required>
+            <option value="Mengatasi Kelemahan (W)">Mengatasi Kelemahan (Weakness)</option>
+            <option value="Memaksimalkan Kekuatan (S)">Memaksimalkan Kekuatan (Strength)</option>
+            <option value="Memanfaatkan Peluang (O)">Memanfaatkan Peluang (Opportunity)</option>
+            <option value="Mengantisipasi Ancaman (T)">Mengantisipasi Ancaman (Threat)</option>
+            <option value="Operasional Harian">Operasional Harian / Umum</option>
+          </select>
+        </div>
+
         <div class="form-group">
           <label>Target (Angka / Persen)</label>
           <input type="text" id="inputTarget" placeholder="Contoh: 100% atau 12 kali" required />
@@ -241,23 +260,32 @@
     // ==========================================
     // LOGIKA SWOT
     // ==========================================
+    let dataSWOTLokal = { s: "", w: "", o: "", t: "", lastUpdate: "-" };
+
     async function muatDataSWOT() {
       const checkReady = setInterval(async () => {
         if (window.db && window.fbTools) {
           clearInterval(checkReady);
-          const { collection, getDocs, query, orderBy, limit } = window.fbTools;
+          const { collection, getDocs, query, orderBy } = window.fbTools;
           try {
-            const q = query(collection(window.db, "analisis_swot"), orderBy("updatedAt", "desc"), limit(1));
+            const q = query(collection(window.db, "analisis_swot"), orderBy("updatedAt", "desc"));
             const snap = await getDocs(q);
             if (!snap.empty) {
               const data = snap.docs[0].data();
-              document.getElementById("swotS").value = data.s || "";
-              document.getElementById("swotW").value = data.w || "";
-              document.getElementById("swotO").value = data.o || "";
-              document.getElementById("swotT").value = data.t || "";
+              dataSWOTLokal.s = data.s || "";
+              dataSWOTLokal.w = data.w || "";
+              dataSWOTLokal.o = data.o || "";
+              dataSWOTLokal.t = data.t || "";
+              
+              document.getElementById("swotS").value = dataSWOTLokal.s;
+              document.getElementById("swotW").value = dataSWOTLokal.w;
+              document.getElementById("swotO").value = dataSWOTLokal.o;
+              document.getElementById("swotT").value = dataSWOTLokal.t;
+              
               if (data.updatedAt) {
                 const date = new Date(data.updatedAt);
-                document.getElementById("lastUpdateSwot").innerText = date.toLocaleDateString("id-ID") + " " + date.toLocaleTimeString("id-ID");
+                dataSWOTLokal.lastUpdate = date.toLocaleDateString("id-ID") + " " + date.toLocaleTimeString("id-ID");
+                document.getElementById("lastUpdateSwot").innerText = dataSWOTLokal.lastUpdate;
               }
             }
           } catch (e) { console.error("Gagal muat SWOT", e); }
@@ -273,8 +301,8 @@
       const t = document.getElementById("swotT").value;
 
       try {
-        const { collection, getDocs, query, orderBy, limit, doc, updateDoc, addDoc } = window.fbTools;
-        const q = query(collection(window.db, "analisis_swot"), orderBy("updatedAt", "desc"), limit(1));
+        const { collection, getDocs, query, orderBy, doc, updateDoc, addDoc } = window.fbTools;
+        const q = query(collection(window.db, "analisis_swot"), orderBy("updatedAt", "desc"));
         const snap = await getDocs(q);
         
         const dataToSave = { s, w, o, t, updatedAt: new Date().toISOString() };
@@ -312,7 +340,7 @@
             dataKPILocal = [];
 
             if (snapshot.empty) {
-              tbody.innerHTML = `<tr><td colspan="7" class="text-center">Belum ada data KPI.</td></tr>`;
+              tbody.innerHTML = `<tr><td colspan="8" class="text-center">Belum ada data KPI.</td></tr>`;
               return;
             }
 
@@ -331,6 +359,7 @@
               tr.innerHTML = `
                 <td class="text-center">${no++}</td>
                 <td><strong>${d.indikator}</strong></td>
+                <td class="text-center" style="font-size: 11px;">${d.strategi || '-'}</td>
                 <td class="text-center">${d.target}</td>
                 <td class="text-center">${d.realisasi}</td>
                 <td class="text-center"><strong>${d.skor}%</strong></td>
@@ -365,6 +394,7 @@
       document.getElementById("editKPIId").value = id;
       document.getElementById("modalKPITitle").innerText = "✏️ Edit Indikator KPI";
       document.getElementById("inputIndikator").value = data.indikator;
+      document.getElementById("inputStrategi").value = data.strategi || "Operasional Harian";
       document.getElementById("inputTarget").value = data.target;
       document.getElementById("inputRealisasi").value = data.realisasi;
       document.getElementById("inputSkor").value = data.skor;
@@ -375,6 +405,7 @@
       e.preventDefault();
       const id = document.getElementById("editKPIId").value;
       const indikator = document.getElementById("inputIndikator").value;
+      const strategi = document.getElementById("inputStrategi").value;
       const target = document.getElementById("inputTarget").value;
       const realisasi = document.getElementById("inputRealisasi").value;
       const skor = parseFloat(document.getElementById("inputSkor").value);
@@ -382,11 +413,11 @@
       try {
         const { collection, addDoc, doc, updateDoc, serverTimestamp } = window.fbTools;
         if (id) {
-          await updateDoc(doc(window.db, "kpi_organisasi", id), { indikator, target, realisasi, skor });
+          await updateDoc(doc(window.db, "kpi_organisasi", id), { indikator, strategi, target, realisasi, skor });
           alert("✅ KPI berhasil diperbarui!");
         } else {
           await addDoc(collection(window.db, "kpi_organisasi"), {
-            indikator, target, realisasi, skor, waktu: serverTimestamp()
+            indikator, strategi, target, realisasi, skor, waktu: serverTimestamp()
           });
           alert("✅ KPI baru berhasil ditambahkan!");
         }
@@ -405,6 +436,193 @@
       } catch (error) {
         alert("❌ Gagal menghapus: " + error.message);
       }
+    }
+
+    // ==========================================
+    // LOGIKA CETAK LAPORAN (PDF)
+    // ==========================================
+    window.cetakLaporanKinerja = function() {
+      const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      
+      let htmlTabelKPI = "";
+      let no = 1;
+      dataKPILocal.forEach(d => {
+        let statusText = "Cukup";
+        if (d.skor >= 90) statusText = "Sangat Baik";
+        else if (d.skor < 70) statusText = "Kurang";
+
+        htmlTabelKPI += `
+          <tr>
+            <td style="text-align:center;">${no++}</td>
+            <td>${d.indikator}</td>
+            <td style="text-align:center; font-size: 11px;">${d.strategi || '-'}</td>
+            <td style="text-align:center;">${d.target}</td>
+            <td style="text-align:center;">${d.realisasi}</td>
+            <td style="text-align:center;">${d.skor}%</td>
+            <td style="text-align:center;">${statusText}</td>
+          </tr>
+        `;
+      });
+
+      if (htmlTabelKPI === "") htmlTabelKPI = `<tr><td colspan="7" style="text-align:center;">Belum ada data KPI.</td></tr>`;
+
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html><head><title>Laporan Kinerja - IRMA</title>
+        <style>
+          body { font-family: 'Times New Roman', Times, serif; padding: 30px; color: #000; }
+          .kop-surat { border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; position: relative; text-align: center; }
+          .kop-surat .logo-kiri { position: absolute; left: 0; top: 0; width: 75px; }
+          .kop-surat .logo-kanan { position: absolute; right: 0; top: 0; width: 75px; }
+          .kop-surat h2 { margin: 0; font-size: 18px; }
+          .kop-surat h3 { margin: 0; font-size: 16px; }
+          .kop-surat p { margin: 5px 0 0; font-size: 12px; }
+          .judul { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
+          
+          h4 { margin-top: 25px; margin-bottom: 10px; font-size: 14px; }
+          .swot-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+          .swot-box { border: 1px solid #000; padding: 10px; font-size: 12px; }
+          .swot-box strong { display: block; margin-bottom: 5px; text-transform: uppercase; }
+          
+          table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+          th, td { border: 1px solid #000; padding: 8px; }
+          th { background-color: #e0e0e0; text-align: center; }
+          
+          .ttd-container { width: 100%; margin-top: 40px; font-size: 14px; }
+          .ttd-kanan { float: right; width: 40%; text-align: center; }
+          .ttd-space { height: 70px; }
+        </style></head><body>
+          <div class="kop-surat">
+            <img src="https://raw.githubusercontent.com/irmaman3bogor/portal-irma/main/logo.png" class="logo-kiri" style="border-radius: 50%;">
+            <img src="https://raw.githubusercontent.com/irmaman3bogor/portal-irma/main/logo-kemenag.png" class="logo-kanan">
+            <div style="text-align:center;">
+              <h2>KEMENTERIAN AGAMA REPUBLIK INDONESIA</h2>
+              <h3>MADRASAH ALIYAH NEGERI 3 BOGOR</h3>
+              <h3>ORGANISASI IKATAN REMAJA MASJID (IRMA)</h3>
+              <p>Jl. Rawagumbira No.39 Desa Sukamaju, Kec. Jonggol, Kab. Bogor</p>
+            </div>
+          </div>
+          <div class="judul">LAPORAN EVALUASI KINERJA ORGANISASI<br>(ANALISIS SWOT & KPI)</div>
+          
+          <h4>A. Analisis SWOT (Terakhir Diperbarui: ${dataSWOTLokal.lastUpdate})</h4>
+          <div class="swot-container">
+            <div class="swot-box">
+              <strong>Strengths (Kekuatan)</strong>
+              ${(dataSWOTLokal.s || "-").replace(/\n/g, '<br>')}
+            </div>
+            <div class="swot-box">
+              <strong>Weaknesses (Kelemahan)</strong>
+              ${(dataSWOTLokal.w || "-").replace(/\n/g, '<br>')}
+            </div>
+            <div class="swot-box">
+              <strong>Opportunities (Peluang)</strong>
+              ${(dataSWOTLokal.o || "-").replace(/\n/g, '<br>')}
+            </div>
+            <div class="swot-box">
+              <strong>Threats (Ancaman)</strong>
+              ${(dataSWOTLokal.t || "-").replace(/\n/g, '<br>')}
+            </div>
+          </div>
+
+          <h4>B. Pencapaian Key Performance Indicator (KPI)</h4>
+          <table>
+            <thead><tr>
+              <th style="width:30px;">No</th>
+              <th>Indikator Kinerja</th>
+              <th>Tujuan Strategis</th>
+              <th>Target</th>
+              <th>Realisasi</th>
+              <th>Skor</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody>
+              ${htmlTabelKPI}
+            </tbody>
+          </table>
+
+          <div class="ttd-container">
+            <div class="ttd-kanan">
+              Bogor, ${tanggalCetak}<br>Ketua IRMA / Pengurus<br>
+              <div class="ttd-space"></div>
+              <strong><u>...............................</u></strong><br>
+              NIP/NIS. .............................
+            </div>
+          </div>
+        </body></html>
+      `);
+      win.document.close();
+      setTimeout(() => { win.print(); }, 500);
+    }
+
+    // ==========================================
+    // LOGIKA DOWNLOAD EXCEL
+    // ==========================================
+    window.downloadExcelKPI = function() {
+      if (dataKPILocal.length === 0) {
+        alert("Belum ada data KPI untuk diunduh.");
+        return;
+      }
+
+      let htmlTabel = "";
+      let no = 1;
+      dataKPILocal.forEach(d => {
+        let statusText = "Cukup";
+        if (d.skor >= 90) statusText = "Sangat Baik";
+        else if (d.skor < 70) statusText = "Kurang";
+
+        htmlTabel += `
+          <tr>
+            <td style="text-align:center;">${no++}</td>
+            <td>${d.indikator}</td>
+            <td>${d.strategi || '-'}</td>
+            <td style="text-align:center;">${d.target}</td>
+            <td style="text-align:center;">${d.realisasi}</td>
+            <td style="text-align:center;">${d.skor}</td>
+            <td style="text-align:center;">${statusText}</td>
+          </tr>
+        `;
+      });
+
+      const template = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; }
+            th, td { border: 1px solid #000; padding: 5px; }
+            th { background-color: #d9d9d9; font-weight: bold; text-align: center; }
+            .header { text-align: center; font-weight: bold; font-size: 16px; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <tr><td colspan="7" class="header">LAPORAN KPI ORGANISASI IRMA</td></tr>
+            <tr><td colspan="7" class="header">MAN 3 BOGOR</td></tr>
+            <tr><td colspan="7"></td></tr>
+            <tr>
+              <th style="width: 30px;">No</th>
+              <th>Indikator Kinerja</th>
+              <th>Tujuan Strategis</th>
+              <th style="width: 100px;">Target</th>
+              <th style="width: 100px;">Realisasi</th>
+              <th style="width: 80px;">Skor (%)</th>
+              <th style="width: 100px;">Status</th>
+            </tr>
+            ${htmlTabel}
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "KPI_IRMA.xls";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
