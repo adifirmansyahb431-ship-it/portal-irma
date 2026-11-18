@@ -76,7 +76,7 @@
     .grafik-container { position: relative; height: 300px; width: 100%; }
     @media print {
       body { background: white; padding: 0; }
-      .nav-tabs, .form-box, .btn-submit, .header p, .action-btn, .btn-logout, .btn-tambah, .btn-aksi-kecil, .btn-simpan-iuran, .btn-simpan-rab { display: none; }
+      .nav-tabs, .form-box, .btn-submit, .header p, .action-btn, .btn-logout, .btn-tambah, .btn-aksi-kecil, .btn-simpan-iuran, .btn-simpan-rab, .btn-hapus-siswa { display: none; }
       .container { max-width: 100%; }
       .tab-content { display: block !important; }
       .box { box-shadow: none; border: 1px solid #ccc; }
@@ -138,6 +138,7 @@
       <button class="tab-btn" onclick="bukaTab('tabCashFlow', event)">💵 Arus Kas</button>
       <button class="tab-btn" onclick="bukaTab('tabGrafik', event)">📉 Grafik</button>
       <button class="tab-btn" onclick="bukaTab('tabRAB', event)">📝 RAB</button>
+      <button class="tab-btn" onclick="bukaTab('tabArsipRAB', event)">📁 Arsip RAB</button>
     </div>
 
     <!-- TAB INPUT JURNAL -->
@@ -357,6 +358,7 @@
     <div id="tabRAB" class="tab-content">
       <div class="box">
         <h3><span>📝 Rencana Anggaran Biaya (RAB)</span></h3>
+        <input type="hidden" id="editRabId" value="">
         
         <div class="main-grid" style="grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 15px;">
           <div class="form-group" style="margin-bottom:0;">
@@ -381,9 +383,34 @@
         
         <!-- TOMBOL AKSI (SIMPAN, PDF, EXCEL) -->
         <div style="display:flex; gap:10px; margin-top: 20px; flex-wrap:wrap;">
-          <button class="btn-simpan-rab" onclick="simpanDraftRAB()">💾 Simpan Draft RAB</button>
+          <button class="btn-simpan-rab" onclick="simpanKeDatabaseRAB()">💾 Simpan ke Database</button>
+          <button class="btn-tambah" onclick="resetFormRAB()" style="background: #6c757d;">Buat RAB Baru</button>
           <button class="btn-simpan-iuran" onclick="cetakRAB()">📄 Download PDF</button>
           <button class="btn-submit" style="background:#20c997; width:auto; padding:10px 20px;" onclick="downloadExcelRAB()">📊 Download Excel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB ARSIP RAB -->
+    <div id="tabArsipRAB" class="tab-content">
+      <div class="box">
+        <h3><span>📁 Arsip Dokumen RAB</span></h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Daftar Rencana Anggaran Biaya yang telah disimpan di database. Klik "Buka" untuk melihat atau mengedit RAB tersebut.</p>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">No</th>
+                <th>Nama Kegiatan</th>
+                <th>Tanggal Pelaksanaan</th>
+                <th>Total Anggaran</th>
+                <th style="width: 150px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabelArsipRABBody">
+              <tr><td colspan="5" class="text-center">Memuat data arsip...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -457,11 +484,15 @@
       if (!target) { console.warn("Tab tidak ditemukan:", tabId); return; }
       target.classList.add('active');
       if (event && event.currentTarget) event.currentTarget.classList.add('active');
+      
       if (tabId === 'tabRAB') {
         const container = document.getElementById("rabContainer");
-        if (container && container.children.length === 0) {
-          loadDraftRAB();
+        if (container && container.children.length === 0 && !document.getElementById("editRabId").value) {
+          resetFormRAB();
         }
+      }
+      if (tabId === 'tabArsipRAB') {
+        muatArsipRAB();
       }
     }
 
@@ -885,7 +916,7 @@
     }
 
     // ==========================================
-    // LOGIKA RAB (SUB KEGIATAN, KETERANGAN, SAVE, PDF, EXCEL)
+    // LOGIKA RAB (SUB KEGIATAN, KETERANGAN, DATABASE, PDF, EXCEL)
     // ==========================================
     let subKegiatanCount = 0;
 
@@ -893,6 +924,16 @@
       return String(str).replace(/[&<>"']/g, s => ({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
       }[s]));
+    }
+
+    window.resetFormRAB = function() {
+      document.getElementById("editRabId").value = "";
+      document.getElementById("rabNamaKegiatan").value = "";
+      document.getElementById("rabTanggalKegiatan").value = "";
+      document.getElementById("rabContainer").innerHTML = "";
+      subKegiatanCount = 0;
+      tambahSubKegiatan();
+      hitungTotalKeseluruhanRAB();
     }
 
     window.tambahSubKegiatan = function(namaSub = "", items = []) {
@@ -921,9 +962,7 @@
                 <th style="width: 60px;">Aksi</th>
               </tr>
             </thead>
-            <tbody class="rab-tbody-items">
-              <!-- Item rows will be inserted here -->
-            </tbody>
+            <tbody class="rab-tbody-items"></tbody>
           </table>
         </div>
         <button class="btn-tambah" onclick="tambahItemRAB('${idSub}')" style="margin-top: 10px; padding: 5px 10px; font-size: 11px;">+ Tambah Item Uraian</button>
@@ -963,10 +1002,7 @@
         <td class="text-center"><button class="btn-aksi-kecil btn-hapus-siswa" onclick="hapusItemRAB(this)">Hapus</button></td>
       `;
       tbody.appendChild(tr);
-      
-      // Hitung ulang nomor urut
       updateNomorUrutRAB(idSub);
-      // Hitung ulang total baris ini
       hitungBarisRAB(tr.querySelector(".rab-qty"));
     }
 
@@ -1007,12 +1043,16 @@
       if (el) el.innerText = "Rp " + totalSemua.toLocaleString("id-ID");
     }
 
-    // FUNGSI SIMPAN DRAFT (LOCAL STORAGE)
-    window.simpanDraftRAB = function() {
-      const nama = document.getElementById("rabNamaKegiatan").value;
+    // SIMPAN KE DATABASE (FIREBASE)
+    window.simpanKeDatabaseRAB = async function() {
+      const editId = document.getElementById("editRabId").value;
+      const nama = document.getElementById("rabNamaKegiatan").value.trim();
       const tanggal = document.getElementById("rabTanggalKegiatan").value;
       
+      if (!nama) { alert("⚠️ Nama Kegiatan wajib diisi!"); return; }
+
       const dataSub = [];
+      let totalAnggaran = 0;
       document.querySelectorAll(".rab-sub-wrapper").forEach(sub => {
         const namaSub = sub.querySelector(".rab-sub-name").value;
         const items = [];
@@ -1023,6 +1063,7 @@
           const keterangan = tr.querySelector(".rab-keterangan").value;
           if(uraian.trim() !== "") {
             items.push({ uraian, qty, harga, keterangan });
+            totalAnggaran += (qty * harga);
           }
         });
         if (namaSub.trim() !== "" || items.length > 0) {
@@ -1030,35 +1071,116 @@
         }
       });
 
-      const draft = { nama, tanggal, subKegiatan: dataSub };
-      localStorage.setItem("draftRAB_IRMA", JSON.stringify(draft));
-      alert("✅ Draft RAB berhasil disimpan di browser!");
+      const dataRAB = {
+        nama: nama,
+        tanggal: tanggal,
+        subKegiatan: dataSub,
+        totalAnggaran: totalAnggaran,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        const { collection, addDoc, doc, updateDoc } = window.fbTools;
+        if (editId) {
+          await updateDoc(doc(window.db, "arsip_rab", editId), dataRAB);
+          alert("✅ Arsip RAB berhasil diperbarui di database!");
+        } else {
+          await addDoc(collection(window.db, "arsip_rab"), dataRAB);
+          alert("✅ Arsip RAB berhasil disimpan ke database!");
+          resetFormRAB();
+        }
+      } catch (error) {
+        console.error("Error simpan RAB: ", error);
+        alert("❌ Gagal menyimpan ke database: " + error.message);
+      }
     }
 
-    // FUNGSI LOAD DRAFT
-    window.loadDraftRAB = function() {
-      const draftStr = localStorage.getItem("draftRAB_IRMA");
-      if (draftStr) {
-        try {
-          const draft = JSON.parse(draftStr);
-          document.getElementById("rabNamaKegiatan").value = draft.nama || "";
-          document.getElementById("rabTanggalKegiatan").value = draft.tanggal || "";
-          const container = document.getElementById("rabContainer");
-          container.innerHTML = "";
-          subKegiatanCount = 0;
-          
-          if (draft.subKegiatan && draft.subKegiatan.length > 0) {
-            draft.subKegiatan.forEach(sub => {
-              tambahSubKegiatan(sub.namaSub, sub.items);
-            });
-          } else {
-            tambahSubKegiatan();
-          }
-        } catch(e) {
+    // MUAT DAFTAR ARSIP RAB
+    async function muatArsipRAB() {
+      const tbody = document.getElementById("tabelArsipRABBody");
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center">Memuat data arsip...</td></tr>`;
+      try {
+        const { collection, getDocs, query, orderBy } = window.fbTools;
+        const q = query(collection(window.db, "arsip_rab"), orderBy("updatedAt", "desc"));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada arsip RAB yang tersimpan di database.</td></tr>`;
+          return;
+        }
+
+        let html = "";
+        let no = 1;
+        snap.forEach(doc => {
+          const d = doc.data();
+          const tgl = d.tanggal ? new Date(d.tanggal).toLocaleDateString("id-ID") : "-";
+          html += `
+            <tr>
+              <td class="text-center">${no++}</td>
+              <td><strong>${escapeHtml(d.nama)}</strong></td>
+              <td class="text-center">${tgl}</td>
+              <td style="text-align:right;">Rp ${(d.totalAnggaran || 0).toLocaleString("id-ID")}</td>
+              <td class="text-center">
+                <button class="btn-aksi-kecil btn-edit-siswa" onclick="bukaArsipRAB('${doc.id}')">Buka / Edit</button>
+                <button class="btn-aksi-kecil btn-hapus-siswa" onclick="hapusArsipRAB('${doc.id}', '${escapeHtml(d.nama).replace(/'/g, "")}')">Hapus</button>
+              </td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat arsip (Pastikan koneksi internet stabil).</td></tr>`;
+      }
+    }
+
+    // BUKA ARSIP RAB KE FORM
+    window.bukaArsipRAB = async function(id) {
+      try {
+        const { doc, getDoc } = window.fbTools;
+        const snap = await getDoc(doc(window.db, "arsip_rab", id));
+        if (!snap.exists()) { alert("Data tidak ditemukan!"); return; }
+        
+        const data = snap.data();
+        document.getElementById("editRabId").value = id;
+        document.getElementById("rabNamaKegiatan").value = data.nama || "";
+        document.getElementById("rabTanggalKegiatan").value = data.tanggal || "";
+        
+        const container = document.getElementById("rabContainer");
+        container.innerHTML = "";
+        subKegiatanCount = 0;
+
+        if (data.subKegiatan && data.subKegiatan.length > 0) {
+          data.subKegiatan.forEach(sub => {
+            tambahSubKegiatan(sub.namaSub, sub.items);
+          });
+        } else {
           tambahSubKegiatan();
         }
-      } else {
-        tambahSubKegiatan();
+        
+        // Pindah ke tab RAB
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tabRAB').classList.add('active');
+        // Cari tombol tab RAB dan beri kelas aktif
+        Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.innerText.includes('📝 RAB')).classList.add('active');
+        
+        window.scrollTo(0, 0);
+      } catch (error) {
+        alert("❌ Gagal membuka arsip: " + error.message);
+      }
+    }
+
+    // HAPUS ARSIP RAB
+    window.hapusArsipRAB = async function(id, nama) {
+      if (!confirm(`⚠️ Yakin ingin menghapus arsip RAB "${nama}" secara permanen?`)) return;
+      try {
+        const { doc, deleteDoc } = window.fbTools;
+        await deleteDoc(doc(window.db, "arsip_rab", id));
+        alert("✅ Arsip RAB berhasil dihapus!");
+        muatArsipRAB();
+      } catch (error) {
+        alert("❌ Gagal menghapus arsip: " + error.message);
       }
     }
 
