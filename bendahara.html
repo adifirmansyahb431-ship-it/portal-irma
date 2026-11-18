@@ -348,11 +348,12 @@
       </div>
     </div>
 
-    <!-- TAB RAB (SUDAH DIPERBAIKI) -->
+    <!-- TAB RAB (SUDAH ADA SUMBER DANA) -->
     <div id="tabRAB" class="tab-content">
       <div class="box">
         <h3><span>📝 Rencana Anggaran Biaya (RAB)</span></h3>
-        <div class="main-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        
+        <div class="main-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
           <div class="form-group" style="margin-bottom:0;">
             <label>Nama Kegiatan</label>
             <input type="text" id="rabNamaKegiatan" placeholder="Contoh: Kegiatan Bulan Ramadhan 1447 H" />
@@ -361,7 +362,18 @@
             <label>Tanggal Pelaksanaan</label>
             <input type="date" id="rabTanggalKegiatan" />
           </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Sumber Dana Utama</label>
+            <select id="rabSumberDana" style="background:#fffdf9; border:1px solid #d4a373; border-radius:8px; padding:10px; font-size:14px;">
+              <option value="Kas IRMA">Kas IRMA</option>
+              <option value="Dana Bantuan Sekolah (BOS)">Dana Bantuan Sekolah (BOS)</option>
+              <option value="Infaq / Donatur">Infaq / Donatur</option>
+              <option value="Iuran Siswa">Iuran Siswa</option>
+              <option value="Kas Kelas">Kas Kelas</option>
+            </select>
+          </div>
         </div>
+
         <div class="table-responsive">
           <table>
             <thead>
@@ -886,7 +898,7 @@
     }
 
     // ==========================================
-    // LOGIKA RAB (DIPERBAIKI & TERINTEGRASI)
+    // LOGIKA RAB (DENGAN SUMBER DANA)
     // ==========================================
     let counterRAB = 1;
 
@@ -946,9 +958,12 @@
     window.cetakRAB = function() {
       const namaKegiatan = document.getElementById("rabNamaKegiatan").value || "Kegiatan IRMA";
       const tanggal = document.getElementById("rabTanggalKegiatan").value;
+      const sumberDana = document.getElementById("rabSumberDana").value; // Ambil Sumber Dana
       const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      
       const rows = document.querySelectorAll("#bodyRAB tr");
       let htmlTabel = "", grandTotal = 0;
+      
       rows.forEach(row => {
         const no = row.cells[0].innerText;
         const item = row.querySelector(".rab-item").value;
@@ -956,6 +971,7 @@
         const harga = parseFloat(row.querySelector(".rab-harga").value) || 0;
         const total = qty * harga;
         grandTotal += total;
+        
         if (item.trim() !== "") {
           htmlTabel += `
             <tr>
@@ -967,7 +983,9 @@
             </tr>`;
         }
       });
+      
       if (htmlTabel === "") { alert("Belum ada item yang diinput."); return; }
+      
       const win = window.open('', '_blank');
       win.document.write(`
         <html><head><title>RAB - ${escapeHtml(namaKegiatan)}</title>
@@ -996,7 +1014,10 @@
             </div>
           </div>
           <div class="judul">RENCANA ANGGARAN BIAYA (RAB)<br>${escapeHtml(namaKegiatan)}</div>
-          <p style="text-align:center; margin-bottom:20px;">Tanggal Pelaksanaan: ${tanggal || '-'}</p>
+          <p style="text-align:center; margin-bottom:20px;">
+            Tanggal Pelaksanaan: ${tanggal || '-'} <br>
+            <strong>Sumber Dana: ${escapeHtml(sumberDana)}</strong>
+          </p>
           <table>
             <thead><tr>
               <th style="width:50px;">No</th><th>Uraian / Item</th>
@@ -1022,6 +1043,7 @@
           </div>
         </body></html>
       `);
+      
       win.document.close();
       setTimeout(() => { win.print(); }, 500);
     }
