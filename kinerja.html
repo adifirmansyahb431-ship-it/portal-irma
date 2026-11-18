@@ -46,6 +46,8 @@
 
     .btn-submit { background: #2a9d8f; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 10px; }
     .btn-submit:hover { background: #21867a; }
+    .btn-ai { background: #8e44ad; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; width: 100%; margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .btn-ai:hover { background: #732d91; }
     .btn-excel { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; margin-left: 10px; }
 
     table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
@@ -57,6 +59,14 @@
     .bg-success { background: #2ecc71; }
     .bg-warning { background: #f39c12; }
     .bg-danger { background: #e74c3c; }
+
+    /* KOTAK REKOMENDASI AI */
+    #hasilRekomendasi { display: none; background: #f4f9f4; border: 2px dashed #2ecc71; border-radius: 8px; padding: 15px; margin-top: 15px; }
+    #hasilRekomendasi h4 { color: #0a3622; margin-bottom: 10px; }
+    .rekom-item { background: white; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .rekom-text { font-size: 12px; }
+    .rekom-text strong { display: block; font-size: 13px; color: #0a3622; }
+    .btn-pilih-rekom { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
 
     /* MODAL */
     .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
@@ -159,7 +169,15 @@
               <textarea id="swotT" rows="3" placeholder="Contoh: Jadwal padat, pengaruh negatif luar..."></textarea>
             </div>
           </div>
+          
           <button type="submit" class="btn-submit">💾 Simpan Analisis SWOT</button>
+          <button type="button" class="btn-ai" onclick="generateRekomendasiAI()">🤖 Buat Rekomendasi KPI Otomatis (Berdasarkan SWOT)</button>
+          
+          <!-- KOTAK HASIL REKOMENDASI AI -->
+          <div id="hasilRekomendasi">
+            <h4>✨ Rekomendasi Strategi & KPI dari Sistem</h4>
+            <div id="listRekomendasi"></div>
+          </div>
         </form>
       </div>
 
@@ -171,7 +189,7 @@
         </h2>
         <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Ukur pencapaian target kinerja berdasarkan Formulasi Strategi SWOT.</p>
         
-        <button class="btn-submit" style="margin-bottom: 15px; background: #3498db;" onclick="bukaModalKPI()">+ Tambah Indikator KPI Baru</button>
+        <button class="btn-submit" style="margin-bottom: 15px; background: #3498db;" onclick="bukaModalKPI()">+ Tambah Indikator KPI Manual</button>
         
         <div style="overflow-x: auto;">
           <table id="tabelKPI">
@@ -198,7 +216,7 @@
 
   </div>
 
-  <!-- MODAL TAMBAH KPI -->
+  <!-- MODAL TAMBAH KPI MANUAL -->
   <div id="modalKPI" class="modal">
     <div class="modal-content">
       <h3 id="modalKPITitle">➕ Tambah Indikator KPI</h3>
@@ -316,6 +334,7 @@
 
         alert("✅ Analisis SWOT berhasil disimpan!");
         muatDataSWOT();
+        document.getElementById("hasilRekomendasi").style.display = "none"; // Reset rekomendasi
       } catch (error) {
         console.error(error);
         alert("❌ Gagal menyimpan SWOT: " + error.message);
@@ -323,7 +342,119 @@
     }
 
     // ==========================================
-    // LOGIKA KPI
+    // LOGIKA AI REKOMENDASI (RULE-BASED)
+    // ==========================================
+    window.generateRekomendasiAI = function() {
+      const s = document.getElementById("swotS").value.toLowerCase();
+      const w = document.getElementById("swotW").value.toLowerCase();
+      const o = document.getElementById("swotO").value.toLowerCase();
+      const t = document.getElementById("swotT").value.toLowerCase();
+      
+      let rekomendasi = [];
+
+      // Pencocokan Kata Kunci Sederhana (Rule-Based)
+      
+      // 1. Cek Kelemahan (W)
+      if (w.includes("dana") || w.includes("uang") || w.includes("kas")) {
+        rekomendasi.push({
+          indikator: "Ketepatan Pembayaran Iuran Kas Anggota",
+          strategi: "Mengatasi Kelemahan (W)",
+          target: "95% Anggota Lunas Tepat Waktu",
+          alasan: "Terdeteksi masalah pendanaan/kas pada SWOT (Kelemahan)."
+        });
+      }
+      if (w.includes("rapat") || w.includes("hadir") || w.includes("disiplin") || w.includes("malas")) {
+        rekomendasi.push({
+          indikator: "Tingkat Kehadiran Anggota di Rapat Bulanan",
+          strategi: "Mengatasi Kelemahan (W)",
+          target: "90% Kehadiran",
+          alasan: "Terdeteksi masalah kedisiplinan/kehadiran pada SWOT."
+        });
+      }
+      if (w.includes("publikasi") || w.includes("medsos") || w.includes("sosmed") || w.includes("informasi")) {
+        rekomendasi.push({
+          indikator: "Jumlah Konten Publikasi (Feed/Reels) per Bulan",
+          strategi: "Mengatasi Kelemahan (W)",
+          target: "Minimal 8 Konten / Bulan",
+          alasan: "Terdeteksi masalah minimnya publikasi."
+        });
+      }
+
+      // 2. Cek Peluang (O)
+      if (o.includes("baksos") || o.includes("sosial") || o.includes("masyarakat")) {
+        rekomendasi.push({
+          indikator: "Pelaksanaan Program Bakti Sosial",
+          strategi: "Memanfaatkan Peluang (O)",
+          target: "1 Kegiatan / Semester",
+          alasan: "Terdeteksi peluang di bidang sosial masyarakat."
+        });
+      }
+      if (o.includes("lomba") || o.includes("prestasi") || o.includes("event") || o.includes("acara")) {
+        rekomendasi.push({
+          indikator: "Partisipasi/Juara dalam Event Keagamaan",
+          strategi: "Memanfaatkan Peluang (O)",
+          target: "Minimal 1 Juara / Tahun",
+          alasan: "Terdeteksi peluang mengikuti event/lomba."
+        });
+      }
+
+      // 3. Cek Ancaman (T)
+      if (t.includes("jadwal") || t.includes("sibuk") || t.includes("waktu")) {
+        rekomendasi.push({
+          indikator: "Efisiensi Waktu Rapat (Maksimal 60 Menit)",
+          strategi: "Mengantisipasi Ancaman (T)",
+          target: "100% Rapat Selesai Tepat Waktu",
+          alasan: "Terdeteksi ancaman keterbatasan waktu/jadwal padat."
+        });
+      }
+
+      // Fallback (Jika tidak ada kata kunci yang cocok)
+      if (rekomendasi.length === 0) {
+        rekomendasi.push({
+          indikator: "Evaluasi Kepuasan Anggota Terhadap Program Kerja",
+          strategi: "Operasional Harian",
+          target: "Skor Kepuasan > 80%",
+          alasan: "Belum ada kata kunci spesifik yang terdeteksi, ini rekomendasi umum."
+        });
+      }
+
+      // Render HTML
+      const container = document.getElementById("listRekomendasi");
+      container.innerHTML = "";
+      rekomendasi.forEach((r, i) => {
+        container.innerHTML += `
+          <div class="rekom-item">
+            <div class="rekom-text">
+              <strong>${r.indikator}</strong>
+              Target: ${r.target} <br>
+              <em style="color: #666;">(Alasan: ${r.alasan})</em>
+            </div>
+            <button class="btn-pilih-rekom" onclick="pilihRekomendasi('${r.indikator.replace(/'/g, "\\'")}', '${r.strategi}', '${r.target.replace(/'/g, "\\'")}')">+ Tambah</button>
+          </div>
+        `;
+      });
+
+      document.getElementById("hasilRekomendasi").style.display = "block";
+    }
+
+    window.pilihRekomendasi = function(indikator, strategi, target) {
+      // Buka modal form KPI dengan data yang sudah terisi
+      document.getElementById("editKPIId").value = "";
+      document.getElementById("modalKPITitle").innerText = "➕ Konfirmasi Tambah KPI (Rekomendasi AI)";
+      
+      document.getElementById("inputIndikator").value = indikator;
+      document.getElementById("inputStrategi").value = strategi;
+      document.getElementById("inputTarget").value = target;
+      
+      // Reset sisa form
+      document.getElementById("inputRealisasi").value = "";
+      document.getElementById("inputSkor").value = "";
+
+      document.getElementById("modalKPI").style.display = "flex";
+    }
+
+    // ==========================================
+    // LOGIKA KPI (MANUAL)
     // ==========================================
     let dataKPILocal = [];
 
@@ -378,7 +509,7 @@
 
     function bukaModalKPI() {
       document.getElementById("editKPIId").value = "";
-      document.getElementById("modalKPITitle").innerText = "➕ Tambah Indikator KPI";
+      document.getElementById("modalKPITitle").innerText = "➕ Tambah Indikator KPI (Manual)";
       document.querySelector("#modalKPI form").reset();
       document.getElementById("modalKPI").style.display = "flex";
     }
@@ -439,7 +570,7 @@
     }
 
     // ==========================================
-    // LOGIKA CETAK LAPORAN (PDF)
+    // LOGIKA CETAK LAPORAN (PDF) & EXCEL
     // ==========================================
     window.cetakLaporanKinerja = function() {
       const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -554,9 +685,6 @@
       setTimeout(() => { win.print(); }, 500);
     }
 
-    // ==========================================
-    // LOGIKA DOWNLOAD EXCEL
-    // ==========================================
     window.downloadExcelKPI = function() {
       if (dataKPILocal.length === 0) {
         alert("Belum ada data KPI untuk diunduh.");
