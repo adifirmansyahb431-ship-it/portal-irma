@@ -9,7 +9,7 @@
     * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
     body { background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
 
-    /* SIDEBAR (Sama dengan halaman lain) */
+    /* SIDEBAR */
     .sidebar { width: 260px; background-color: #0a3622; color: white; display: flex; flex-direction: column; transition: 0.3s; z-index: 100; }
     .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-header img { width: 60px; margin-bottom: 10px; }
@@ -73,6 +73,7 @@
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    // PERBAIKAN: Menambahkan limit di sini
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     
     const firebaseConfig = {
@@ -85,7 +86,7 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbTools = { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, getDocs };
+    window.fbTools = { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, getDocs, limit };
     
     muatDataSWOT();
     muatDataKPI();
@@ -273,7 +274,6 @@
 
       try {
         const { collection, getDocs, query, orderBy, limit, doc, updateDoc, addDoc } = window.fbTools;
-        // Cek apakah sudah ada data, jika ada maka update, jika belum buat baru
         const q = query(collection(window.db, "analisis_swot"), orderBy("updatedAt", "desc"), limit(1));
         const snap = await getDocs(q);
         
@@ -297,7 +297,7 @@
     // ==========================================
     // LOGIKA KPI
     // ==========================================
-    let dataKPILocal = []; // Simpan sementara untuk update
+    let dataKPILocal = [];
 
     async function muatDataKPI() {
       const checkReady = setInterval(async () => {
@@ -350,7 +350,7 @@
     function bukaModalKPI() {
       document.getElementById("editKPIId").value = "";
       document.getElementById("modalKPITitle").innerText = "➕ Tambah Indikator KPI";
-      document.getElementById("formKPI") ? document.getElementById("formKPI").reset() : document.querySelector("#modalKPI form").reset();
+      document.querySelector("#modalKPI form").reset();
       document.getElementById("modalKPI").style.display = "flex";
     }
 
@@ -382,11 +382,9 @@
       try {
         const { collection, addDoc, doc, updateDoc, serverTimestamp } = window.fbTools;
         if (id) {
-          // Update
           await updateDoc(doc(window.db, "kpi_organisasi", id), { indikator, target, realisasi, skor });
           alert("✅ KPI berhasil diperbarui!");
         } else {
-          // Tambah Baru
           await addDoc(collection(window.db, "kpi_organisasi"), {
             indikator, target, realisasi, skor, waktu: serverTimestamp()
           });
