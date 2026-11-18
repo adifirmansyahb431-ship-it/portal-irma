@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Penyusunan RAB - Portal IRMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar { width: 260px; background-color: #0b3c29; color: white; display: flex; flex-direction: column; padding: 20px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+    .sidebar-logo { text-align: center; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo img { width: 50px; height: 50px; object-fit: contain; }
+    .sidebar-logo h3 { margin: 10px 0 2px; font-size: 16px; color: #ffb703; }
+    .sidebar-logo p { margin: 0; font-size: 11px; color: #adb5bd; }
+    .menu-list { list-style: none; padding: 0; margin: 20px 0; overflow-y: auto; flex-grow: 1; }
+    .menu-item a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #adb5bd; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; }
+    .menu-item.active a, .menu-item a:hover { background-color: rgba(255,255,255,0.1); color: white; border-left: 4px solid #ffb703; }
+
+    /* MAIN CONTENT */
+    .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .topbar-left { display: flex; align-items: center; gap: 20px; }
+    .topbar h2 { margin: 0; color: #0b3c29; font-size: 18px; }
+    
+    .btn-kembali { background: #6c757d; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; border: none; cursor: pointer; }
+    .btn-kembali:hover { background: #5a6268; }
+    .btn-keluar { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
+
+    .content-body { padding: 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+    .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto; margin-bottom: 20px; }
+    
+    /* FORM & TABEL */
+    .info-kegiatan { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #555; }
+    .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 15px; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+    th { background: #f8f9fa; color: #0b3c29; font-weight: 700; }
+    td.text-left { text-align: left; }
+    input.harga, input.qty { width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: right; }
+    input.item { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: left; }
+
+    .btn-tambah { background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; margin-bottom: 15px; }
+    .btn-hapus-baris { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    .btn-cetak { background: #2a9d8f; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; width: 100%; margin-top: 10px; }
+
+    .total-box { text-align: right; font-size: 18px; font-weight: 700; color: #0b3c29; margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; }
+    .total-box span { color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <img src="logo.png" alt="Logo">
+      <h3>PORTAL IRMA</h3>
+      <p>MAN 3 BOGOR</p>
+    </div>
+    <ul class="menu-list">
+      <li class="menu-item active"><a href="rab.html">📝 Penyusunan RAB</a></li>
+    </ul>
+  </div>
+
+  <!-- KONTEN UTAMA -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <a href="beranda.html" class="btn-kembali">← Kembali ke Beranda</a>
+        <h2>📝 Penyusunan RAB Kegiatan</h2>
+      </div>
+      <button onclick="localStorage.clear(); window.location.href='index.html';" class="btn-keluar">Keluar</button>
+    </div>
+
+    <div class="content-body">
+      
+      <!-- IDENTITAS KEGIATAN -->
+      <div class="box">
+        <h3 style="margin-bottom: 15px; color: #0b3c29;">Identitas Kegiatan</h3>
+        <div class="info-kegiatan">
+          <div class="form-group">
+            <label>Nama Kegiatan</label>
+            <input type="text" id="namaKegiatan" placeholder="Contoh: Peringatan Maulid Nabi" oninput="updateJudulCetak()">
+          </div>
+          <div class="form-group">
+            <label>Tanggal Pelaksanaan</label>
+            <input type="date" id="tanggalKegiatan">
+          </div>
+        </div>
+      </div>
+
+      <!-- TABEL RAB -->
+      <div class="box">
+        <h3 style="margin-bottom: 15px; color: #0b3c29;">Rincian Anggaran</h3>
+        <table id="tabelRAB">
+          <thead>
+            <tr>
+              <th style="width: 50px;">No</th>
+              <th>Uraian / Item</th>
+              <th style="width: 80px;">Qty</th>
+              <th style="width: 150px;">Harga Satuan (Rp)</th>
+              <th style="width: 150px;">Total (Rp)</th>
+              <th style="width: 80px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="bodyRAB">
+            <!-- Baris akan diisi via JS -->
+          </tbody>
+        </table>
+        
+        <button class="btn-tambah" onclick="tambahBaris()">+ Tambah Item</button>
+        
+        <div class="total-box">
+          Total Anggaran: <span id="totalKeseluruhan">Rp 0</span>
+        </div>
+        
+        <button class="btn-cetak" onclick="cetakRAB()">🖨️ Cetak RAB ke PDF / Print</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let counter = 1;
+
+    // Fungsi Tambah Baris Tabel
+    function tambahBaris() {
+      const tbody = document.getElementById("bodyRAB");
+      const tr = document.createElement("tr");
+      tr.id = "row_" + counter;
+      
+      tr.innerHTML = `
+        <td>${counter}</td>
+        <td><input type="text" class="item" placeholder="Contoh: Cetak Spanduk"></td>
+        <td><input type="number" class="qty" value="1" min="1" oninput="hitungBaris(${counter})"></td>
+        <td><input type="number" class="harga" value="0" min="0" oninput="hitungBaris(${counter})"></td>
+        <td class="total-baris">Rp 0</td>
+        <td><button class="btn-hapus-baris" onclick="hapusBaris(${counter})">Hapus</button></td>
+      `;
+      tbody.appendChild(tr);
+      counter++;
+    }
+
+    // Fungsi Hitung Total per Baris
+    function hitungBaris(id) {
+      const row = document.getElementById("row_" + id);
+      const qty = parseFloat(row.querySelector(".qty").value) || 0;
+      const harga = parseFloat(row.querySelector(".harga").value) || 0;
+      const total = qty * harga;
+      
+      row.querySelector(".total-baris").innerText = "Rp " + total.toLocaleString("id-ID");
+      hitungTotalKeseluruhan();
+    }
+
+    // Fungsi Hitung Total Keseluruhan
+    function hitungTotalKeseluruhan() {
+      let totalSemua = 0;
+      const rows = document.querySelectorAll("#bodyRAB tr");
+      rows.forEach(row => {
+        const qty = parseFloat(row.querySelector(".qty").value) || 0;
+        const harga = parseFloat(row.querySelector(".harga").value) || 0;
+        totalSemua += (qty * harga);
+      });
+      document.getElementById("totalKeseluruhan").innerText = "Rp " + totalSemua.toLocaleString("id-ID");
+    }
+
+    // Fungsi Hapus Baris
+    function hapusBaris(id) {
+      const row = document.getElementById("row_" + id);
+      if (row) {
+        row.remove();
+        hitungTotalKeseluruhan();
+        // Renumbering (Opsional)
+        let no = 1;
+        document.querySelectorAll("#bodyRAB tr").forEach(tr => {
+          tr.cells[0].innerText = no++;
+        });
+      }
+    }
+
+    // Fungsi Cetak RAB
+    function cetakRAB() {
+      const namaKegiatan = document.getElementById("namaKegiatan").value || "Kegiatan IRMA";
+      const tanggal = document.getElementById("tanggalKegiatan").value;
+      const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      
+      const rows = document.querySelectorAll("#bodyRAB tr");
+      let htmlTabel = "";
+      let grandTotal = 0;
+
+      rows.forEach(row => {
+        const no = row.cells[0].innerText;
+        const item = row.querySelector(".item").value;
+        const qty = parseFloat(row.querySelector(".qty").value) || 0;
+        const harga = parseFloat(row.querySelector(".harga").value) || 0;
+        const total = qty * harga;
+        grandTotal += total;
+
+        if (item.trim() !== "") {
+          htmlTabel += `
+            <tr>
+              <td style="text-align:center;">${no}</td>
+              <td>${item}</td>
+              <td style="text-align:center;">${qty}</td>
+              <td style="text-align:right;">Rp ${harga.toLocaleString("id-ID")}</td>
+              <td style="text-align:right;">Rp ${total.toLocaleString("id-ID")}</td>
+            </tr>
+          `;
+        }
+      });
+
+      if (htmlTabel === "") {
+        alert("Belum ada item yang diinput.");
+        return;
+      }
+
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html>
+        <head>
+          <title>RAB - ${namaKegiatan}</title>
+          <style>
+            body { font-family: 'Times New Roman', Times, serif; padding: 30px; color: #000; }
+            .kop-surat { text-align: center; border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+            .kop-surat h2 { margin: 0; font-size: 18px; }
+            .kop-surat h3 { margin: 0; font-size: 16px; }
+            .kop-surat p { margin: 5px 0 0; font-size: 12px; }
+            .judul { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
+            
+            table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px; }
+            th, td { border: 1px solid #000; padding: 10px; }
+            th { background-color: #e0e0e0; text-align: center; }
+            
+            .total-row { font-weight: bold; background: #f0f0f0; }
+            .ttd-container { width: 100%; margin-top: 40px; font-size: 14px; }
+            .ttd-kanan { float: right; width: 40%; text-align: center; }
+            .ttd-space { height: 70px; }
+          </style>
+        </head>
+        <body>
+          
+          <div class="kop-surat">
+            <img src="https://irmaman3bogor.github.io/portal-irma/logo.png" alt="Logo" style="width: 70px; height: auto;">
+            <div style="text-align: center;">
+              <h2>KEMENTERIAN AGAMA REPUBLIK INDONESIA</h2>
+              <h3>MADRASAH ALIYAH NEGERI 3 BOGOR</h3>
+              <h3>ORGANISASI IKATAN REMAJA MASJID (IRMA)</h3>
+              <p>Jl. Rawagumbira No.39 Desa Sukamaju, Kec. Jonggol, Kab. Bogor</p>
+            </div>
+          </div>
+
+          <div class="judul">RENCANA ANGGARAN BIAYA (RAB)<br>${namaKegiatan}</div>
+          <p style="text-align:center; margin-bottom: 20px;">Tanggal Pelaksanaan: ${tanggal || '-'}</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">No</th>
+                <th>Uraian / Item</th>
+                <th style="width: 80px;">Qty</th>
+                <th style="width: 150px;">Harga Satuan</th>
+                <th style="width: 150px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${htmlTabel}
+              <tr class="total-row">
+                <td colspan="4" style="text-align:right;">TOTAL ANGGARAN</td>
+                <td style="text-align:right;">Rp ${grandTotal.toLocaleString("id-ID")}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ttd-container">
+            <div class="ttd-kanan">
+              Bogor, ${tanggalCetak}<br>
+              Ketua Pelaksana / Bendahara<br>
+              <div class="ttd-space"></div>
+              <strong><u>...............................</u></strong><br>
+              NIP/NIS. .............................
+            </div>
+          </div>
+
+        </body>
+        </html>
+      `);
+      
+      win.document.close();
+      setTimeout(() => { win.print(); }, 500);
+    }
+
+    // Inisialisasi awal (tambah 1 baris kosong)
+    document.addEventListener("DOMContentLoaded", () => {
+      tambahBaris();
+    });
+  </script>
+</body>
+</html>
