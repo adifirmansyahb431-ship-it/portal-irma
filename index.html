@@ -6,9 +6,37 @@
   <title>Login Portal IRMA - MAN 3 Bogor</title>
   <style>
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0a3622; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .login-box { background: white; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
+    .login-box { background: white; padding: 30px 40px 40px 40px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
     .login-box h1 { color: #0a3622; margin-top: 0; font-size: 24px; }
-    .login-box p { color: #666; font-size: 14px; margin-bottom: 25px; }
+    .login-box p { color: #666; font-size: 14px; margin-bottom: 15px; }
+    
+    /* CSS RUNNING TEXT */
+    .running-text-container {
+      width: 100%;
+      overflow: hidden;
+      background: #f4f6f9;
+      border-top: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 8px 0;
+      margin-bottom: 25px;
+      border-radius: 6px;
+      white-space: nowrap;
+      position: relative;
+    }
+    .running-text {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: bold;
+      color: #0a3622;
+      animation: berjalan 12s linear infinite;
+    }
+    /* Animasi berjalan dari kanan ke kiri */
+    @keyframes berjalan {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
     .form-group { margin-bottom: 15px; text-align: left; }
     .form-group label { display: block; font-weight: bold; font-size: 13px; color: #0a3622; margin-bottom: 5px; }
     .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
@@ -23,6 +51,12 @@
     <img src="logo.png" alt="Logo IRMA" style="width: 80px; height: auto; margin-bottom: 10px;">
     <h1>PORTAL IRMA</h1>
     <p>MAN 3 BOGOR</p>
+
+    <!-- RUNNING TEXT DITAMBAHKAN DI SINI -->
+    <div class="running-text-container">
+      <div class="running-text">✨ Selamat Datang di Portal IRMA MAN 3 Bogor ✨ Silakan masuk dengan akun Anda ✨</div>
+    </div>
+
     <div class="error" id="errorMsg"></div>
 
     <div class="form-group">
