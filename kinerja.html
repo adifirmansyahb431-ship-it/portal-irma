@@ -211,11 +211,15 @@
           </table>
         </div>
 
-        <!-- KOTAK KESIMPULAN KINERJA -->
+        <!-- KOTAK KESIMPULAN KINERJA (OTOMATIS) -->
         <div style="margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px;">
           <h3 style="color: #0a3622; font-size: 15px; margin-bottom: 10px;">📝 Pernyataan Kesimpulan Capaian Kinerja</h3>
-          <textarea id="kesimpulanKinerja" rows="4" placeholder="Ketik kesimpulan evaluasi di sini (Contoh: Secara keseluruhan kinerja IRMA berjalan sangat baik. Namun, masih terdapat beberapa kelemahan pada bagian publikasi yang perlu ditingkatkan...)" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;"></textarea>
-          <button class="btn-submit" style="background: #f39c12;" onclick="simpanKesimpulan()">💾 Simpan Kesimpulan</button>
+          <textarea id="kesimpulanKinerja" rows="5" readonly placeholder="Klik tombol di bawah untuk membuat kesimpulan otomatis..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; background-color: #f9f9f9; cursor: default;"></textarea>
+          
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn-ai" style="width: auto; margin-top: 0; padding: 10px 20px;" onclick="generateKesimpulanOtomatis()">✨ Generate Kesimpulan Otomatis</button>
+            <button class="btn-submit" style="background: #f39c12; margin-top: 0;" onclick="simpanKesimpulan()">💾 Simpan Kesimpulan</button>
+          </div>
         </div>
       </div>
 
@@ -450,7 +454,7 @@
     }
 
     // ==========================================
-    // LOGIKA KPI & KESIMPULAN
+    // LOGIKA KPI & KESIMPULAN OTOMATIS
     // ==========================================
     let dataKPILocal = [];
 
@@ -566,21 +570,72 @@
     }
 
     // ==========================================
-    // LOGIKA KESIMPULAN
+    // GENERATE KESIMPULAN OTOMATIS (AI LOGIC)
     // ==========================================
-    // Memuat kesimpulan dari Local Storage saat halaman dibuka
+    window.generateKesimpulanOtomatis = function() {
+      if (dataKPILocal.length === 0) {
+        alert("Belum ada data KPI untuk dianalisis.");
+        return;
+      }
+
+      let totalSkor = 0;
+      let totalSangatBaik = 0;
+      let totalCukup = 0;
+      let totalKurang = 0;
+
+      dataKPILocal.forEach(d => {
+        totalSkor += parseFloat(d.skor);
+        if (d.skor >= 90) totalSangatBaik++;
+        else if (d.skor >= 70) totalCukup++;
+        else totalKurang++;
+      });
+
+      const rataRata = (totalSkor / dataKPILocal.length).toFixed(1);
+      
+      let predikat = "Cukup Baik";
+      if (rataRata >= 90) predikat = "Sangat Baik";
+      else if (rataRata >= 80) predikat = "Baik";
+      else if (rataRata < 70) predikat = "Kurang Baik";
+
+      // Menyusun Kalimat Kesimpulan
+      let teks = `Berdasarkan hasil evaluasi terhadap ${dataKPILocal.length} Indikator Kinerja Utama (KPI), secara keseluruhan capaian kinerja Organisasi IRMA MAN 3 Bogor masuk dalam kategori **${predikat}** dengan nilai rata-rata pencapaian sebesar **${rataRata}%**.\n\n`;
+      
+      teks += `Dari total ${dataKPILocal.length} indikator tersebut, sebanyak ${totalSangatBaik} indikator berhasil mencapai target dengan status "Sangat Baik". `;
+      
+      if (totalCukup > 0) {
+        teks += `Terdapat ${totalCukup} indikator yang masih berada pada status "Cukup" dan memerlukan perhatian khusus untuk ditingkatkan pada periode kepengurusan selanjutnya. `;
+      }
+      
+      if (totalKurang > 0) {
+        teks += `Sementara itu, ${totalKurang} indikator dinilai masih "Kurang" sehingga perlu dilakukan evaluasi menyeluruh dan perbaikan strategi. `;
+      }
+
+      teks += `\n\nRekomendasi ke depan: Fokuskan perbaikan pada indikator yang belum mencapai target (di bawah 90%), serta terus pertahankan dan tingkatkan indikator yang sudah berjalan sangat baik demi kemajuan IRMA.`;
+
+      // Masukkan ke textarea (readonly)
+      document.getElementById("kesimpulanKinerja").value = teks;
+    }
+
+    // ==========================================
+    // SIMPAN KESIMPULAN (MANUAL ATAU HASIL AI)
+    // ==========================================
+    window.simpanKesimpulan = function() {
+      const teks = document.getElementById("kesimpulanKinerja").value;
+      if (!teks.trim()) {
+        alert("Kesimpulan masih kosong. Silakan klik Generate Otomatis terlebih dahulu.");
+        return;
+      }
+      localStorage.setItem("kesimpulanKinerjaIRMA", teks);
+      alert("✅ Kesimpulan capaian kinerja berhasil disimpan ke memori!");
+    }
+
+    // Memuat kesimpulan saat halaman dibuka
     document.addEventListener("DOMContentLoaded", () => {
       const savedKesimpulan = localStorage.getItem("kesimpulanKinerjaIRMA");
       if (savedKesimpulan) {
         document.getElementById("kesimpulanKinerja").value = savedKesimpulan;
       }
     });
-
-    window.simpanKesimpulan = function() {
-      const teks = document.getElementById("kesimpulanKinerja").value;
-      localStorage.setItem("kesimpulanKinerjaIRMA", teks);
-      alert("✅ Kesimpulan capaian kinerja berhasil disimpan!");
-    }
 
     // ==========================================
     // LOGIKA CETAK LAPORAN (PDF) & EXCEL
@@ -633,7 +688,7 @@
           th, td { border: 1px solid #000; padding: 8px; }
           th { background-color: #e0e0e0; text-align: center; }
           
-          .box-kesimpulan { border: 1px solid #000; padding: 15px; font-size: 13px; margin-bottom: 30px; background: #f9f9f9; }
+          .box-kesimpulan { border: 1px solid #000; padding: 15px; font-size: 13px; margin-bottom: 30px; background: #f9f9f9; text-align: justify; line-height: 1.5; }
           
           .ttd-container { width: 100%; margin-top: 40px; font-size: 14px; }
           .ttd-kanan { float: right; width: 40%; text-align: center; }
