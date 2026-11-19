@@ -210,6 +210,13 @@
             </tbody>
           </table>
         </div>
+
+        <!-- KOTAK KESIMPULAN KINERJA -->
+        <div style="margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px;">
+          <h3 style="color: #0a3622; font-size: 15px; margin-bottom: 10px;">📝 Pernyataan Kesimpulan Capaian Kinerja</h3>
+          <textarea id="kesimpulanKinerja" rows="4" placeholder="Ketik kesimpulan evaluasi di sini (Contoh: Secara keseluruhan kinerja IRMA berjalan sangat baik. Namun, masih terdapat beberapa kelemahan pada bagian publikasi yang perlu ditingkatkan...)" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;"></textarea>
+          <button class="btn-submit" style="background: #f39c12;" onclick="simpanKesimpulan()">💾 Simpan Kesimpulan</button>
+        </div>
       </div>
 
     </div>
@@ -334,7 +341,7 @@
 
         alert("✅ Analisis SWOT berhasil disimpan!");
         muatDataSWOT();
-        document.getElementById("hasilRekomendasi").style.display = "none"; // Reset rekomendasi
+        document.getElementById("hasilRekomendasi").style.display = "none";
       } catch (error) {
         console.error(error);
         alert("❌ Gagal menyimpan SWOT: " + error.message);
@@ -352,9 +359,6 @@
       
       let rekomendasi = [];
 
-      // Pencocokan Kata Kunci Sederhana (Rule-Based)
-      
-      // 1. Cek Kelemahan (W)
       if (w.includes("dana") || w.includes("uang") || w.includes("kas")) {
         rekomendasi.push({
           indikator: "Ketepatan Pembayaran Iuran Kas Anggota",
@@ -379,8 +383,6 @@
           alasan: "Terdeteksi masalah minimnya publikasi."
         });
       }
-
-      // 2. Cek Peluang (O)
       if (o.includes("baksos") || o.includes("sosial") || o.includes("masyarakat")) {
         rekomendasi.push({
           indikator: "Pelaksanaan Program Bakti Sosial",
@@ -397,8 +399,6 @@
           alasan: "Terdeteksi peluang mengikuti event/lomba."
         });
       }
-
-      // 3. Cek Ancaman (T)
       if (t.includes("jadwal") || t.includes("sibuk") || t.includes("waktu")) {
         rekomendasi.push({
           indikator: "Efisiensi Waktu Rapat (Maksimal 60 Menit)",
@@ -408,7 +408,6 @@
         });
       }
 
-      // Fallback (Jika tidak ada kata kunci yang cocok)
       if (rekomendasi.length === 0) {
         rekomendasi.push({
           indikator: "Evaluasi Kepuasan Anggota Terhadap Program Kerja",
@@ -418,7 +417,6 @@
         });
       }
 
-      // Render HTML
       const container = document.getElementById("listRekomendasi");
       container.innerHTML = "";
       rekomendasi.forEach((r, i) => {
@@ -438,7 +436,6 @@
     }
 
     window.pilihRekomendasi = function(indikator, strategi, target) {
-      // Buka modal form KPI dengan data yang sudah terisi
       document.getElementById("editKPIId").value = "";
       document.getElementById("modalKPITitle").innerText = "➕ Konfirmasi Tambah KPI (Rekomendasi AI)";
       
@@ -446,7 +443,6 @@
       document.getElementById("inputStrategi").value = strategi;
       document.getElementById("inputTarget").value = target;
       
-      // Reset sisa form
       document.getElementById("inputRealisasi").value = "";
       document.getElementById("inputSkor").value = "";
 
@@ -454,7 +450,7 @@
     }
 
     // ==========================================
-    // LOGIKA KPI (MANUAL)
+    // LOGIKA KPI & KESIMPULAN
     // ==========================================
     let dataKPILocal = [];
 
@@ -570,10 +566,28 @@
     }
 
     // ==========================================
+    // LOGIKA KESIMPULAN
+    // ==========================================
+    // Memuat kesimpulan dari Local Storage saat halaman dibuka
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedKesimpulan = localStorage.getItem("kesimpulanKinerjaIRMA");
+      if (savedKesimpulan) {
+        document.getElementById("kesimpulanKinerja").value = savedKesimpulan;
+      }
+    });
+
+    window.simpanKesimpulan = function() {
+      const teks = document.getElementById("kesimpulanKinerja").value;
+      localStorage.setItem("kesimpulanKinerjaIRMA", teks);
+      alert("✅ Kesimpulan capaian kinerja berhasil disimpan!");
+    }
+
+    // ==========================================
     // LOGIKA CETAK LAPORAN (PDF) & EXCEL
     // ==========================================
     window.cetakLaporanKinerja = function() {
       const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      const teksKesimpulan = document.getElementById("kesimpulanKinerja").value || "-";
       
       let htmlTabelKPI = "";
       let no = 1;
@@ -618,6 +632,8 @@
           table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
           th, td { border: 1px solid #000; padding: 8px; }
           th { background-color: #e0e0e0; text-align: center; }
+          
+          .box-kesimpulan { border: 1px solid #000; padding: 15px; font-size: 13px; margin-bottom: 30px; background: #f9f9f9; }
           
           .ttd-container { width: 100%; margin-top: 40px; font-size: 14px; }
           .ttd-kanan { float: right; width: 40%; text-align: center; }
@@ -670,6 +686,12 @@
               ${htmlTabelKPI}
             </tbody>
           </table>
+
+          <!-- KESIMPULAN DI CETAK PDF -->
+          <h4>C. Kesimpulan Capaian Kinerja</h4>
+          <div class="box-kesimpulan">
+            ${teksKesimpulan.replace(/\n/g, '<br>')}
+          </div>
 
           <div class="ttd-container">
             <div class="ttd-kanan">
