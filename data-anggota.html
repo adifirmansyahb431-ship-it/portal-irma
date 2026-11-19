@@ -10,7 +10,17 @@
     body { background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
 
     /* --- SIDEBAR --- */
-    .sidebar { width: 260px; background-color: #0a3622; color: white; display: flex; flex-direction: column; transition: 0.3s; z-index: 100; }
+    .sidebar { 
+      width: 260px; 
+      min-width: 260px; /* PERBAIKAN: Agar tidak terpotong/mengecil */
+      height: 100vh;    /* PERBAIKAN: Agar full setinggi layar */
+      background-color: #0a3622; 
+      color: white; 
+      display: flex; 
+      flex-direction: column; 
+      transition: 0.3s; 
+      z-index: 100; 
+    }
     .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-header img { width: 60px; margin-bottom: 10px; }
     .sidebar-header h2 { color: #d4af37; font-size: 18px; margin-bottom: 5px; }
@@ -21,7 +31,7 @@
     .sidebar-menu a span { margin-right: 15px; font-size: 16px; }
 
     /* --- MAIN CONTENT --- */
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; position: relative; }
     .top-header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
     .top-header h1 { font-size: 20px; color: #0a3622; }
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
@@ -93,7 +103,7 @@
     const db = getFirestore(app);
 
     const tabelBody = document.getElementById("tabelBody");
-    const q = collection(db, "biodata_siswa"); // Mengambil dari koleksi biodata_siswa
+    const q = collection(db, "biodata_siswa");
 
     onSnapshot(q, (snapshot) => {
       tabelBody.innerHTML = ""; 
@@ -119,19 +129,27 @@
           <td>${data.kelas ? data.kelas + ' / ' + (data.jurusan || '-') : '-'}</td>
           <td>${data.noHp || '-'}</td>
           <td style="text-align:center;">
-            <button class="btn-action btn-view" onclick="bukaModalEdit('${docSnap.id}', '${encodeURIComponent(JSON.stringify(data))}')">👁️ View/Edit</button>
-            <button class="btn-action btn-cetak" onclick="cetakAnggota('${docSnap.id}')">🖨️ Cetak</button>
-            <button class="btn-action btn-hapus" onclick="hapusAnggota('${docSnap.id}', '${data.nama}')">🗑️ Hapus</button>
+            <button class="btn-action btn-view">👁️ View/Edit</button>
+            <button class="btn-action btn-cetak">🖨️ Cetak</button>
+            <button class="btn-action btn-hapus">🗑️ Hapus</button>
           </td>
         `;
+
+        // PERBAIKAN BUG: Menggunakan addEventListener agar nama yang mengandung kutip ( ' ) tidak error
+        const btnView = tr.querySelector(".btn-view");
+        const btnCetak = tr.querySelector(".btn-cetak");
+        const btnHapus = tr.querySelector(".btn-hapus");
+
+        btnView.addEventListener("click", () => window.bukaModalEdit(docSnap.id, data));
+        btnCetak.addEventListener("click", () => window.cetakAnggota(docSnap.id));
+        btnHapus.addEventListener("click", () => window.hapusAnggota(docSnap.id, data.nama));
+
         tabelBody.appendChild(tr);
       });
     });
 
-    // Fungsi Buka Modal View / Edit
-    window.bukaModalEdit = function(id, encodedData) {
-      const data = JSON.parse(decodeURIComponent(encodedData));
-      
+    // Fungsi Buka Modal View / Edit (Data langsung dioper, tidak perlu encode JSON)
+    window.bukaModalEdit = function(id, data) {
       document.getElementById("editId").value = id;
       document.getElementById("editNama").value = data.nama || "";
       document.getElementById("editNoId").value = data.noId || "";
@@ -191,7 +209,7 @@
 </head>
 <body>
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR LENGKAP (Sesuai Beranda) -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <img src="logo.png" alt="Logo IRMA">
@@ -207,7 +225,12 @@
       <a href="data-anggota.html" class="active"><span>👥</span> Data Anggota</a>
       <a href="kegiatan.html"><span>📅</span> Kegiatan</a>
       <a href="program-kerja.html"><span>💼</span> Program Kerja</a>
-      <a href="akuntansi.html"><span>📊</span> Sistem Akuntansi IRMA</a> 
+      
+      <!-- MENU TAMBAHAN AGAR SAMA DENGAN BERANDA -->
+      <a href="nilai-ekskul.html"><span>📊</span> Nilai Ekstrakurikuler</a>
+      <a href="akuntansi.html"><span>🧮</span> Sistem Akuntansi IRMA</a> 
+      <a href="kinerja.html"><span>📈</span> Kinerja & Evaluasi</a>
+      
       <a href="daftar-anggota.html"><span>📋</span> Daftar Anggota IRMA</a>
     </div>
   </div>
