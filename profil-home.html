@@ -7,22 +7,64 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
     
-    /* Background transparan agar menyatu dengan iframe */
-    body { font-family: 'Montserrat', sans-serif; background: transparent; padding: 0; margin: 0; color: #333; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: transparent; padding: 15px; margin: 0; color: #333; }
     
-    .card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin: 0 auto; }
+    .top-nav {
+      margin-bottom: 15px;
+    }
+    .btn-kembali {
+      background-color: #0a3622;
+      color: #d4af37;
+      border: 2px solid #0a3622;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .btn-kembali:hover, .btn-kembali:active {
+      background-color: #d4af37;
+      color: #0a3622;
+      border-color: #d4af37;
+    }
+
+    .card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin: 0 auto; max-width: 900px; }
     .card h2 { color: #0a3622; text-align: center; margin-top: 0; margin-bottom: 10px; }
-    .section { margin-bottom: 30px; }
-    .section h3 { color: #d4af37; border-bottom: 2px solid #0a3622; padding-bottom: 5px; display: inline-block; margin-bottom: 15px; }
+    .section { margin-bottom: 25px; }
+    .section h3 { color: #d4af37; border-bottom: 2px solid #0a3622; padding-bottom: 5px; display: inline-block; margin-bottom: 12px; }
     .card p, .card li { line-height: 1.6; color: #555; font-size: 15px; }
     .card ul { padding-left: 20px; }
     .highlight { background: #e8f5e9; padding: 15px; border-left: 5px solid #0a3622; border-radius: 4px; font-style: italic; }
+
+    /* --- RESPONSIF HP --- */
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      .top-nav { margin-bottom: 12px; }
+      .btn-kembali {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      .card { padding: 20px 16px; border-radius: 10px; }
+      .card h2 { font-size: 20px; }
+      .section h3 { font-size: 16px; }
+      .card p, .card li { font-size: 14px; }
+      .highlight { font-size: 13px; padding: 12px; }
+    }
   </style>
 </head>
 <body>
 
- <div class="top-nav">
-    <button onclick="kembaliCerdas()" class="btn-kembali">← Kembali</button>
+  <div class="top-nav">
+    <button onclick="kembaliCerdas()" class="btn-kembali">← Kembali ke Beranda</button>
   </div>
   
   <div class="card">
@@ -57,6 +99,16 @@
       "Barangsiapa yang memakmurkan masjid Allah, maka Allah akan memakmurkan rumahnya di surga." (HR. Bukhari)
     </div>
   </div>
+
+  <script>
+    function kembaliCerdas() {
+      if (window.self !== window.top) {
+        window.top.location.href = "home.html";
+      } else {
+        window.location.href = "home.html";
+      }
+    }
+  </script>
 
 </body>
 </html>
