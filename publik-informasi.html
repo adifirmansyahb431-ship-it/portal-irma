@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informasi Publik - Portal IRMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: 260px; background-color: #0a3622; color: white; display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-header img { width: 60px; margin-bottom: 10px; }
+    .sidebar-header h2 { color: #d4af37; font-size: 18px; margin-bottom: 5px; }
+    .sidebar-header p { font-size: 11px; color: #ccc; }
+    .sidebar-menu { flex: 1; overflow-y: auto; padding: 15px 0; }
+    .sidebar-menu a { display: flex; align-items: center; padding: 12px 20px; color: #e0e0e0; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; border-left: 4px solid transparent; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background-color: rgba(255,255,255,0.05); border-left-color: #d4af37; color: #d4af37; }
+    .sidebar-menu a span { margin-right: 15px; font-size: 16px; }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    .top-header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
+    .top-header h1 { font-size: 20px; color: #0a3622; }
+    .btn-login-top { background: #d4af37; color: #0a3622; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; text-decoration: none; }
+    .content-body { padding: 30px; flex: 1; max-width: 900px; margin: 0 auto; width: 100%; }
+    .news-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .news-card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid #0a3622; padding: 20px; }
+    .news-title { margin: 0 0 10px; color: #0a3622; font-size: 18px; }
+    .news-date { font-size: 12px; color: #888; margin-bottom: 15px; display: block; }
+    .news-content { color: #444; font-size: 14px; line-height: 1.6; white-space: pre-line; }
+    @media (max-width: 768px) { .sidebar { position: fixed; left: -260px; height: 100vh; transition: 0.3s; } .sidebar.open { left: 0; } }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    const firebaseConfig = { apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc", authDomain: "portal-irma-man-3-bogor.firebaseapp.com", projectId: "portal-irma-man-3-bogor", storageBucket: "portal-irma-man-3-bogor.firebasestorage.app", messagingSenderId: "582215464487", appId: "1:582215464487:web:4d0583016ebec700dec002" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.addEventListener("DOMContentLoaded", async () => {
+      const container = document.getElementById("daftarInformasi");
+      try {
+        const q = query(collection(db, "informasi_irma"), orderBy("waktu", "desc"));
+        const snap = await getDocs(q);
+        if (snap.empty) { container.innerHTML = `<p style="text-align:center;">Belum ada informasi.</p>`; return; }
+        let html = "";
+        snap.forEach((d) => {
+          const item = d.data();
+          html += `
+            <div class="news-card">
+              <h3 class="news-title">${item.judul}</h3>
+              <span class="news-date">📅 ${item.tanggal} | 👤 ${item.penulis}</span>
+              <div class="news-content">${item.isi}</div>
+            </div>`;
+        });
+        container.innerHTML = html;
+      } catch (err) { container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat data.</p>`; }
+    });
+  </script>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="logo.png" alt="Logo IRMA"><h2>PORTAL IRMA</h2><p>MAN 3 BOGOR</p>
+    </div>
+    <div class="sidebar-menu">
+      <a href="home.html"><span>🏠</span> Home</a>
+      <a href="profil-irma.html"><span>📖</span> Profil IRMA</a>
+      <a href="publik-informasi.html" class="active"><span>📢</span> Informasi</a>
+      <a href="publik-kehadiran.html"><span>📋</span> Kehadiran</a>
+      <a href="data-anggota.html"><span>👥</span> Data Anggota</a>
+      <a href="program-kerja.html"><span>💼</span> Program Kerja</a>
+      <a href="daftar-anggota.html"><span>📋</span> Daftar Anggota IRMA</a>
+    </div>
+  </div>
+  <div class="main-content">
+    <div class="top-header">
+      <h1>Informasi Seputar IRMA</h1>
+      <a href="index.html" class="btn-login-top">🔐 Login Admin/Siswa</a>
+    </div>
+    <div class="content-body">
+      <div id="daftarInformasi" class="news-grid"><p style="text-align:center;">Memuat berita...</p></div>
+    </div>
+  </div>
+</body>
+</html>
