@@ -65,6 +65,7 @@
   </style>
 
   <script type="module">
+    // PERBAIKAN: Import fungsi getDocs dengan benar
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     
@@ -99,7 +100,7 @@
         const snapSiswa = await getDocs(collection(db, "biodata_siswa"));
         
         if (snapSiswa.empty) {
-          container.innerHTML = `<tr><td colspan="10" class="loading">Belum ada data siswa di database.</td></tr>`;
+          container.innerHTML = `<tr><td colspan="10" class="loading">Belum ada data siswa di database (Koleksi 'biodata_siswa' kosong).</td></tr>`;
           return;
         }
 
@@ -147,7 +148,8 @@
 
       } catch (err) {
         console.error("Error Firebase:", err);
-        container.innerHTML = `<tr><td colspan="10"><div class="error-box">Gagal memuat data dari Firebase.<br>Error: ${err.message}</div></td></tr>`;
+        // PERBAIKAN: Memberikan pesan error yang lebih jelas di layar
+        container.innerHTML = `<tr><td colspan="10"><div class="error-box">Gagal memuat data dari Firebase.<br>Pastikan aturan Firebase Firestore Anda diizinkan untuk dibaca (Rules: allow read, write: if true;)<br><br>Error Asli: ${err.message}</div></td></tr>`;
       }
     }
 
@@ -251,9 +253,8 @@
     }
 
     // ==========================================
-    // FITUR CETAK
+    // FITUR CETAK (Sama seperti aslinya)
     // ==========================================
-
     window.cetakRaporIndividu = function(siswaId) {
       const siswa = semuaDataSiswa.find(s => s.id === siswaId);
       if (!siswa) return;
