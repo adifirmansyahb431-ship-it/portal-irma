@@ -466,55 +466,56 @@
       document.getElementById("towsWT").value = wtText;
       document.getElementById("boxFormulasi").style.display = "block";
 
-      // 2. GENERATE REKOMENDASI KPI
+      // 2. GENERATE REKOMENDASI KPI (Membaca dari Teks Formulasi yang baru dibuat)
       let rekomendasi = [];
+      const teksFormulasi = (soText + " " + woText + " " + stText + " " + wtText).toLowerCase();
 
-      if (w.includes("dana") || w.includes("uang") || w.includes("kas")) {
+      if (teksFormulasi.includes("dana") || teksFormulasi.includes("uang") || teksFormulasi.includes("kas")) {
         rekomendasi.push({
           indikator: "Ketepatan Pembayaran Iuran Kas Anggota",
           strategi: "Mengatasi Kelemahan (W)",
           target: "95% Anggota Lunas Tepat Waktu",
-          alasan: "Terdeteksi masalah pendanaan/kas pada SWOT (Kelemahan)."
+          alasan: "Sistem mendeteksi 'Dana/Kas' pada Formulasi TOWS Anda."
         });
       }
-      if (w.includes("rapat") || w.includes("hadir") || w.includes("disiplin") || w.includes("malas")) {
+      if (teksFormulasi.includes("rapat") || teksFormulasi.includes("hadir") || teksFormulasi.includes("disiplin")) {
         rekomendasi.push({
           indikator: "Tingkat Kehadiran Anggota di Rapat Bulanan",
           strategi: "Mengatasi Kelemahan (W)",
           target: "90% Kehadiran",
-          alasan: "Terdeteksi masalah kedisiplinan/kehadiran pada SWOT."
+          alasan: "Sistem mendeteksi 'Kehadiran/Rapat' pada Formulasi TOWS Anda."
         });
       }
-      if (w.includes("publikasi") || w.includes("medsos") || w.includes("sosmed") || w.includes("informasi")) {
+      if (teksFormulasi.includes("publikasi") || teksFormulasi.includes("medsos") || teksFormulasi.includes("informasi")) {
         rekomendasi.push({
           indikator: "Jumlah Konten Publikasi (Feed/Reels) per Bulan",
           strategi: "Mengatasi Kelemahan (W)",
           target: "Minimal 8 Konten / Bulan",
-          alasan: "Terdeteksi masalah minimnya publikasi."
+          alasan: "Sistem mendeteksi 'Publikasi' pada Formulasi TOWS Anda."
         });
       }
-      if (o.includes("baksos") || o.includes("sosial") || o.includes("masyarakat")) {
+      if (teksFormulasi.includes("baksos") || teksFormulasi.includes("sosial") || teksFormulasi.includes("masyarakat")) {
         rekomendasi.push({
           indikator: "Pelaksanaan Program Bakti Sosial",
           strategi: "Memanfaatkan Peluang (O)",
           target: "1 Kegiatan / Semester",
-          alasan: "Terdeteksi peluang di bidang sosial masyarakat."
+          alasan: "Sistem mendeteksi 'Sosial/Baksos' pada Formulasi TOWS Anda."
         });
       }
-      if (o.includes("lomba") || o.includes("prestasi") || o.includes("event") || o.includes("acara")) {
+      if (teksFormulasi.includes("lomba") || teksFormulasi.includes("prestasi") || teksFormulasi.includes("event")) {
         rekomendasi.push({
           indikator: "Partisipasi/Juara dalam Event Keagamaan",
           strategi: "Memanfaatkan Peluang (O)",
           target: "Minimal 1 Juara / Tahun",
-          alasan: "Terdeteksi peluang mengikuti event/lomba."
+          alasan: "Sistem mendeteksi 'Lomba/Event' pada Formulasi TOWS Anda."
         });
       }
-      if (t.includes("jadwal") || t.includes("sibuk") || t.includes("waktu")) {
+      if (teksFormulasi.includes("jadwal") || teksFormulasi.includes("sibuk") || teksFormulasi.includes("waktu")) {
         rekomendasi.push({
           indikator: "Efisiensi Waktu Rapat (Maksimal 60 Menit)",
           strategi: "Mengantisipasi Ancaman (T)",
           target: "100% Rapat Selesai Tepat Waktu",
-          alasan: "Terdeteksi ancaman keterbatasan waktu/jadwal padat."
+          alasan: "Sistem mendeteksi 'Jadwal/Waktu' pada Formulasi TOWS Anda."
         });
       }
 
@@ -523,7 +524,7 @@
           indikator: "Evaluasi Kepuasan Anggota Terhadap Program Kerja",
           strategi: "Operasional Harian",
           target: "Skor Kepuasan > 80%",
-          alasan: "Belum ada kata kunci spesifik yang terdeteksi, ini rekomendasi umum."
+          alasan: "Belum ada kata kunci spesifik yang terdeteksi."
         });
       }
 
