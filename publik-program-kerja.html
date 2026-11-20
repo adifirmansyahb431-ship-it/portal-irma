@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Program Kerja - Portal IRMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+    
+    body { 
+      background-color: #f4f6f9; 
+      min-height: 100vh; 
+      padding: 30px 20px;
+    }
+
+    /* Tombol Kembali */
+    .btn-kembali { 
+      background: #6c757d; color: white; text-decoration: none; 
+      padding: 10px 20px; border-radius: 6px; font-size: 13px; 
+      font-weight: 700; display: inline-flex; align-items: center; gap: 8px; 
+      transition: 0.2s; margin-bottom: 20px; margin-left: 10px;
+    }
+    .btn-kembali:hover { background: #5a6268; }
+
+    /* Card Container */
+    .card { 
+      background: white; 
+      padding: 40px; 
+      border-radius: 16px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      max-width: 1000px; 
+      margin: 0 auto; 
+    }
+
+    .header-judul { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 20px; }
+    .header-judul h1 { color: #0a3622; font-size: 24px; margin-bottom: 5px; }
+    .header-judul p { color: #666; font-size: 14px; }
+
+    /* Box Visi Misi */
+    .visi-misi-box {
+      background: #f0fdf4;
+      border-left: 5px solid #0a3622;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .visi-misi-box strong { color: #0a3622; }
+
+    /* Judul Tabel */
+    .judul-tabel {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0a3622;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .judul-tabel::before {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 20px;
+      background: #d4af37;
+      border-radius: 2px;
+    }
+
+    /* Tabel */
+    .table-container { overflow-x: auto; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 13px; 
+      min-width: 800px; 
+    }
+    th, td { 
+      padding: 12px 15px; 
+      text-align: left; 
+      border: 1px solid #eee; 
+      vertical-align: top; 
+    }
+    th { 
+      background: #0a3622; 
+      color: white; 
+      font-weight: 600; 
+      white-space: nowrap;
+    }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    tr:hover { background-color: #f1f1f1; }
+
+    @media (max-width: 768px) {
+      .card { padding: 20px; }
+      .header-judul h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Tombol Kembali ke Home -->
+  <a href="home.html" class="btn-kembali">← Kembali ke Beranda</a>
+
+  <div class="card">
+    
+    <!-- Header -->
+    <div class="header-judul">
+      <h1>PROGRAM KERJA IRMA</h1>
+      <p>Ikatan Remaja Masjid MAN 3 Bogor - Masa Bakti 2025-2026</p>
+    </div>
+
+    <!-- Visi Misi -->
+    <div class="visi-misi-box">
+      <p><strong>Visi:</strong> Menjadikan IRMA MAN 3 BOGOR sebagai ekstrakurikuler siswa yang bersolidaritas, berakhlak mulia, bertagwa dan kreatif.</p>
+      <br>
+      <p><strong>Misi:</strong> 
+        1. Mempererat tali silaturahmi antar anggota IRMA agar dapat memiliki rasa solidaritas. 
+        2. Menerapkan 5S agar anggota memiliki akhlakul karimah. 
+        3. Mengembangkan minat dan bakat anggota.
+      </p>
+    </div>
+
+    <!-- Tabel Program Kerja -->
+    <div class="judul-tabel">PROGRAM KERJA: Ketua</div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40px; text-align: center;">No</th>
+            <th>Jenis Kegiatan</th>
+            <th>Tujuan</th>
+            <th>Waktu Pelaksanaan</th>
+            <th>Sasaran</th>
+            <th>Tempat</th>
+            <!-- KOLOM ESTIMASI BIAYA DIHILANGKAN SESUAI PERMINTAAN -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: center;">1</td>
+            <td><strong>Keputrian</strong></td>
+            <td>Sebagai wadah untuk menambah wawasan keilmuan tentang ke-perempuan-an menurut Islam</td>
+            <td>Mingguan</td>
+            <td>Seluruh Siswa/I MAN 3 Bogor</td>
+            <td>MAN 3 Bogor</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">2</td>
+            <td><strong>Liqo Mingguan</strong></td>
+            <td>Untuk menambah pengetahuan tentang kajian-kajian Islam serta mempererat tali silaturahmi</td>
+            <td>Mingguan</td>
+            <td>Seluruh Anggota IRMA</td>
+            <td>MAN 3 Bogor</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">3</td>
+            <td><strong>Halal Bihalal</strong></td>
+            <td>Agar terjalin ukhwah sesama dan menjaga</td>
+            <td>Tahunan</td>
+            <td>Seluruh Anggota</td>
+            <td>MAN 3 Bogor</td>
+          </tr>
+          <!-- Anda bisa menambahkan baris <tr> lainnya di sini secara manual -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</body>
+</html>
