@@ -60,13 +60,13 @@
     .bg-warning { background: #f39c12; }
     .bg-danger { background: #e74c3c; }
 
-    /* KOTAK REKOMENDASI AI */
-    #hasilRekomendasi { display: none; background: #f4f9f4; border: 2px dashed #2ecc71; border-radius: 8px; padding: 15px; margin-top: 15px; }
-    #hasilRekomendasi h4 { color: #0a3622; margin-bottom: 10px; }
-    .rekom-item { background: white; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-    .rekom-text { font-size: 12px; }
-    .rekom-text strong { display: block; font-size: 13px; color: #0a3622; }
-    .btn-pilih-rekom { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
+    /* KOTAK FORMULASI TOWS */
+    #boxFormulasi { display: none; margin-top: 20px; background: #fffdf9; border: 1px solid #d4a373; padding: 15px; border-radius: 8px; }
+    #boxFormulasi h4 { color: #bc6c25; margin-bottom: 10px; }
+    .tows-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tows-item { background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    .tows-item strong { display: block; font-size: 12px; color: #0a3622; margin-bottom: 5px; }
+    .tows-item textarea { width: 100%; height: 60px; font-size: 12px; padding: 5px; }
 
     /* MODAL */
     .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
@@ -81,6 +81,7 @@
       .top-header { padding: 15px 20px; }
       .content-body { padding: 15px; }
       .box { padding: 20px; }
+      .tows-grid { grid-template-columns: 1fr; }
     }
   </style>
   <script type="module">
@@ -177,6 +178,30 @@
           <div id="hasilRekomendasi">
             <h4>✨ Rekomendasi Strategi & KPI dari Sistem</h4>
             <div id="listRekomendasi"></div>
+          </div>
+
+          <!-- KOTAK FORMULASI STRATEGI (TOWS) -->
+          <div id="boxFormulasi">
+            <h4>♟️ Formulasi Strategi (Matriks TOWS)</h4>
+            <div class="tows-grid">
+              <div class="tows-item">
+                <strong>Strategi S-O (Kekuatan - Peluang)</strong>
+                <textarea id="towsSO" placeholder="Gunakan kekuatan untuk memanfaatkan peluang..."></textarea>
+              </div>
+              <div class="tows-item">
+                <strong>Strategi W-O (Kelemahan - Peluang)</strong>
+                <textarea id="towsWO" placeholder="Atasi kelemahan dengan memanfaatkan peluang..."></textarea>
+              </div>
+              <div class="tows-item">
+                <strong>Strategi S-T (Kekuatan - Ancaman)</strong>
+                <textarea id="towsST" placeholder="Gunakan kekuatan untuk mengatasi ancaman..."></textarea>
+              </div>
+              <div class="tows-item">
+                <strong>Strategi W-T (Kelemahan - Ancaman)</strong>
+                <textarea id="towsWT" placeholder="Minimalisir kelemahan dan hindari ancaman..."></textarea>
+              </div>
+            </div>
+            <button type="button" class="btn-submit" style="background: #2a9d8f; width: 100%; margin-top: 10px;" onclick="simpanFormulasi()">💾 Simpan Formulasi Strategi</button>
           </div>
         </form>
       </div>
@@ -287,9 +312,9 @@
     }
 
     // ==========================================
-    // LOGIKA SWOT
+    // LOGIKA SWOT & FORMULASI (TOWS)
     // ==========================================
-    let dataSWOTLokal = { s: "", w: "", o: "", t: "", lastUpdate: "-" };
+    let dataSWOTLokal = { s: "", w: "", o: "", t: "", so: "", wo: "", st: "", wt: "", lastUpdate: "-" };
 
     async function muatDataSWOT() {
       const checkReady = setInterval(async () => {
@@ -305,12 +330,26 @@
               dataSWOTLokal.w = data.w || "";
               dataSWOTLokal.o = data.o || "";
               dataSWOTLokal.t = data.t || "";
+              dataSWOTLokal.so = data.so || "";
+              dataSWOTLokal.wo = data.wo || "";
+              dataSWOTLokal.st = data.st || "";
+              dataSWOTLokal.wt = data.wt || "";
               
               document.getElementById("swotS").value = dataSWOTLokal.s;
               document.getElementById("swotW").value = dataSWOTLokal.w;
               document.getElementById("swotO").value = dataSWOTLokal.o;
               document.getElementById("swotT").value = dataSWOTLokal.t;
               
+              // Formulasi TOWS
+              document.getElementById("towsSO").value = dataSWOTLokal.so;
+              document.getElementById("towsWO").value = dataSWOTLokal.wo;
+              document.getElementById("towsST").value = dataSWOTLokal.st;
+              document.getElementById("towsWT").value = dataSWOTLokal.wt;
+
+              if (dataSWOTLokal.so || dataSWOTLokal.wo || dataSWOTLokal.st || dataSWOTLokal.wt) {
+                document.getElementById("boxFormulasi").style.display = "block";
+              }
+
               if (data.updatedAt) {
                 const date = new Date(data.updatedAt);
                 dataSWOTLokal.lastUpdate = date.toLocaleDateString("id-ID") + " " + date.toLocaleTimeString("id-ID");
@@ -334,7 +373,17 @@
         const q = query(collection(window.db, "analisis_swot"), orderBy("updatedAt", "desc"));
         const snap = await getDocs(q);
         
-        const dataToSave = { s, w, o, t, updatedAt: new Date().toISOString() };
+        // Cek apakah formulasi sudah ada sebelumnya
+        let formulasi = { so: "", wo: "", st: "", wt: "" };
+        if (!snap.empty) {
+          const oldData = snap.docs[0].data();
+          formulasi.so = oldData.so || "";
+          formulasi.wo = oldData.wo || "";
+          formulasi.st = oldData.st || "";
+          formulasi.wt = oldData.wt || "";
+        }
+
+        const dataToSave = { s, w, o, t, ...formulasi, updatedAt: new Date().toISOString() };
 
         if (!snap.empty) {
           const docId = snap.docs[0].id;
@@ -344,11 +393,38 @@
         }
 
         alert("✅ Analisis SWOT berhasil disimpan!");
-        muatDataSWOT();
+        
+        // Tampilkan kotak formulasi untuk diisi
+        document.getElementById("boxFormulasi").style.display = "block";
         document.getElementById("hasilRekomendasi").style.display = "none";
+        muatDataSWOT();
       } catch (error) {
         console.error(error);
         alert("❌ Gagal menyimpan SWOT: " + error.message);
+      }
+    }
+
+    window.simpanFormulasi = async function() {
+      const so = document.getElementById("towsSO").value;
+      const wo = document.getElementById("towsWO").value;
+      const st = document.getElementById("towsST").value;
+      const wt = document.getElementById("towsWT").value;
+
+      try {
+        const { collection, getDocs, query, orderBy, doc, updateDoc } = window.fbTools;
+        const q = query(collection(window.db, "analisis_swot"), orderBy("updatedAt", "desc"));
+        const snap = await getDocs(q);
+        
+        if (!snap.empty) {
+          const docId = snap.docs[0].id;
+          await updateDoc(doc(window.db, "analisis_swot", docId), { so, wo, st, wt, updatedAt: new Date().toISOString() });
+          alert("✅ Formulasi Strategi (TOWS) berhasil disimpan!");
+          muatDataSWOT();
+        } else {
+          alert("Silakan simpan Analisis SWOT terlebih dahulu.");
+        }
+      } catch (error) {
+        alert("❌ Gagal menyimpan formulasi: " + error.message);
       }
     }
 
@@ -597,28 +673,17 @@
       else if (rataRata >= 80) predikat = "Baik";
       else if (rataRata < 70) predikat = "Kurang Baik";
 
-      // Menyusun Kalimat Kesimpulan
       let teks = `Berdasarkan hasil evaluasi terhadap ${dataKPILocal.length} Indikator Kinerja Utama (KPI), secara keseluruhan capaian kinerja Organisasi IRMA MAN 3 Bogor masuk dalam kategori **${predikat}** dengan nilai rata-rata pencapaian sebesar **${rataRata}%**.\n\n`;
-      
       teks += `Dari total ${dataKPILocal.length} indikator tersebut, sebanyak ${totalSangatBaik} indikator berhasil mencapai target dengan status "Sangat Baik". `;
       
-      if (totalCukup > 0) {
-        teks += `Terdapat ${totalCukup} indikator yang masih berada pada status "Cukup" dan memerlukan perhatian khusus untuk ditingkatkan pada periode kepengurusan selanjutnya. `;
-      }
-      
-      if (totalKurang > 0) {
-        teks += `Sementara itu, ${totalKurang} indikator dinilai masih "Kurang" sehingga perlu dilakukan evaluasi menyeluruh dan perbaikan strategi. `;
-      }
+      if (totalCukup > 0) teks += `Terdapat ${totalCukup} indikator yang masih berada pada status "Cukup" dan memerlukan perhatian khusus untuk ditingkatkan pada periode selanjutnya. `;
+      if (totalKurang > 0) teks += `Sementara itu, ${totalKurang} indikator dinilai masih "Kurang" sehingga perlu dilakukan evaluasi menyeluruh dan perbaikan strategi. `;
 
       teks += `\n\nRekomendasi ke depan: Fokuskan perbaikan pada indikator yang belum mencapai target (di bawah 90%), serta terus pertahankan dan tingkatkan indikator yang sudah berjalan sangat baik demi kemajuan IRMA.`;
 
-      // Masukkan ke textarea (readonly)
       document.getElementById("kesimpulanKinerja").value = teks;
     }
 
-    // ==========================================
-    // SIMPAN KESIMPULAN (MANUAL ATAU HASIL AI)
-    // ==========================================
     window.simpanKesimpulan = function() {
       const teks = document.getElementById("kesimpulanKinerja").value;
       if (!teks.trim()) {
@@ -629,7 +694,6 @@
       alert("✅ Kesimpulan capaian kinerja berhasil disimpan ke memori!");
     }
 
-    // Memuat kesimpulan saat halaman dibuka
     document.addEventListener("DOMContentLoaded", () => {
       const savedKesimpulan = localStorage.getItem("kesimpulanKinerjaIRMA");
       if (savedKesimpulan) {
@@ -684,6 +748,10 @@
           .swot-box { border: 1px solid #000; padding: 10px; font-size: 12px; }
           .swot-box strong { display: block; margin-bottom: 5px; text-transform: uppercase; }
           
+          .tows-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+          .tows-box { border: 1px solid #000; padding: 10px; font-size: 12px; background: #f9f9f9;}
+          .tows-box strong { display: block; margin-bottom: 5px; text-transform: uppercase; }
+
           table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
           th, td { border: 1px solid #000; padding: 8px; }
           th { background-color: #e0e0e0; text-align: center; }
@@ -704,7 +772,7 @@
               <p>Jl. Rawagumbira No.39 Desa Sukamaju, Kec. Jonggol, Kab. Bogor</p>
             </div>
           </div>
-          <div class="judul">LAPORAN EVALUASI KINERJA ORGANISASI<br>(ANALISIS SWOT & KPI)</div>
+          <div class="judul">LAPORAN EVALUASI KINERJA ORGANISASI<br>(ANALISIS SWOT, FORMULASI & KPI)</div>
           
           <h4>A. Analisis SWOT (Terakhir Diperbarui: ${dataSWOTLokal.lastUpdate})</h4>
           <div class="swot-container">
@@ -726,7 +794,30 @@
             </div>
           </div>
 
-          <h4>B. Pencapaian Key Performance Indicator (KPI)</h4>
+          <!-- BAGIAN FORMULASI TOWS DI PDF -->
+          ${(dataSWOTLokal.so || dataSWOTLokal.wo || dataSWOTLokal.st || dataSWOTLokal.wt) ? `
+          <h4>B. Formulasi Strategi (Matriks TOWS)</h4>
+          <div class="tows-container">
+            <div class="tows-box">
+              <strong>Strategi S-O (Kekuatan - Peluang)</strong>
+              ${(dataSWOTLokal.so || "-").replace(/\n/g, '<br>')}
+            </div>
+            <div class="tows-box">
+              <strong>Strategi W-O (Kelemahan - Peluang)</strong>
+              ${(dataSWOTLokal.wo || "-").replace(/\n/g, '<br>')}
+            </div>
+            <div class="tows-box">
+              <strong>Strategi S-T (Kekuatan - Ancaman)</strong>
+              ${(dataSWOTLokal.st || "-").replace(/\n/g, '<br>')}
+            </div>
+            <div class="tows-box">
+              <strong>Strategi W-T (Kelemahan - Ancaman)</strong>
+              ${(dataSWOTLokal.wt || "-").replace(/\n/g, '<br>')}
+            </div>
+          </div>
+          ` : ''}
+
+          <h4>C. Pencapaian Key Performance Indicator (KPI)</h4>
           <table>
             <thead><tr>
               <th style="width:30px;">No</th>
@@ -743,7 +834,7 @@
           </table>
 
           <!-- KESIMPULAN DI CETAK PDF -->
-          <h4>C. Kesimpulan Capaian Kinerja</h4>
+          <h4>D. Kesimpulan Capaian Kinerja</h4>
           <div class="box-kesimpulan">
             ${teksKesimpulan.replace(/\n/g, '<br>')}
           </div>
