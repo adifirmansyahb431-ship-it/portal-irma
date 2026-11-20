@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beranda Publik - Portal IRMA MAN 3 Bogor</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    
+    * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
+
+    /* --- SIDEBAR --- */
+    .sidebar { width: 260px; background-color: #0a3622; color: white; display: flex; flex-direction: column; transition: 0.3s; z-index: 100; }
+    .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-header img { width: 60px; margin-bottom: 10px; }
+    .sidebar-header h2 { color: #d4af37; font-size: 18px; margin-bottom: 5px; }
+    .sidebar-header p { font-size: 11px; color: #ccc; }
+    
+    .sidebar-menu { flex: 1; overflow-y: auto; padding: 15px 0; }
+    .sidebar-menu a { display: flex; align-items: center; padding: 12px 20px; color: #e0e0e0; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; border-left: 4px solid transparent; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background-color: rgba(255,255,255,0.05); border-left-color: #d4af37; color: #d4af37; }
+    .sidebar-menu a span { margin-right: 15px; font-size: 16px; }
+
+    /* --- MAIN CONTENT --- */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
+    
+    /* Header Atas */
+    .top-header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
+    .top-header h1 { font-size: 20px; color: #0a3622; }
+    
+    /* Tombol Login */
+    .btn-login-top { background: #d4af37; color: #0a3622; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .btn-login-top:hover { background: #f1c40f; }
+    
+    /* Menu Toggle HP */
+    .menu-toggle { display: none; font-size: 24px; background: none; border: none; color: #0a3622; cursor: pointer; margin-right: 15px; }
+
+    /* Konten Body */
+    .content-body { padding: 30px; flex: 1; }
+    .welcome-box { background: linear-gradient(135deg, #0a3622, #1a5c3a); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+    .welcome-box h2 { color: #d4af37; margin-bottom: 10px; }
+    .welcome-box p { font-size: 14px; line-height: 1.6; opacity: 0.9; }
+
+    /* --- SECTION INFORMASI TERBARU --- */
+    .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
+    .section-title h3 { color: #0a3622; font-size: 18px; }
+
+    .info-list { display: grid; gap: 15px; }
+    .info-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #0a3622; }
+    .info-title { font-weight: 700; color: #0a3622; font-size: 15px; margin-bottom: 5px; }
+    .info-meta { font-size: 11px; color: #888; margin-bottom: 10px; }
+    .info-desc { font-size: 13px; color: #444; line-height: 1.5; white-space: pre-line; }
+
+    /* --- RESPONSIF HP --- */
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; left: -260px; height: 100vh; }
+      .sidebar.open { left: 0; }
+      .menu-toggle { display: block; }
+      .top-header { padding: 15px 20px; }
+      .top-header h1 { font-size: 16px; }
+      .content-body { padding: 20px; }
+      .welcome-box { padding: 20px; }
+    }
+  </style>
+
+  <!-- SCRIPT FIREBASE (Hanya untuk baca berita) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
+      authDomain: "portal-irma-man-3-bogor.firebaseapp.com",
+      projectId: "portal-irma-man-3-bogor",
+      storageBucket: "portal-irma-man-3-bogor.firebasestorage.app",
+      messagingSenderId: "582215464487",
+      appId: "1:582215464487:web:4d0583016ebec700dec002"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const container = document.getElementById("infoTerbaru");
+      try {
+        const q = query(collection(db, "informasi_irma"), orderBy("waktu", "desc"), limit(3));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          container.innerHTML = `<p style="color:#777; font-size:14px;">Belum ada informasi terbaru.</p>`;
+          return;
+        }
+
+        let html = "";
+        snap.forEach(doc => {
+          const item = doc.data();
+          html += `
+            <div class="info-card">
+              <div class="info-title">${item.judul}</div>
+              <div class="info-meta">📅 ${item.tanggal} | 👤 ${item.penulis}</div>
+              <div class="info-desc">${item.isi.length > 200 ? item.isi.substring(0, 200) + '...' : item.isi}</div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      } catch (err) {
+        container.innerHTML = `<p style="color:red; font-size:14px;">Gagal memuat informasi.</p>`;
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <!-- SIDEBAR (MENU UMUM / PUBLIK) -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="logo.png" alt="Logo IRMA">
+      <h2>PORTAL IRMA</h2>
+      <p>MAN 3 BOGOR</p>
+    </div>
+    <div class="sidebar-menu">
+      <a href="publik-beranda.html" class="active"><span>🏠</span> Home</a>
+      <a href="profil-irma.html"><span>📖</span> Profil IRMA</a>
+      <a href="publik-informasi.html"><span>📢</span> Informasi</a>
+      <a href="publik-kehadiran.html"><span>📋</span> Kehadiran</a>
+      <a href="data-anggota.html"><span>👥</span> Data Anggota</a>
+      <a href="program-kerja.html"><span>💼</span> Program Kerja</a>
+      <a href="daftar-anggota.html"><span>📋</span> Daftar Anggota IRMA</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    
+    <!-- HEADER -->
+    <div class="top-header">
+      <div style="display: flex; align-items: center;">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h1>Portal IRMA</h1>
+      </div>
+      <div>
+        <!-- TOMBOL LOGIN UNTUK UMUM -->
+        <a href="index.html" class="btn-login-top">🔐 Login Admin/Siswa</a>
+      </div>
+    </div>
+
+    <!-- KONTEN BERANDA PUBLIK -->
+    <div class="content-body">
+      
+      <!-- WELCOME BOX -->
+      <div class="welcome-box">
+        <h2>Selamat Datang di Portal IRMA!</h2>
+        <p>Sistem Informasi Organisasi Rohis MAN 3 Bogor. Silakan akses menu di sebelah kiri untuk melihat informasi seputar kegiatan dan profil organisasi kami.</p>
+      </div>
+
+      <!-- SECTION INFORMASI TERBARU -->
+      <div class="section-title">
+        <h3>📢 Informasi Terbaru</h3>
+      </div>
+      
+      <div id="infoTerbaru" class="info-list">
+        <p style="color:#777; font-size:14px;">Memuat informasi...</p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SCRIPT HANYA UNTUK TOGGLE MENU HP (TIDAK ADA PROTEKSI LOGIN) -->
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+    }
+  </script>
+</body>
+</html>
