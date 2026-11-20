@@ -49,7 +49,11 @@
     .btn-kelola:hover { background: #21867a; }
 
     .info-list { display: grid; gap: 15px; }
-    .info-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #0a3622; }
+    
+    /* PERUBAHAN: Menambahkan efek hover pada kartu berita */
+    .info-card { display: block; text-decoration: none; color: inherit; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #0a3622; transition: 0.2s; cursor: pointer; }
+    .info-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left-color: #d4af37; }
+    
     .info-title { font-weight: 700; color: #0a3622; font-size: 15px; margin-bottom: 5px; }
     .info-meta { font-size: 11px; color: #888; margin-bottom: 10px; }
     .info-desc { font-size: 13px; color: #444; line-height: 1.5; white-space: pre-line; }
@@ -96,12 +100,13 @@
         let html = "";
         snap.forEach(doc => {
           const item = doc.data();
+          // PERUBAHAN: Mengubah div menjadi tag <a> agar bisa diklik
           html += `
-            <div class="info-card">
+            <a href="publik-informasi.html" class="info-card">
               <div class="info-title">${item.judul}</div>
               <div class="info-meta">📅 ${item.tanggal} | 👤 ${item.penulis}</div>
               <div class="info-desc">${item.isi.length > 150 ? item.isi.substring(0, 150) + '...' : item.isi}</div>
-            </div>
+            </a>
           `;
         });
         container.innerHTML = html;
@@ -122,7 +127,7 @@
     </div>
     <div class="sidebar-menu">
       <a href="home.html" class="active"><span>🏠</span> Home</a>
-      <a href="publik-visi-misi.html"><span>🎯</span> Profil</a>
+      <a href="publik-visi-misi.html"><span>🎯</span> Visi Misi</a>
       <a href="publik-informasi.html"><span>📢</span> Informasi</a>
       <a href="publik-program-kerja.html"><span>💼</span> Program Kerja</a>
     </div>
