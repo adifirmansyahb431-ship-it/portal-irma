@@ -10,7 +10,7 @@
     body { background-color: #f4f6f9; margin: 0; display: flex; height: 100vh; overflow: hidden; }
     
     /* SIDEBAR */
-    .sidebar { width: 260px; background-color: #0b3c29; color: white; display: flex; flex-direction: column; padding: 20px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+    .sidebar { width: 260px; background-color: #0b3c29; color: white; display: flex; flex-direction: column; padding: 20px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); flex-shrink: 0; }
     .sidebar-logo { text-align: center; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .sidebar-logo img { width: 50px; height: 50px; object-fit: contain; }
     .sidebar-logo h3 { margin: 10px 0 2px; font-size: 16px; color: #ffb703; }
@@ -20,9 +20,9 @@
     .menu-item.active a, .menu-item a:hover { background-color: rgba(255,255,255,0.1); color: white; border-left: 4px solid #ffb703; }
 
     /* MAIN CONTENT */
-    .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .topbar-left { display: flex; align-items: center; gap: 20px; }
+    .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; width: 100%; }
+    .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); gap: 10px; flex-wrap: wrap; }
+    .topbar-left { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
     .topbar h2 { margin: 0; color: #0b3c29; font-size: 18px; }
     
     /* TOMBOL KEMBALI */
@@ -36,23 +36,28 @@
     .btn-tambah-berita:hover { background: #21867a; }
 
     /* MODAL */
-    .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; }
+    .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 15px; overflow-y: auto; }
+    .modal-content { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
     .modal-content h3 { color: #0b3c29; margin-top: 0; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #555; }
-    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; }
+    .form-group input[type="text"], .form-group input[type="file"], .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; }
+    .foto-preview-box { margin-top: 10px; display: none; }
+    .foto-preview-box img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
+    .btn-hapus-foto { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; margin-top: 6px; }
     .btn-submit { background: #0b3c29; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; width: 100%; cursor: pointer; }
+    .btn-submit:disabled { background: #7f8c8d; cursor: not-allowed; }
     .btn-batal { background: #7f8c8d; color: white; border: none; padding: 8px; border-radius: 8px; width: 100%; margin-top: 5px; cursor: pointer; font-weight: 600; }
 
     /* KARTU BERITA */
     .news-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
     .news-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid #0b3c29; }
-    .news-header { padding: 20px 20px 10px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .news-foto { width: 100%; max-height: 360px; object-fit: cover; display: block; background: #f0f0f0; }
+    .news-header { padding: 20px 20px 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
     .news-title { margin: 0; color: #0b3c29; font-size: 18px; font-weight: 700; }
-    .news-date { font-size: 11px; color: #777; background: #e9ecef; padding: 4px 8px; border-radius: 4px; }
-    .news-content { padding: 0 20px 20px; color: #444; font-size: 14px; line-height: 1.6; white-space: pre-line; }
-    .news-footer { padding: 10px 20px; background: #f8f9fa; border-top: 1px solid #eee; font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; }
+    .news-date { font-size: 11px; color: #777; background: #e9ecef; padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+    .news-content { padding: 0 20px 20px; color: #444; font-size: 14px; line-height: 1.6; white-space: pre-line; word-break: break-word; }
+    .news-footer { padding: 10px 20px; background: #f8f9fa; border-top: 1px solid #eee; font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
     
     /* GRUP TOMBOL AKSI */
     .action-buttons { display: flex; gap: 8px; }
@@ -60,11 +65,29 @@
     .btn-edit:hover { background: #d68910; }
     .btn-hapus { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
     .btn-hapus:hover { background: #c0392b; }
+
+    /* RESPONSIF HP */
+    @media (max-width: 768px) {
+      body { flex-direction: column; height: auto; overflow: auto; }
+      .sidebar { width: 100%; padding: 12px 15px; }
+      .sidebar-logo { display: flex; align-items: center; gap: 12px; text-align: left; padding: 0 0 10px; }
+      .sidebar-logo img { width: 38px; height: 38px; }
+      .sidebar-logo h3 { margin: 0; font-size: 14px; }
+      .menu-list { margin: 8px 0 0; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+      .menu-item a { padding: 8px 12px; border-radius: 6px; white-space: nowrap; border-left: none !important; background: rgba(255,255,255,0.08); }
+      .menu-item.active a { background: #ffb703; color: #0b3c29; }
+      .topbar { padding: 12px 16px; }
+      .topbar h2 { font-size: 15px; }
+      .content-body { padding: 16px; }
+      .news-header { flex-direction: column; align-items: flex-start; }
+      .news-title { font-size: 16px; }
+    }
   </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyBjA8-_2it1AXMrEH7AcnprCasmKj0Mzmc",
@@ -76,42 +99,113 @@
     };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let fotoLamaUrl = "";
+    let hapusFotoFlag = false;
 
     window.addEventListener("DOMContentLoaded", () => { muatBerita(); });
+
+    function tampilkanPreview(src) {
+      const box = document.getElementById("fotoPreviewBox");
+      const img = document.getElementById("fotoPreviewImg");
+      if (src) {
+        img.src = src;
+        box.style.display = "block";
+      } else {
+        img.src = "";
+        box.style.display = "none";
+      }
+    }
+
+    window.handleFileChange = function(event) {
+      const file = event.target.files[0];
+      if (!file) {
+        tampilkanPreview(hapusFotoFlag ? "" : fotoLamaUrl);
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        alert("⚠️ Harap pilih file gambar (JPG, PNG, WEBP).");
+        event.target.value = "";
+        return;
+      }
+
+      if (file.size > 3 * 1024 * 1024) {
+        alert("⚠️ Ukuran foto maksimal 3 MB.");
+        event.target.value = "";
+        return;
+      }
+
+      hapusFotoFlag = false;
+      const reader = new FileReader();
+      reader.onload = (e) => tampilkanPreview(e.target.result);
+      reader.readAsDataURL(file);
+    };
+
+    window.hapusFotoTerpilih = function() {
+      document.getElementById("inputFoto").value = "";
+      fotoLamaUrl = "";
+      hapusFotoFlag = true;
+      tampilkanPreview("");
+    };
 
     // ================= MODAL TAMBAH =================
     window.bukaModalBerita = () => { 
       document.getElementById("formBerita").reset();
       document.getElementById("modalTitle").innerText = "Tambah Berita Baru";
       document.getElementById("editDocId").value = "";
+      fotoLamaUrl = "";
+      hapusFotoFlag = false;
+      tampilkanPreview("");
       document.getElementById("modalBerita").style.display = "flex"; 
-    }
+    };
     
-    window.tutupModalBerita = () => { document.getElementById("modalBerita").style.display = "none"; }
+    window.tutupModalBerita = () => {
+      document.getElementById("modalBerita").style.display = "none";
+    };
+
+    async function uploadFotoKeStorage(file) {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filePath = `informasi_irma/${Date.now()}_${safeName}`;
+      const storageRef = ref(storage, filePath);
+      await uploadBytes(storageRef, file);
+      return await getDownloadURL(storageRef);
+    }
 
     // ================= SIMPAN (TAMBAH / EDIT) =================
     window.simpanBerita = async function(e) {
       e.preventDefault();
+      const btnSubmit = document.getElementById("btnSubmitBerita");
       const docId = document.getElementById("editDocId").value;
-      const judul = document.getElementById("inputJudul").value;
-      const isi = document.getElementById("inputIsi").value;
-      const penulis = document.getElementById("inputPenulis").value || "Pengurus / Pembina IRMA";
+      const judul = document.getElementById("inputJudul").value.trim();
+      const isi = document.getElementById("inputIsi").value.trim();
+      const penulis = document.getElementById("inputPenulis").value.trim() || "Pengurus / Pembina IRMA";
+      const fileFoto = document.getElementById("inputFoto").files[0];
+
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = fileFoto ? "⏳ Mengupload foto & menyimpan..." : "⏳ Menyimpan...";
 
       try {
+        let finalFotoUrl = hapusFotoFlag ? "" : fotoLamaUrl;
+        if (fileFoto) {
+          finalFotoUrl = await uploadFotoKeStorage(fileFoto);
+        }
+
         if (docId) {
-          // Mode EDIT
           await updateDoc(doc(db, "informasi_irma", docId), {
-            judul: judul,
-            isi: isi,
-            penulis: penulis
+            judul,
+            isi,
+            penulis,
+            fotoUrl: finalFotoUrl
           });
           alert("✅ Berita berhasil diperbarui!");
         } else {
-          // Mode TAMBAH BARU
           await addDoc(collection(db, "informasi_irma"), {
-            judul: judul,
-            isi: isi,
-            penulis: penulis,
+            judul,
+            isi,
+            penulis,
+            fotoUrl: finalFotoUrl,
             waktu: serverTimestamp(),
             tanggal: new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })
           });
@@ -119,8 +213,13 @@
         }
         tutupModalBerita();
         muatBerita();
-      } catch (err) { alert("❌ Gagal: " + err.message); }
-    }
+      } catch (err) {
+        alert("❌ Gagal: " + err.message);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "💾 Simpan";
+      }
+    };
 
     // ================= BUKA MODAL EDIT =================
     window.editBerita = async function(id) {
@@ -130,18 +229,25 @@
         
         if (docSnap.exists()) {
           const data = docSnap.data();
+          document.getElementById("formBerita").reset();
           document.getElementById("editDocId").value = id;
-          document.getElementById("inputJudul").value = data.judul;
-          document.getElementById("inputPenulis").value = data.penulis;
-          document.getElementById("inputIsi").value = data.isi;
+          document.getElementById("inputJudul").value = data.judul || "";
+          document.getElementById("inputPenulis").value = data.penulis || "Pembina / Pengurus IRMA";
+          document.getElementById("inputIsi").value = data.isi || "";
           
+          fotoLamaUrl = data.fotoUrl || "";
+          hapusFotoFlag = false;
+          tampilkanPreview(fotoLamaUrl);
+
           document.getElementById("modalTitle").innerText = "Edit Berita";
           document.getElementById("modalBerita").style.display = "flex";
         } else {
           alert("Data berita tidak ditemukan.");
         }
-      } catch (err) { alert("❌ Gagal mengambil data: " + err.message); }
-    }
+      } catch (err) {
+        alert("❌ Gagal mengambil data: " + err.message);
+      }
+    };
 
     // ================= MUAT DAFTAR BERITA =================
     async function muatBerita() {
@@ -150,12 +256,19 @@
       try {
         const q = query(collection(db, "informasi_irma"), orderBy("waktu", "desc"));
         const snap = await getDocs(q);
-        if (snap.empty) { container.innerHTML = `<div style="background:white; padding:30px; text-align:center; border-radius:12px;">Belum ada berita.</div>`; return; }
+        if (snap.empty) {
+          container.innerHTML = `<div style="background:white; padding:30px; text-align:center; border-radius:12px;">Belum ada berita.</div>`;
+          return;
+        }
         let html = "";
         snap.forEach((d) => {
           const item = d.data();
+          const fotoHtml = item.fotoUrl
+            ? `<img src="${item.fotoUrl}" alt="${item.judul}" class="news-foto" loading="lazy" />`
+            : "";
           html += `
             <div class="news-card">
+              ${fotoHtml}
               <div class="news-header">
                 <h3 class="news-title">${item.judul}</h3>
                 <span class="news-date">📅 ${item.tanggal}</span>
@@ -171,15 +284,21 @@
             </div>`;
         });
         container.innerHTML = html;
-      } catch (err) { container.innerHTML = `<p style="color:red;">Gagal memuat.</p>`; }
+      } catch (err) {
+        container.innerHTML = `<p style="color:red;">Gagal memuat.</p>`;
+      }
     }
 
     // ================= HAPUS BERITA =================
     window.hapusPosting = async function(id) {
       if (!confirm("⚠️ Yakin hapus berita ini?")) return;
-      try { await deleteDoc(doc(db, "informasi_irma", id)); muatBerita(); }
-      catch (err) { alert("❌ Gagal: " + err.message); }
-    }
+      try {
+        await deleteDoc(doc(db, "informasi_irma", id));
+        muatBerita();
+      } catch (err) {
+        alert("❌ Gagal: " + err.message);
+      }
+    };
   </script>
 </head>
 <body>
@@ -200,8 +319,7 @@
   <div class="main-content">
     <div class="topbar">
       <div class="topbar-left">
-        <!-- TOMBOL KEMBALI KE BERANDA DITAMBAHKAN DI SINI -->
-        <a href="beranda.html" class="btn-kembali">← Kembali ke Beranda</a>
+        <a href="home.html" class="btn-kembali">← Kembali ke Beranda</a>
         <h2>📢 Panel Kelola Informasi (Admin)</h2>
       </div>
       <button onclick="localStorage.clear(); window.location.href='index.html';" class="btn-keluar">Keluar</button>
@@ -218,7 +336,6 @@
     <div class="modal-content">
       <h3 id="modalTitle">Tambah Berita Baru</h3>
       <form id="formBerita" onsubmit="simpanBerita(event)">
-        <!-- Hidden ID untuk Edit -->
         <input type="hidden" id="editDocId" value="" />
         
         <div class="form-group">
@@ -230,10 +347,18 @@
           <input type="text" id="inputPenulis" value="Pembina / Pengurus IRMA" required />
         </div>
         <div class="form-group">
+          <label>Foto Pendukung (Opsional, maks. 3 MB)</label>
+          <input type="file" id="inputFoto" accept="image/*" onchange="handleFileChange(event)" />
+          <div id="fotoPreviewBox" class="foto-preview-box">
+            <img id="fotoPreviewImg" src="" alt="Preview Foto" />
+            <button type="button" class="btn-hapus-foto" onclick="hapusFotoTerpilih()">🗑️ Hapus Foto</button>
+          </div>
+        </div>
+        <div class="form-group">
           <label>Isi Berita</label>
           <textarea id="inputIsi" rows="6" required></textarea>
         </div>
-        <button type="submit" class="btn-submit">💾 Simpan</button>
+        <button type="submit" id="btnSubmitBerita" class="btn-submit">💾 Simpan</button>
         <button type="button" class="btn-batal" onclick="tutupModalBerita()">Batal</button>
       </form>
     </div>
