@@ -22,7 +22,13 @@
     /* MAIN CONTENT */
     .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
     .topbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .topbar-left { display: flex; align-items: center; gap: 20px; }
     .topbar h2 { margin: 0; color: #0b3c29; font-size: 18px; }
+    
+    /* TOMBOL KEMBALI */
+    .btn-kembali { background: #6c757d; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; border: none; cursor: pointer; }
+    .btn-kembali:hover { background: #5a6268; }
+    
     .btn-keluar { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
 
     .content-body { padding: 30px; max-width: 900px; width: 100%; margin: 0 auto; }
@@ -193,7 +199,11 @@
   <!-- KONTEN UTAMA -->
   <div class="main-content">
     <div class="topbar">
-      <h2>📢 Panel Kelola Informasi (Admin)</h2>
+      <div class="topbar-left">
+        <!-- TOMBOL KEMBALI KE BERANDA DITAMBAHKAN DI SINI -->
+        <a href="beranda.html" class="btn-kembali">← Kembali ke Beranda</a>
+        <h2>📢 Panel Kelola Informasi (Admin)</h2>
+      </div>
       <button onclick="localStorage.clear(); window.location.href='index.html';" class="btn-keluar">Keluar</button>
     </div>
 
